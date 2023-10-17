@@ -1,24 +1,14 @@
-from selenium import webdriver
 from selenium.webdriver.common.by import By
 import time
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import ElementClickInterceptedException
 from dotenv import load_dotenv
+from tools import cancel_popup,browser,wait,save_page,confirm_outcome,send_email
+import os
 load_dotenv()
 
 
-
-browser=webdriver.Chrome()
-browser.get("https://m.betking.com/")
-
-wait=WebDriverWait(driver=browser,timeout=15)
-def cancel_popup():
-    CANCEL_SIGNUP_BUTTON="/html/body/app-root/app-wrapper/div/app-registration/registration-split/div/app-breadcrumb/div/div/span"
-    body=wait.until(EC.element_to_be_clickable((By.XPATH,"/html/body")))
-    body.click()
-    cancel_body=wait.until(EC.element_to_be_clickable((By.XPATH,CANCEL_SIGNUP_BUTTON)))
-    cancel_body.click()
 
 
 class CheckPattern:
@@ -46,39 +36,31 @@ class CheckPattern:
         # check halftime fulltime result
         time.sleep(5)
         # 1 - 10 weeks matches
-        ht_score=browser.find_elements(By.CSS_SELECTOR,".score.ht")
-        ft_score=browser.find_elements(By.CSS_SELECTOR,".score.ft")
-        game_week=browser.find_elements(By.CSS_SELECTOR,".week-number")
-        # take a screeshoot of the games(1-10)
-        # one_to_ten_weeks=browser.save_screenshot("screenshoots/one_to_ten_weeks.png")
-        import codecs
-        with codecs.open('saved_pages/page.html', 'w', "utf−8") as file:
-            page_content=browser.page_source
-            file.write(page_content)
-        time.sleep(1800)
-        # 11-20 weeks matches
-        ht_score.extend(browser.find_elements(By.CSS_SELECTOR,".score.ht"))
-        ft_score.extend(browser.find_elements(By.CSS_SELECTOR,".score.ft"))
-        game_week.extend(browser.find_elements(By.CSS_SELECTOR,".week-number"))
-        # take a screeshoot of the games(1-10)
-        one_to_ten_weeks=browser.save_screenshot("screenshoots/eleven_to_twenty_weeks.png")
+        ht_scores=browser.find_elements(By.CSS_SELECTOR,".score.ht")
+        ft_scores=browser.find_elements(By.CSS_SELECTOR,".score.ft")
+        game_weeks=browser.find_elements(By.CSS_SELECTOR,".week-number")
+        # save the games(1-10) page
+        save_page(page_name="saved_pages/one_to_ten_page.html")
 
-        
-        count=0
-        for n in range(len(ht_score)):
-            ht_home_score=int(ht_score[n].text[0])
-            ht_away_score=int(ht_score[n].text[4])
+        # time.sleep(1800)
 
-            ft_home_score=int(ft_score[n].text[0])
-            ft_away_score=int(ft_score[n].text[4])
-            current_week=n//9
-            week_number=game_week[current_week].text
+        # # 11-20 weeks matches
+        # ht_scores.extend(browser.find_elements(By.CSS_SELECTOR,".score.ht"))
+        # ft_scores.extend(browser.find_elements(By.CSS_SELECTOR,".score.ft"))
+        # game_weeks.extend(browser.find_elements(By.CSS_SELECTOR,".week-number"))
+        # # save the games(11-20) page
+        # save_page(page_name="saved_pages/eleven_to_twenty_page.html")
 
-            if ht_home_score>ht_away_score and ft_home_score<ft_away_score or ht_home_score<ht_away_score and ft_home_score>ft_away_score:
-                count+=1
-                print(f"winner!!! @week number: {week_number}")
-                print(count)
             
+        result=confirm_outcome(ht_scores=ht_scores,ft_scores=ft_scores,game_weeks=game_weeks)
+        if result["outcome"]!=True:
+            send_email(Email=os.environ.get("EMAIL_USERNAME"),
+                       Password=os.environ.get("EMAIL_PASSWORD"),
+                       Subject="No halftime/fulltime yet",
+                       Message=result["message"],
+                       File_path=["saved_pages/one_to_ten_page.html","saved_pages/eleven_to_twenty_page.html"]
+                       )
+    
             
             
 
