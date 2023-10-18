@@ -39,6 +39,7 @@ def confirm_outcome(ht_scores,ft_scores,game_weeks):
             count+=1
             outcome=True
             message+=f"{week_number}, "
+    message+=f"ht/ft appeeared {count}, "
     return {"outcome":outcome,"count":count,"message":message}
             
 
