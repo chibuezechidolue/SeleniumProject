@@ -11,18 +11,36 @@ load_dotenv()
 
 
 
+class PlayGame:
+    def __init__(self,market) -> None:
+        self.market=market.lower()
+
+    def choose_market(self):
+        more_markets_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,".area-dropdown")))
+        more_markets_button.click()
+
+        if self.market=="ht/ft":
+            market_selector="[data-testid='ht/ft-area']"
+        elif self.market=="3-3":
+            market_selector=""
+        print(market_selector)
+        market_to_select=browser.find_element(By.CSS_SELECTOR, market_selector )
+        market_to_select.click()
+        
+
+
+
 class CheckPattern:
     def __init__(self,market) -> None:
         self.market=market
-        self._VIRTUAL_BUTTON_PATH="/html/body/app-root/app-wrapper/div/app-landing/landing-header/div/app-header/div/header/header-bk-product-switcher/div/div[2]/header-bk-product-switcher-item/button/a"
-
+        self._VIRTUAL_BUTTON_LINK_TEXT="VIRTUAL"
     def checkout_virtual(self):       
         try:
-            virtual_button=wait.until(EC.element_to_be_clickable((By.XPATH,self._VIRTUAL_BUTTON_PATH)))
+            virtual_button=wait.until(EC.element_to_be_clickable((By.LINK_TEXT,self._VIRTUAL_BUTTON_LINK_TEXT)))
             virtual_button.click()
         except ElementClickInterceptedException:
             cancel_popup()
-            virtual_button=wait.until(EC.element_to_be_clickable((By.XPATH,self._VIRTUAL_BUTTON_PATH)))
+            virtual_button=wait.until(EC.element_to_be_clickable((By.LINK_TEXT,self._VIRTUAL_BUTTON_LINK_TEXT)))
             virtual_button.click()
 
         virtual_bundesliga_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,".game-kings-bundliga.type-scheduled-league")))
@@ -32,6 +50,7 @@ class CheckPattern:
         standings_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,"span.view-switch-icon")))
         standings_button.click()
         result_button=wait.until(EC.element_to_be_clickable((By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals-league-wrapper/mobile-virtuals-soccer/mvs-virtual-league-page/div[2]/mvs-results-page/div[2]/div[2]")))
+        # [data-testid="results-page-tab-standings"]
         result_button.click()
         # check halftime fulltime result
         time.sleep(5)
@@ -60,7 +79,11 @@ class CheckPattern:
                        Message=result["message"],
                        File_path=["saved_pages/one_to_ten_page.html","saved_pages/eleven_to_twenty_page.html"]
                        )
-    
+
+        
+        cancel_result_page_button=browser.find_element(By.CSS_SELECTOR,"svg path")
+        cancel_result_page_button.click()
+        
             
             
 
@@ -69,14 +92,6 @@ class LoginUser:
     def __init__(self,username,password) -> None:
         self.username=username
         self.password=password
-    ###### LoginUser Variables##########################
-        self._USERNAME_PATH="/html/body/app-root/app-wrapper/app-login-dialog/div/div/div[2]/div/div[1]/input"
-        self._PASSWORD_PATH="/html/body/app-root/app-wrapper/app-login-dialog/div/div/div[2]/div/div[2]/input"
-        self._LOGIN_LINK_SELECTOR="div.header-bk-guest.div.button"
-        # self._LOGIN_LINK_PATH='/html/body/app-root/app-wrapper/div/app-landing/landing-header/div/app-header/div/header/div/div/header-bk-guest/div/button'
-        self._LOGIN_BUTTON_PATH="/html/body/app-root/app-wrapper/app-login-dialog/div/div/div[2]/div/div[3]/app-button[2]/button"
-        self._CANCEL_SIGNUP_BUTTON="/html/body/app-root/app-wrapper/div/app-registration/registration-split/div/app-breadcrumb/div/div/span"
-
         
     def login(self):
         login=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,"button.text")))
@@ -87,8 +102,8 @@ class LoginUser:
             login=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,"button.text")))
             login.click()
 
-        username=browser.find_element(By.XPATH,self._USERNAME_PATH)
-        password=browser.find_element(By.XPATH,self._PASSWORD_PATH)
+        username=browser.find_element(By.CSS_SELECTOR,'[placeholder="Username or Verified Mobile"]')
+        password=browser.find_element(By.CSS_SELECTOR,'[placeholder="Password"]')
         for char in self.username:
             time.sleep(0.5)
             username.send_keys(char)
@@ -96,7 +111,7 @@ class LoginUser:
             time.sleep(0.5)
             password.send_keys(char)
         time.sleep(1)
-        login_button=browser.find_element(By.XPATH,self._LOGIN_BUTTON_PATH)
+        login_button=browser.find_element(By.CSS_SELECTOR,'[type="button"]')
         login_button.click()
         time.sleep(100)
 

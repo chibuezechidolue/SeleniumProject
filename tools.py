@@ -10,10 +10,9 @@ browser.get("https://m.betking.com/")
 
 wait=WebDriverWait(driver=browser,timeout=15)
 def cancel_popup():
-    CANCEL_SIGNUP_BUTTON="/html/body/app-root/app-wrapper/div/app-registration/registration-split/div/app-breadcrumb/div/div/span"
     body=wait.until(EC.element_to_be_clickable((By.XPATH,"/html/body")))
     body.click()
-    cancel_body=wait.until(EC.element_to_be_clickable((By.XPATH,CANCEL_SIGNUP_BUTTON)))
+    cancel_body=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'[title="Close"]')))
     cancel_body.click()
 
 
