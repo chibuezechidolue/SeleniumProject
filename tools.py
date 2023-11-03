@@ -6,30 +6,29 @@ import codecs
 import time
 from selenium.common.exceptions import StaleElementReferenceException,NoSuchElementException,TimeoutException
 
-browser=webdriver.Chrome()
-
-wait=WebDriverWait(driver=browser,timeout=10)
 
 
-def it_is():
-     return True
 
-def check_if_last_result_equal_input(game_weeks:list,week_to_check:str,time_delay:float)->list:   #updated game weeks
+
+def check_if_last_result_equal_input(browser:object,game_weeks:list,week_to_check:str,time_delay:float)->list:   #updated game weeks
     """ To check if the current last result is the same with the week_to_check 
     input variable, then return an updated game_weeks """
+   
     last_result_week=game_weeks[0]
     while last_result_week!=week_to_check:
         print(last_result_week,week_to_check)
         time.sleep(time_delay)
-        reload_result_page()
+        reload_result_page(browser)
         time.sleep(2)
         game_weeks=[week.text for week in browser.find_elements(By.CSS_SELECTOR,".week-number")]
         last_result_week=game_weeks[0]
     return game_weeks
 
 
-def reload_result_page():
+def reload_result_page(browser):
     """ To cancel and reload result page inorder to reflect new changes to the result"""
+    wait=WebDriverWait(driver=browser,timeout=10)
+
     cancel_result_page_button=browser.find_element(By.CSS_SELECTOR,"svg path")
     cancel_result_page_button.click()
     time.sleep(2)
@@ -41,15 +40,16 @@ def reload_result_page():
     time.sleep(3)
 
 
-def cancel_popup():
+def cancel_popup(browser):
     """To cancel popup at the landing page"""
+    wait=WebDriverWait(driver=browser,timeout=10)
     body=wait.until(EC.element_to_be_clickable((By.XPATH,"/html/body")))
     body.click()
     cancel_body=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'[title="Close"]')))
     cancel_body.click()
 
 
-def save_page(page_name:str):
+def save_page(browser,page_name:str):
     """To save the content of a page by writing the content of the page to a given file path"""
     with codecs.open(page_name, 'w', "utf−8") as file:
             file.truncate(0)                        # clear the existing content of the file
@@ -127,7 +127,7 @@ def reduce_week_selected(week_selected:str,by:int,league:str)->str:
         output=var_list[0]+" "+num
     return output
 
-def check_if_current_week_islive()->bool:
+def check_if_current_week_islive(browser)->bool:
     """ To check if next week to play has started play"""
     try:
         live_match=browser.find_element(By.CSS_SELECTOR,'[data-testid="in-play-match-index"]')
@@ -138,7 +138,7 @@ def check_if_current_week_islive()->bool:
     return live_match
     
 
-def check_if_current_week_has_played(previous_week_selected:str)->bool:
+def check_if_current_week_has_played(browser,previous_week_selected:str)->bool:
     """ To check if next week to play has started play """
     var_list=previous_week_selected.split(" ")
     output=f"{var_list[0].lower()}-{var_list[1]}"
@@ -151,17 +151,21 @@ def check_if_current_week_has_played(previous_week_selected:str)->bool:
     return played
 
 
-def clear_bet_slip():
+def clear_bet_slip(browser):
+    wait=WebDriverWait(driver=browser,timeout=10)
+    try:
+       clear_all_button= browser.find_element(By.CSS_SELECTOR,'.clear-all')
+    except (TimeoutException,NoSuchElementException):
         betslip_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')))
         betslip_button.click()
         time.sleep(1)
-        try:
-                # clear_all_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'.clear-all')))
-                clear_all_button=browser.find_element(By.CSS_SELECTOR,'.clear-all')
-                clear_all_button.click()
-        except (TimeoutException,NoSuchElementException):
-                pass
-        time.sleep(1)
-        close_betslip_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'[data-testid="coupon-close-icon"]')))
-        close_betslip_button.click()
-        time.sleep(2)
+    try:
+        clear_all_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'.clear-all')))
+        # clear_all_button=browser.find_element(By.CSS_SELECTOR,'.clear-all')
+        clear_all_button.click()
+    except (TimeoutException,NoSuchElementException):
+        pass
+    time.sleep(1)
+    close_betslip_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'[data-testid="coupon-close-icon"]')))
+    close_betslip_button.click()
+    time.sleep(2)
