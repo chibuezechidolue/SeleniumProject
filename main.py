@@ -24,7 +24,7 @@ while True:
     GAME_LEVEL=1
     SELECTED_MARKET="ht/ft"
     AMOUNT_LIST=(10,10,10,20,30,40,55,80,110,160,230,330,470,675,970,
-                 1390,1980,2840.4050,5800,8300,11850,16950,24250)
+                 1390,1980,2840,4050,5800,8300,11850,16950,24250)
     print(len(AMOUNT_LIST))
     bundesliga={"name":"bundliga","num_of_weeks":34}
     
