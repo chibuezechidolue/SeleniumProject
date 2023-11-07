@@ -1,20 +1,23 @@
+import sys
+sys.path.append('c:\\Users\\Stanley Chidolue\\PersonalProject\\SeleniumProject')
 import unittest
-from selenium import webdriver
-
-
-from brain import (PlayGame,CheckPattern,LoginUser)
-from tools import reduce_week_selected
-
 import time
 import os
+from selenium import webdriver
+from brain import (PlayGame,CheckPattern,LoginUser)
+from tools import reduce_week_selected,clear_bet_slip
 from dotenv import load_dotenv
 
-from tools import clear_bet_slip
 load_dotenv()
 
 
 class BrainTest(unittest.TestCase):
     def setUp(self):
+        # chrome_options = webdriver.ChromeOptions()
+        # chrome_options.add_argument("--no-sandbox")
+        # chrome_options.add_argument("--headless")
+        # chrome_options.add_argument("--disable-gpu")
+        # self.browser=webdriver.Chrome(options=chrome_options)
         self.browser=webdriver.Chrome()
         self.pattern=CheckPattern(self.browser,market="ht/ft")
         self.game_play=PlayGame(self.browser,market="ht/ft")
@@ -69,22 +72,7 @@ class BrainTest(unittest.TestCase):
         self.browser=self.pattern.check_result(length="all result", latest_week="all")['driver']
 
         # self.pattern=CheckPattern(self.browser,market="ht/ft")
-        # print(self.pattern.check_result(length="last result",latest_week="Week 21")['outcome']) #
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
+        # print(self.pattern.check_result(length="last result",latest_week="Week 21")['outcome']) 
 
 
 

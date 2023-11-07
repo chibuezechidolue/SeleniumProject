@@ -1,6 +1,6 @@
 import time
-from brain import LoginUser,CheckPattern,PlayGame
 import os
+from brain import LoginUser,CheckPattern,PlayGame
 from dotenv import load_dotenv
 from tools import reduce_week_selected
 from selenium import webdriver
@@ -20,22 +20,28 @@ load_dotenv()
 
 while True:
     # Bundesliga game variables
+    # chrome_options = webdriver.ChromeOptions()
+    # chrome_options.add_argument("--no-sandbox")
+    # chrome_options.add_argument("--headless")
+    # chrome_options.add_argument("--disable-gpu")
+    # browser=webdriver.Chrome(options=chrome_options)
     browser=webdriver.Chrome()
     GAME_LEVEL=1
     SELECTED_MARKET="ht/ft"
     AMOUNT_LIST=(10,10,10,20,30,40,55,80,110,160,230,330,470,675,970,
                  1390,1980,2840,4050,5800,8300,11850,16950,24250)
-    print(len(AMOUNT_LIST))
     bundesliga={"name":"bundliga","num_of_weeks":34}
     
     
     browser.get("https://m.betking.com/")
+    print("i have lunched")
     pattern=CheckPattern(browser,market=SELECTED_MARKET)
     try:
         pattern.checkout_virtual(league=bundesliga["name"])
     except:
         browser.get("https://m.betking.com/virtual/league/kings-bundliga")  
     
+    print("i am about to check result")
     check_result=pattern.check_result(length="all result", latest_week="all")
     browser=check_result['driver']
     if not check_result['outcome']:

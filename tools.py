@@ -1,9 +1,8 @@
+import codecs
+import time
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from selenium import webdriver
-import codecs
-import time
 from selenium.common.exceptions import StaleElementReferenceException,NoSuchElementException,TimeoutException
 
 
@@ -105,13 +104,15 @@ def send_email(Email:str,Password:str,Message:str,Subject:str,File_path:str):
             encoders.encode_base64(p) 
             p.add_header('Content-Disposition', f"attachment; filename= {File_path[n].split('/')[-1]}")
             msg.attach(p)
-
-    with smtplib.SMTP_SSL('smtp.gmail.com') as connection:
-        connection.login(user=Email, password=Password)
-        connection.sendmail(from_addr=Email,
-                            to_addrs = Email,
-                            msg = msg.as_string()
-                            )
+    try:
+        with smtplib.SMTP_SSL('smtp.gmail.com') as connection:
+            connection.login(user=Email, password=Password)
+            connection.sendmail(from_addr=Email,
+                                to_addrs = Email,
+                                msg = msg.as_string()
+                                )
+    except:
+        pass
 
 def reduce_week_selected(week_selected:str,by:int,league:str)->str:
     """To reduce the week which the staking options has been selected while waiting for last staked result"""
