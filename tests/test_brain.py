@@ -20,7 +20,7 @@ class BrainTest(unittest.TestCase):
         # self.browser=webdriver.Chrome(options=chrome_options)
         self.browser=webdriver.Chrome()
         self.pattern=CheckPattern(self.browser,market="ht/ft")
-        self.game_play=PlayGame(self.browser,market="ht/ft")
+        self.game_play=PlayGame(self.browser,market="3-3")
         self.log=LoginUser(self.browser,username=os.environ.get("BETKING_USERNAME"),password=os.environ.get("BETKING_PASSWORD"))
         self.browser.get("https://m.betking.com/virtual/league/kings-bundliga")
 
@@ -36,7 +36,7 @@ class BrainTest(unittest.TestCase):
         AMOUNT_LIST=(10,10,10,20,30,40,55,80,110,160,230,330,470,675,970)
         self.game_play.choose_market()
         week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000")
-        for n in range(5):
+        for n in range(1):
             # clear_bet_slip(self.browser)
             self.game_play.place_the_bet(amount=AMOUNT_LIST[n],test=True)
             week_selected=self.game_play.select_stake_options(week="after_current_week",previous_week_selected=week_selected)

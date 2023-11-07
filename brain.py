@@ -120,6 +120,7 @@ class PlayGame:
                     if week == "after_current_week":
                         n -= 9
                         const = 9
+                        
                 available_games = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-content"]')
                 available_games_1 = self.wait.until(EC.element_to_be_clickable(available_games[:end][n]))
                 available_games_1.click()
@@ -136,9 +137,14 @@ class PlayGame:
                         n -= 1
                         const = 9
                         # stake_options=self.browser.find_elements(By.CSS_SELECTOR,'[data-testid="match-odd-value"]')[n*9:end*9]
-                stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]  # Temp
-                one_slash_two_option = self.wait.until(EC.element_to_be_clickable(stake_options[2]))
-                one_slash_two_option.click()
+                if self.market=="ht/ft":
+                    stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]  # Temp
+                    one_slash_two_option = self.wait.until(EC.element_to_be_clickable(stake_options[2]))
+                    one_slash_two_option.click()
+                elif self.market=="3-3":
+                    stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 28:end * 28]  # Temp
+                    three_three_option = self.wait.until(EC.element_to_be_clickable(stake_options[15]))
+                    three_three_option.click()
                 time.sleep(0.5)
 
             except (ElementClickInterceptedException, StaleElementReferenceException, TimeoutException):
@@ -154,9 +160,14 @@ class PlayGame:
                     if week == "after_current_week" and const != 9:
                         n -= 1
                         const = 9
-                stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]
-                one_slash_two_option = self.wait.until(EC.element_to_be_clickable(stake_options[2]))
-                one_slash_two_option.click()
+                if self.market=="ht/ft":
+                    stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]  # Temp
+                    one_slash_two_option = self.wait.until(EC.element_to_be_clickable(stake_options[2]))
+                    one_slash_two_option.click()
+                elif self.market=="3-3":
+                    stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 28:end * 28]  # Temp
+                    three_three_option = self.wait.until(EC.element_to_be_clickable(stake_options[15]))
+                    three_three_option.click()
                 time.sleep(0.5)
 
             try:
@@ -166,13 +177,15 @@ class PlayGame:
                     if week == "after_current_week" and const != 9:
                         n -= 1
                         const = 9
-                stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]
-                two_slash_one_option = self.wait.until(EC.element_to_be_clickable(stake_options[6]))
-                two_slash_one_option.click()
+                if self.market=="ht/ft":
+                    stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]
+                    two_slash_one_option = self.wait.until(EC.element_to_be_clickable(stake_options[6]))
+                    two_slash_one_option.click()
+                elif self.market=="3-3":
+                    pass
                 time.sleep(0.5)
             except (ElementClickInterceptedException, StaleElementReferenceException, TimeoutException):
                 print("exception was thrown at stake_option_2")
-
                 self.browser.execute_script(
                     f"window.scrollTo(0, {window_height * attempt1});")  # To Scroll to where the element can be clicked()
 
@@ -183,9 +196,12 @@ class PlayGame:
                     if week == "after_current_week" and const != 9:
                         n -= 1
                         const = 9
-                stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]
-                two_slash_one_option = self.wait.until(EC.element_to_be_clickable(stake_options[6]))
-                two_slash_one_option.click()
+                if self.market=="ht/ft":
+                    stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]
+                    two_slash_one_option = self.wait.until(EC.element_to_be_clickable(stake_options[6]))
+                    two_slash_one_option.click()
+                elif self.market=="3-3":
+                    pass
                 time.sleep(0.5)
 
         return week_to_select_text
@@ -327,8 +343,6 @@ class CheckPattern:
 
         elif length.lower() == "last result":
             game_weeks = [week.text for week in self.browser.find_elements(By.CSS_SELECTOR, ".week-number")]
-            print(game_weeks)
-
             # checking if the last week played is latest_week before going ahead to save the page
             game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks,
                                                           week_to_check=latest_week,time_delay=30)
@@ -340,12 +354,12 @@ class CheckPattern:
             ht_scores = ht_scores[:9]
             ft_scores = ft_scores[:9]
 
-        result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks)
+        result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=self.market)
 
         if result["outcome"] != True and length.lower() == "all result":
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
                        Password=os.environ.get("EMAIL_PASSWORD"),
-                       Subject="No halftime/fulltime yet",
+                       Subject=f"No {self.market} yet",
                        Message=result["message"],
                        File_path=[page_path1, page_path2]
                        )
@@ -362,7 +376,7 @@ class CheckPattern:
                 save_page(self.browser, page_name=page_path)  # save the games(1-10) page
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
                        Password=os.environ.get("EMAIL_PASSWORD"),
-                       Subject="halftime/fulltime",
+                       Subject=f"{self.market} came in the last result" ,
                        Message=result["message"],
                        File_path=[page_path]
                        )

@@ -15,24 +15,27 @@ load_dotenv()
 # TODO: test for time complexity
 # TODO: Reformat all modules and code 
 
+GAME_LEVEL=1
+SELECTED_MARKET="3-3"
 
-
+if SELECTED_MARKET=="ht/ft":
+    AMOUNT_LIST=(10,10,10,20,30,40,55,80,110,160,230,330,470,675,970,
+                1390,1980,2840,4050,5800,8300,11850,16950,24250)
+elif SELECTED_MARKET=="3-3":
+    AMOUNT_LIST=(10,10,10,10,10,10,20,20,30,30,40,40,55,55,80,80,110,
+                 110,160,160,230,230,330,330,470,470,675,675,970,970,
+                 1390,1390,1980,1980)
+print(len(AMOUNT_LIST))
+bundesliga={"name":"bundliga","num_of_weeks":34}
+    
 
 while True:
-    # Bundesliga game variables
     # chrome_options = webdriver.ChromeOptions()
     # chrome_options.add_argument("--no-sandbox")
     # chrome_options.add_argument("--headless")
     # chrome_options.add_argument("--disable-gpu")
     # browser=webdriver.Chrome(options=chrome_options)
     browser=webdriver.Chrome()
-    GAME_LEVEL=1
-    SELECTED_MARKET="ht/ft"
-    AMOUNT_LIST=(10,10,10,20,30,40,55,80,110,160,230,330,470,675,970,
-                 1390,1980,2840,4050,5800,8300,11850,16950,24250)
-    bundesliga={"name":"bundliga","num_of_weeks":34}
-    
-    
     browser.get("https://m.betking.com/")
     print("i have lunched")
     pattern=CheckPattern(browser,market=SELECTED_MARKET)
