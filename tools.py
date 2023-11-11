@@ -107,7 +107,7 @@ from email.mime.text import MIMEText                         # Necessary imports
 from email.mime.base import MIMEBase                         #
 from email import encoders                                   #
 
-def send_email(Email:str,Password:str,Message:str,Subject:str,File_path:str):
+def send_email(Email:str,Password:str,Message:str,Subject:str,File_path:list=[]):
     """To send an email attached with the screenshoot(s) of a page(specifically the result page)"""
     msg=MIMEMultipart()
     msg['From'] = Email
