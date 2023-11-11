@@ -4,10 +4,20 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import StaleElementReferenceException,NoSuchElementException,TimeoutException
+from selenium import webdriver
 
 
 
 
+
+def set_up_driver_instance():
+    """ To create and return a webdriver object with disabled gpu and headless"""
+    chrome_options = webdriver.ChromeOptions()
+    ## chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument('--window-size=1920,1080')
+    chrome_options.add_argument("--disable-gpu")
+    return webdriver.Chrome(options=chrome_options)
 
 def check_if_last_result_equal_input(browser:object,game_weeks:list,week_to_check:str,time_delay:float)->list:   #updated game weeks
     """ To check if the current last result is the same with the week_to_check 
@@ -70,6 +80,7 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str)->l
         current_week=n//9                                                      # the number of the game by 9(total games/week), i.e 54//9 will be week 6
         week_number=game_weeks[current_week]
 
+        # use a try and except block to check the passed in bal and the current on screen bal
         if market=="ht/ft":
             if (ht_home_score>ht_away_score and ft_home_score<ft_away_score or     # 2/1
                 ht_home_score<ht_away_score and ft_home_score>ft_away_score):     # 1/2

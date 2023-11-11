@@ -10,7 +10,7 @@ from selenium.common.exceptions import (ElementClickInterceptedException,
 from dotenv import load_dotenv
 from tools import (cancel_popup, check_if_current_week_has_played,
                    check_if_current_week_islive, check_if_last_result_equal_input,
-                   clear_bet_slip, save_page, confirm_outcome, send_email)
+                   clear_bet_slip, save_page, confirm_outcome, send_email, set_up_driver_instance)
 
 load_dotenv()
 
@@ -51,8 +51,6 @@ class PlayGame:
             market_to_select = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, market_selector)))
             market_to_select.click()
         except (StaleElementReferenceException, ElementClickInterceptedException, TimeoutException):
-            # more_markets_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'[data-testid="market-dropdown-more-markets"]')))
-            # more_markets_button.click()
             if check_if_current_week_islive(self.browser):
                 time.sleep(40)
             market_to_select = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, market_selector)))
@@ -206,7 +204,7 @@ class PlayGame:
 
         return week_to_select_text
 
-    def place_the_bet(self, amount: int, test: bool):
+    def place_the_bet(self, amount: int, test: bool)->str:
         """ To bet the selected stake options each with the inputed amount"""
         # identify and click the betslip botton
         time.sleep(1)
@@ -243,6 +241,11 @@ class PlayGame:
                 close_betslip_button = self.wait.until(
                     EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="coupon-close-icon"]')))
                 close_betslip_button.click()
+        try:
+            acc_balance=self.browser.find_element(By.CSS_SELECTOR, '.user-balance-container .amount').text
+            return acc_balance
+        except NoSuchElementException:
+            pass
 
 
 class CheckPattern:
@@ -269,7 +272,7 @@ class CheckPattern:
         virtual_choice_button = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, css_selector)))
         virtual_choice_button.click()
 
-    def check_result(self, length: str, latest_week: str) -> bool:
+    def check_result(self, length: str, latest_week: str,acc_balance=None) -> dict:
         """ To check the result outcomes of an inputed length or number of weeks"""
         standings_button = self.wait.until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="results-and-standings-button"]')))
@@ -285,76 +288,99 @@ class CheckPattern:
         # check halftime fulltime result
         # 1 - 10 weeks matches
         if length.lower() == "all result":
-            game_weeks = [week.text for week in self.browser.find_elements(By.CSS_SELECTOR, ".week-number")]
-            current_game_week=int(game_weeks[0].split(" ")[-1])  # To get the integer num of weeks
-            # To check if last result is 9th - 10th week or sleep till it is
-            if current_game_week<9:
-                time_to_sleep=(9-current_game_week)*3
-                self.browser.quit()
-                time.sleep(time_to_sleep*60)
-                self.browser = webdriver.Chrome()
-                self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
-                time.sleep(2)
-            elif current_game_week>10:
-                time_to_sleep=(34-current_game_week)*3
-                self.browser.quit()
-                time.sleep((27+time_to_sleep)*60)
-                self.browser = webdriver.Chrome()
-                self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
-                time.sleep(2)
-
-            # checking if the last week played is Week 10 before going ahead to save the page
-            game_weeks = [week.text for week in self.browser.find_elements(By.CSS_SELECTOR, ".week-number")]
-            game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks, week_to_check="Week 10",
-                                                          time_delay=30)
-
-            print("Woow its Week 10, lets wait for Week 20")
-            ht_scores = [ht_score.text for ht_score in self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")]
-            ft_scores = [ft_score.text for ft_score in self.browser.find_elements(By.CSS_SELECTOR, ".score.ft")]
             try:
-                page_path1 = "saved_pages/one_to_ten_page.html"
-                save_page(self.browser, page_name=page_path1)  # save the games(1-10) page
-            except FileNotFoundError:
-                page_path1 = "SeleniumProject/saved_pages/one_to_ten_page.html"
-                save_page(self.browser, page_name=page_path1)
+                game_weeks = [week.text for week in self.browser.find_elements(By.CSS_SELECTOR, ".week-number")]
+                current_game_week=int(game_weeks[0].split(" ")[-1])  # To get the integer num of weeks
+                # To check if last result is 9th - 10th week or sleep till it is
+                if current_game_week<9:
+                    time_to_sleep=(9-current_game_week)*3
+                    self.browser.quit()
+                    time.sleep(time_to_sleep*60)
+                    # self.browser=webdriver.Chrome()        # driver instance with User Interface (not headless)
+                    self.browser = set_up_driver_instance()  # driver instance without User Interface (--headless)
+                    time.sleep(1)
+                    self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
+                    time.sleep(2)
+                elif current_game_week>10:
+                    time_to_sleep=(34-current_game_week)*3
+                    self.browser.quit()
+                    time.sleep((27+time_to_sleep)*60)
+                    # self.browser=webdriver.Chrome()         # driver instance with User Interface (not headless)
+                    self.browser = set_up_driver_instance()   # driver instance without User Interface (--headless)
+                    time.sleep(1)
+                    self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
+                    time.sleep(2)
 
-            self.browser.quit()
-            time.sleep(1620)  # To wait untill Week 19
-            # time.sleep(270)
-            self.browser = webdriver.Chrome()
-            self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
+                # checking if the last week played is Week 10 before going ahead to save the page
+                game_weeks = [week.text for week in self.browser.find_elements(By.CSS_SELECTOR, ".week-number")]
+                game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks, week_to_check="Week 10",
+                                                            time_delay=30)
 
-            second_game_weeks = [week.text for week in self.browser.find_elements(By.CSS_SELECTOR, ".week-number")]
-            # checking if the last week played is Week 20 before going ahead to save the page
-            second_game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=second_game_weeks,
-                                                                 week_to_check="Week 20", time_delay=30)
+                print("Woow its Week 10, lets wait for Week 20")
+                ht_scores = [ht_score.text for ht_score in self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")]
+                ft_scores = [ft_score.text for ft_score in self.browser.find_elements(By.CSS_SELECTOR, ".score.ft")]
+                try:
+                    page_path1 = "saved_pages/one_to_ten_page.html"
+                    save_page(self.browser, page_name=page_path1)  # save the games(1-10) page
+                except FileNotFoundError:
+                    page_path1 = "SeleniumProject/saved_pages/one_to_ten_page.html"
+                    save_page(self.browser, page_name=page_path1)
 
-            # Add the 11-20 weeks matches to the 1-10 weeks matches
-            ht_scores.extend([ht_score.text for ht_score in self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")])
-            ft_scores.extend([ft_score.text for ft_score in self.browser.find_elements(By.CSS_SELECTOR, ".score.ft")])
-            game_weeks.extend(second_game_weeks)
+                self.browser.quit()
+                time.sleep(1620)  # To wait untill Week 19
+                # time.sleep(270)
+                # self.browser=webdriver.Chrome()          # driver instance with User Interface (not headless)
+                self.browser = set_up_driver_instance()    # driver instance without User Interface (--headless)
+                self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
 
-            try:
-                page_path2 = "saved_pages/eleven_to_twenty_page.html"
-                save_page(self.browser, page_name=page_path2)  # save the games(11-20) page
-            except FileNotFoundError:
-                page_path2 = "SeleniumProject/saved_pages/eleven_to_twenty_page.html"
-                save_page(self.browser, page_name=page_path2)
+                second_game_weeks = [week.text for week in self.browser.find_elements(By.CSS_SELECTOR, ".week-number")]
+                # checking if the last week played is Week 20 before going ahead to save the page
+                second_game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=second_game_weeks,
+                                                                    week_to_check="Week 20", time_delay=30)
+
+                # Add the 11-20 weeks matches to the 1-10 weeks matches
+                ht_scores.extend([ht_score.text for ht_score in self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")])
+                ft_scores.extend([ft_score.text for ft_score in self.browser.find_elements(By.CSS_SELECTOR, ".score.ft")])
+                game_weeks.extend(second_game_weeks)
+
+                try:
+                    page_path2 = "saved_pages/eleven_to_twenty_page.html"
+                    save_page(self.browser, page_name=page_path2)  # save the games(11-20) page
+                except FileNotFoundError:
+                    page_path2 = "SeleniumProject/saved_pages/eleven_to_twenty_page.html"
+                    save_page(self.browser, page_name=page_path2)
+
+                result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=self.market)
+            except:
+                result={"outcome":True}
 
         elif length.lower() == "last result":
-            game_weeks = [week.text for week in self.browser.find_elements(By.CSS_SELECTOR, ".week-number")]
-            # checking if the last week played is latest_week before going ahead to save the page
-            game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks,
-                                                          week_to_check=latest_week,time_delay=30)
-            game_weeks = game_weeks[:1]
+            try:
+                game_weeks = [week.text for week in self.browser.find_elements(By.CSS_SELECTOR, ".week-number")]
+                # checking if the last week played is latest_week before going ahead to save the page
+                game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks,
+                                                            week_to_check=latest_week,time_delay=30)
+                game_weeks = game_weeks[:1]
 
-            # Re-fill the ht and ft_scores list by the reloaded/current score result of the last week played   
-            ht_scores = [ht_score.text for ht_score in self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")]
-            ft_scores = [ft_score.text for ft_score in self.browser.find_elements(By.CSS_SELECTOR, ".score.ft")]
-            ht_scores = ht_scores[:9]
-            ft_scores = ft_scores[:9]
+                # Re-fill the ht and ft_scores list by the reloaded/current score result of the last week played   
+                ht_scores = [ht_score.text for ht_score in self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")]
+                ft_scores = [ft_score.text for ft_score in self.browser.find_elements(By.CSS_SELECTOR, ".score.ft")]
+                ht_scores = ht_scores[:9]
+                ft_scores = ft_scores[:9]
 
-        result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=self.market)
+                result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=self.market)
+            except:
+                # if the result page fails, compare balances to tell the outcome
+                time.sleep(120)  # TODO: Confirm the time to sleep before the balance reflects
+                
+                refresh_bal_button=self.browser.find_element(By.CSS_SELECTOR, '.user-balance-container .refresh-icon')
+                refresh_bal_button.click()
+                time.sleep(2)
+                acc_balance_2=self.browser.find_element(By.CSS_SELECTOR, '.user-balance-container .amount').text
+                if float(acc_balance_2.replace(",","_"))>float(acc_balance.replace(',','_')):
+                    result={"outcome":True,"message":"I used the acc bal to confirm ticket won"}
+                else:
+                    result={"outcome":False}
 
         if result["outcome"] != True and length.lower() == "all result":
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
@@ -428,7 +454,7 @@ class LoginUser:
         time.sleep(1)
         login_button = self.browser.find_element(By.CSS_SELECTOR, '[text="Login"]')
         login_button.click()
-        time.sleep(2)
+        time.sleep(1)
         try:
             cancel_notification_option_button = self.wait.until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, "button.kumulos-action-button-cancel")))
