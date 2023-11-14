@@ -23,6 +23,8 @@ def check_if_last_result_equal_input(browser:object,game_weeks:list,week_to_chec
     """ To check if the current last result is the same with the week_to_check 
     input variable, then return an updated game_weeks """
    
+    if week_to_check=="Week 0":
+        return game_weeks
     last_result_week=game_weeks[0]
     while last_result_week!=week_to_check:
         print(last_result_week,week_to_check)

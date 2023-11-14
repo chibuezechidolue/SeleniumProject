@@ -69,7 +69,7 @@ class BrainTest(unittest.TestCase):
 
     # TODO: check if theres is need to create another CheckPattern instance inorder for check_last_result to run sucessfully after the check_all_result has been run which will destroy and create a new driver instance
     def test_check_all_result(self):
-        self.browser=self.pattern.check_result(length="all result", latest_week="all")['driver']
+        self.browser=self.pattern.check_result(length="all result", latest_week="all",to_play=20)['driver']
 
         # self.pattern=CheckPattern(self.browser,market="ht/ft")
         # print(self.pattern.check_result(length="last result",latest_week="Week 21")['outcome']) 

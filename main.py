@@ -42,7 +42,12 @@ while True:
         browser.get("https://m.betking.com/virtual/league/kings-bundliga")  
     
     print("i am about to check result")
-    check_result=pattern.check_result(length="all result", latest_week="all")
+    games_to_check=LEAGUE["num_of_weeks"] - MAX_AMOUNT_LENGTH
+    if games_to_check<11:
+        week_to_save1=games_to_check
+    else:
+        week_to_save1=10
+    check_result=pattern.check_result(length="all result", latest_week="all",to_play=MAX_AMOUNT_LENGTH)
     browser=check_result['driver']
     if not check_result['outcome']:
         log=LoginUser(browser,username=os.environ.get("BETKING_USERNAME"),password=os.environ.get("BETKING_PASSWORD"))
@@ -68,7 +73,7 @@ while True:
                 # Calculate the number of weeks left before week 10 of the next season
                 won=True
                 weeks_left_to_finish_season = LEAGUE["num_of_weeks"] - int(reduced_week_selected.split()[1])
-                sleep_time_before_next_check=(weeks_left_to_finish_season + 9)*3
+                sleep_time_before_next_check=(weeks_left_to_finish_season + week_to_save1-1)*3
                 browser.quit()
                 time.sleep(sleep_time_before_next_check*60) 
                 break
@@ -80,7 +85,7 @@ while True:
                        )
     else:
         # Calculate the number of weeks left before week 10 of the next season
-        time_to_sleep = (LEAGUE["num_of_weeks"]-20+9)*3
+        time_to_sleep = (LEAGUE["num_of_weeks"]-games_to_check+(week_to_save1-1))*3
         browser.quit()
         time.sleep(time_to_sleep*60)
 
