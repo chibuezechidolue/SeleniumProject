@@ -33,7 +33,7 @@ class BrainTest(unittest.TestCase):
         self.game_play.choose_market()
         week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000")
         # self.test_login()
-        for n in range(2):
+        for n in range(5):
             # clear_bet_slip(self.browser)
             acc_bal=self.game_play.place_the_bet(amount=AMOUNT_LIST[n],test=True)
             # if n==1:                 # To test the try & except block if results are not available

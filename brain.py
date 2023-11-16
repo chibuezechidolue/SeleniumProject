@@ -235,8 +235,8 @@ class PlayGame:
             # identify and click the continue betting button
             try:
                 continue_betting_button = self.wait.until(
-                    EC.element_to_be_clickable((By.CSS_SELECTOR, 'button.btn.upper.btn-transparent')))
-                continue_betting_button.click
+                    EC.element_to_be_clickable((By.CSS_SELECTOR, '.bet-success-dialog-buttons .btn-text')))
+                continue_betting_button.click()
             except (TimeoutException, NoSuchElementException):
                 close_betslip_button = self.wait.until(
                     EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="coupon-close-icon"]')))
