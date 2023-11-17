@@ -13,10 +13,10 @@ load_dotenv()
 
 class BrainTest(unittest.TestCase):
     def setUp(self):
-        # self.browser=webdriver.Chrome()    # driver instance with User Interface (not headless)
-        self.browser=set_up_driver_instance() # driver instance without User Interface (--headless)
-        self.pattern=CheckPattern(self.browser,market="3-3")
-        self.game_play=PlayGame(self.browser,market="3-3")
+        self.browser=webdriver.Chrome()    # driver instance with User Interface (not headless)
+        # self.browser=set_up_driver_instance() # driver instance without User Interface (--headless)
+        self.pattern=CheckPattern(self.browser,market="ht/ft")
+        self.game_play=PlayGame(self.browser,market="ht/ft")
         self.log=LoginUser(self.browser,username=os.environ.get("BETKING_USERNAME"),password=os.environ.get("BETKING_PASSWORD"))
         self.browser.get("https://m.betking.com/virtual/league/kings-bundliga")
 
@@ -36,6 +36,7 @@ class BrainTest(unittest.TestCase):
         for n in range(5):
             # clear_bet_slip(self.browser)
             acc_bal=self.game_play.place_the_bet(amount=AMOUNT_LIST[n],test=True)
+            print(acc_bal)
             # if n==1:                 # To test the try & except block if results are not available
             #     acc_bal="2,266"
             week_selected=self.game_play.select_stake_options(week="after_current_week",previous_week_selected=week_selected)

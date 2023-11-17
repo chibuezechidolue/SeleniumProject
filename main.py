@@ -16,7 +16,7 @@ load_dotenv()
 # TODO: Reformat all modules and code 
 
 GAME_LEVEL=1
-SELECTED_MARKET="3-3"
+SELECTED_MARKET="ht/ft"
 
 if SELECTED_MARKET=="ht/ft":
     AMOUNT_LIST=(10,10,10,20,30,40,55,80,110,160,230,330,470,675,970,

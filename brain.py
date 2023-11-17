@@ -244,7 +244,7 @@ class PlayGame:
         try:
             acc_balance=self.browser.find_element(By.CSS_SELECTOR, '.user-balance-container .amount').text
             return acc_balance
-        except NoSuchElementException:
+        except NoSuchElementException or TimeoutException:
             pass
 
 
