@@ -291,8 +291,8 @@ class CheckPattern:
             game_weeks = [week.text for week in self.browser.find_elements(By.CSS_SELECTOR, ".week-number")]
             current_game_week=int(game_weeks[0].split(" ")[-1])  # To get the integer num of weeks
             # To check if last result is 9th - 10th week or sleep till it is
-            if current_game_week<to_play-1:
-                time_to_sleep=(to_play-1-current_game_week)*3
+            if current_game_week<to_play-2:
+                time_to_sleep=(to_play-2-current_game_week)*3
                 print(f"i will be sleeping for: {time_to_sleep*60}")
                 self.browser.quit()
                 time.sleep(time_to_sleep*60)
@@ -303,9 +303,11 @@ class CheckPattern:
                 time.sleep(2)
 
             game_weeks = [week.text for week in self.browser.find_elements(By.CSS_SELECTOR, ".week-number")]
-            game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks, week_to_check=f"Week 1",
+            game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks, week_to_check=f"Week 34",
                                                         time_delay=30)
             result={"outcome":True,"driver":self.browser}
+            cancel_result_page_button = self.browser.find_element(By.CSS_SELECTOR, "svg path")
+            cancel_result_page_button.click()
             return result
 
         elif length.lower() == "last result":

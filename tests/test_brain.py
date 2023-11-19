@@ -1,3 +1,4 @@
+import datetime
 import sys
 sys.path.append('c:\\Users\\Stanley Chidolue\\PersonalProject\\SeleniumProject')
 import unittest
@@ -31,17 +32,20 @@ class BrainTest(unittest.TestCase):
     def test_select_stake_options_and_place_the_bet(self):
         AMOUNT_LIST=(10,10,10,20,30,40,55,80,110,160,230,330,470,675,970)
         self.game_play.choose_market()
-        week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000")
+        # time.sleep(10)
         # self.test_login()
         for n in range(5):
+            week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000")
+
             # clear_bet_slip(self.browser)
             acc_bal=self.game_play.place_the_bet(amount=AMOUNT_LIST[n],test=True)
             # if n==1:                 # To test the try & except block if results are not available
             #     acc_bal="2,266"
-            week_selected=self.game_play.select_stake_options(week="after_current_week",previous_week_selected=week_selected)
-            reduced_week_selected=reduce_week_selected(week_selected,by=1,league="bundliga")
+            # week_selected=self.game_play.select_stake_options(week="after_current_week",previous_week_selected=week_selected)
+            # time.sleep(20)
+            # reduced_week_selected=reduce_week_selected(week_selected,by=1,league="bundliga")
             # self.pattern.check_result(length="last result",latest_week=reduced_week_selected)
-            self.pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal)
+            self.pattern.check_result(length="last result",latest_week=week_selected,acc_balance=acc_bal)
 
     def test_checkout_virtual(self):
         for _ in range(3):
@@ -49,10 +53,10 @@ class BrainTest(unittest.TestCase):
             self.pattern.checkout_virtual(league="bundliga")
             time.sleep(5)
 
-
+    from datetime import  datetime
     def test_login(self):
         self.log.login()
-        time.sleep(3)
+        # time.sleep(3)
         
     
     def test_check_last_result(self):
