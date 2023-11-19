@@ -57,18 +57,17 @@ while True:
         game_play=PlayGame(browser,market=SELECTED_MARKET)
         game_play.choose_market()
         time.sleep(1)
-        week_selected=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50")
+        # week_selected=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50")
 
         won=False
         for n in range(len(AMOUNT_LIST[:MAX_AMOUNT_LENGTH])):
+            week_selected=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50")
             acc_bal=game_play.place_the_bet(amount=str(AMOUNT_LIST[n]*GAME_LEVEL),test=True)
-            week_selected=game_play.select_stake_options(week="after_current_week",
-                                                        previous_week_selected=week_selected)
-            reduced_week_selected=reduce_week_selected(week_selected,by=1,league=LEAGUE["name"])
+            # week_selected=game_play.select_stake_options(week="after_current_week",
+            #                                             previous_week_selected=week_selected)
+            reduced_week_selected=reduce_week_selected(week_selected,by=0,league=LEAGUE["name"])
 
-            #   TODO: write a script to stop/cancel the amount list in order to stop betting only if ht/ft does not come before the AMOUNT_LIST is exhauseted to avoid staking with the profit already made
             pattern=CheckPattern(browser,market=SELECTED_MARKET)
-            # pass in the account bal as a variable
             if pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal)['outcome']:
                 # Calculate the number of weeks left before week 10 of the next season
                 won=True
