@@ -8,6 +8,7 @@ from selenium import webdriver
 from brain import (PlayGame,CheckPattern,LoginUser)
 from tools import reduce_week_selected,clear_bet_slip, set_up_driver_instance
 from dotenv import load_dotenv
+from datetime import  datetime
 
 load_dotenv()
 
@@ -30,11 +31,17 @@ class BrainTest(unittest.TestCase):
 
 
     def test_select_stake_options_and_place_the_bet(self):
-        AMOUNT_LIST=(10,10,10,20,30,40,55,80,110,160,230,330,470,675,970)
-        self.game_play.choose_market()
+        # AMOUNT_LIST=(10,10,10,20,30,40,55,80,110,160,230,330,470,675,970)
+        AMOUNT_LIST=(10,10,10,10,10,10,20,20,30,30,40,40,55,55,80,80,110,
+                 110,160,160,230,230,330,330,470,470,675,675,970,970,
+                 1390,1390,1980,1980)
+        
         # time.sleep(10)
         # self.test_login()
-        for n in range(5):
+        for n in range(20):
+            # print(f"this is the start date: {datetime.datetime.time()}")
+            self.game_play.choose_market()
+
             week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000")
 
             # clear_bet_slip(self.browser)
@@ -43,9 +50,10 @@ class BrainTest(unittest.TestCase):
             #     acc_bal="2,266"
             # week_selected=self.game_play.select_stake_options(week="after_current_week",previous_week_selected=week_selected)
             # time.sleep(20)
-            # reduced_week_selected=reduce_week_selected(week_selected,by=1,league="bundliga")
+            reduced_week_selected=reduce_week_selected(week_selected,by=0,league="bundliga")
             # self.pattern.check_result(length="last result",latest_week=reduced_week_selected)
-            self.pattern.check_result(length="last result",latest_week=week_selected,acc_balance=acc_bal)
+            self.pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal)
+            # print(f"this is the start date: {datetime.datetime.time()}")
 
     def test_checkout_virtual(self):
         for _ in range(3):
@@ -53,7 +61,6 @@ class BrainTest(unittest.TestCase):
             self.pattern.checkout_virtual(league="bundliga")
             time.sleep(5)
 
-    from datetime import  datetime
     def test_login(self):
         self.log.login()
         # time.sleep(3)

@@ -46,19 +46,16 @@ while True:
     check_result=pattern.check_result(length="all result", latest_week="all",to_play=35)
     browser=check_result['driver']
     if check_result['outcome']:
-        time.sleep(25)  # inplace of logging in while testing
-
         # log=LoginUser(browser,username=os.environ.get("BETKING_USERNAME"),password=os.environ.get("BETKING_PASSWORD"))
         # log.login()
         # time.sleep(1)
 
-        game_play=PlayGame(browser,market=SELECTED_MARKET)
-        game_play.choose_market()
-        time.sleep(1)
-        
+        time.sleep(25)  # inplace of logging in while testing
         won=False
         for n in range(len(AMOUNT_LIST[:MAX_AMOUNT_LENGTH])):
             game_play=PlayGame(browser,market=SELECTED_MARKET)
+            game_play.choose_market()
+            time.sleep(1)
             week_selected=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50")
 
             acc_bal=game_play.place_the_bet(amount=str(AMOUNT_LIST[n]*GAME_LEVEL),test=True)
@@ -78,6 +75,7 @@ while True:
             if n==9 or n==19:
                 check_result=pattern.check_result(length="all result", latest_week="all",to_play=35)
                 browser=check_result['driver']
+                
         if not won:
             print(f"{SELECTED_MARKET} did not come till week {LEAGUE['num_of_weeks']}")
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
