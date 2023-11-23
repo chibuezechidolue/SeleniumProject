@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from tools import (cancel_popup, check_if_current_week_has_played,
                    check_if_current_week_islive, check_if_last_result_equal_input,
                    clear_bet_slip, save_page, confirm_outcome, send_email, set_up_driver_instance)
-
+from datetime import datetime
 load_dotenv()
 
 
@@ -63,7 +63,7 @@ class PlayGame:
             close_more_markets_button.click()
         except:
             pass
-
+    
     def select_stake_options(self, week: str, previous_week_selected: str) -> str:
         """ To select the stake option from the selected market, you wish to stake funds on """
         available_games = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-content"]')
@@ -105,7 +105,7 @@ class PlayGame:
                 available_games = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-content"]')
                 available_games_1 = self.wait.until(EC.element_to_be_clickable(available_games[:end][n]))
                 available_games_1.click()
-                print(f"no {n+1} of available games was clicked")
+                print(f"no {n+1} of available games was clicked, time: {datetime.now().time()}")
                 time.sleep(0.5)
             except (ElementClickInterceptedException, StaleElementReferenceException, TimeoutException):
                 print("exception was thrown at available_games_1")
@@ -123,7 +123,7 @@ class PlayGame:
                 available_games = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-content"]')
                 available_games_1 = self.wait.until(EC.element_to_be_clickable(available_games[:end][n]))
                 available_games_1.click()
-                print(f"at exception, no {n+1} of available games was clicked")
+                print(f"at exception, no {n+1} of available games was clicked, time: {datetime.now().time()}")
 
             if week == "after_current_week" and const != 9:
                 n -= 8
@@ -143,14 +143,14 @@ class PlayGame:
                     one_slash_two_option.click()
                 elif self.market=="3-3":
                     stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 28:end * 28]  # Temp
-                    print(f"This is len of stake_options: {len(stake_options)}")
+                    print(f"This is len of stake_options: {len(stake_options)}, time: {datetime.now().time()}")
                     three_three_option = self.wait.until(EC.element_to_be_clickable(stake_options[15]))
                     three_three_option.click()
                 time.sleep(0.5)
 
             # except (ElementClickInterceptedException, StaleElementReferenceException, TimeoutException, IndexError):
             except (ElementClickInterceptedException, TimeoutException):
-                print("exception was thrown at stake_option_1")
+                print(f"exception was thrown at stake_option_1, time: {datetime.now().time()}")
                 self.browser.execute_script(
                     f"window.scrollTo(0, {window_height * attempt1});")  # To Scroll to where the element can be clicked()
 
@@ -167,21 +167,21 @@ class PlayGame:
                     one_slash_two_option.click()
                 elif self.market=="3-3":
                     stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 28:end * 28]  # Temp
-                    print(f"This is len of stake_options: {len(stake_options)}")
+                    print(f"This is len of stake_options: {len(stake_options)}, time: {datetime.now().time()}")
                     three_three_option = self.wait.until(EC.element_to_be_clickable(stake_options[15]))
                     three_three_option.click()
                 time.sleep(0.5)
 
             except (IndexError,StaleElementReferenceException):
-                # self.browser.refresh()
+                self.browser.refresh()
                 self.choose_market()
-                print("the page was reloaded, i had to reselect available_games")
+                print(f"the page was reloaded, i had to reselect available_games, time: {datetime.now().time()}")
                 for i in range(n+1):
                     available_games = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-content"]')
                     available_games_1 = self.wait.until(EC.element_to_be_clickable(available_games[:end][i]))
                     available_games_1.click()
                     time.sleep(0.5)
-                print("an index error exception was thrown at stake_option_1")
+                print(f"an index error exception was thrown at stake_option_1, time: {datetime.now().time()}")
 
                 self.browser.execute_script(
                     f"window.scrollTo(0, {window_height * attempt1});")  # To Scroll to where the element can be clicked()
@@ -199,7 +199,7 @@ class PlayGame:
                     one_slash_two_option.click()
                 elif self.market=="3-3":
                     stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 28:end * 28]  # Temp
-                    print(f"This is len of stake_options: {len(stake_options)}")
+                    print(f"This is len of stake_options: {len(stake_options)}, time: {datetime.now().time()}")
                     three_three_option = self.wait.until(EC.element_to_be_clickable(stake_options[15]))
                     three_three_option.click()
                 time.sleep(0.5)
@@ -239,16 +239,16 @@ class PlayGame:
                     pass
                 time.sleep(0.5)
             except (IndexError,StaleElementReferenceException):
-                # self.browser.refresh()
+                self.browser.refresh()
                 self.choose_market()
-                print("the page was reloaded, i had to reselect available_games")
+                print(f"the page was reloaded, i had to reselect available_games, time: {datetime.now().time()}")
                 for i in range(n+1):
                     available_games = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-content"]')
                     available_games_1 = self.wait.until(EC.element_to_be_clickable(available_games[:end][i]))
                     available_games_1.click()
                     time.sleep(0.5)
                 
-                print("exception was thrown at stake_option_2")
+                print(f"exception was thrown at stake_option_2, time: {datetime.now().time()}")
                 self.browser.execute_script(
                     f"window.scrollTo(0, {window_height * attempt1});")  # To Scroll to where the element can be clicked()
 
