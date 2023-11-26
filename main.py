@@ -75,6 +75,12 @@ while True:
                 time.sleep(sleep_time_before_next_check*60) 
                 break
             if n==9 or n==19:
+                print(f"{n+2}th stake is the next to PLAY, waiting for next SEASON ")
+                send_email(Email=os.environ.get("EMAIL_USERNAME"),
+                       Password=os.environ.get("EMAIL_PASSWORD"),
+                       Subject=f"On To The NEXT 10 Stakes",
+                       Message=f"{n+2}th stake is the next to PLAY, waiting for next SEASON "
+                       )
                 check_result=pattern.check_result(length="all result", latest_week="all",to_play=35)
                 browser=check_result['driver']
                 
