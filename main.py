@@ -62,7 +62,10 @@ while True:
         won=False
         for n in range(len(AMOUNT_LIST[:MAX_AMOUNT_LENGTH])):
             week_selected=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50")
-            acc_bal=game_play.place_the_bet(amount=str(AMOUNT_LIST[n]*GAME_LEVEL),test=True)
+            try:
+                acc_bal=game_play.place_the_bet(amount=str(AMOUNT_LIST[n]*GAME_LEVEL),test=True)
+            except:
+                pass
             # week_selected=game_play.select_stake_options(week="after_current_week",
             #                                             previous_week_selected=week_selected)
             reduced_week_selected=reduce_week_selected(week_selected,by=0,league=LEAGUE["name"])

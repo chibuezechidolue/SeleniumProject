@@ -145,7 +145,7 @@ class PlayGame:
                     three_three_option.click()
                 time.sleep(0.5)
 
-            except (ElementClickInterceptedException, StaleElementReferenceException, TimeoutException):
+            except (ElementClickInterceptedException, TimeoutException):
                 print("exception was thrown at stake_option_1")
 
                 self.browser.execute_script(
@@ -167,6 +167,9 @@ class PlayGame:
                     three_three_option = self.wait.until(EC.element_to_be_clickable(stake_options[15]))
                     three_three_option.click()
                 time.sleep(0.5)
+            except (IndexError,StaleElementReferenceException):
+                print(" The Network has crashed the program, i skipped this staking")
+                pass
 
             try:
                 if check_if_current_week_islive(self.browser):
@@ -182,7 +185,7 @@ class PlayGame:
                 elif self.market=="3-3":
                     pass
                 time.sleep(0.5)
-            except (ElementClickInterceptedException, StaleElementReferenceException, TimeoutException):
+            except (ElementClickInterceptedException, TimeoutException):
                 print("exception was thrown at stake_option_2")
                 self.browser.execute_script(
                     f"window.scrollTo(0, {window_height * attempt1});")  # To Scroll to where the element can be clicked()
@@ -201,6 +204,9 @@ class PlayGame:
                 elif self.market=="3-3":
                     pass
                 time.sleep(0.5)
+            except (IndexError,StaleElementReferenceException):
+                print(" The Network has crashed the program, i skipped this staking")
+                pass
 
         return week_to_select_text
 
