@@ -16,7 +16,7 @@ load_dotenv()
 # TODO: Reformat all modules and code 
 
 GAME_LEVEL=1
-SELECTED_MARKET="ht/ft"
+SELECTED_MARKET="3-3"
 
 if SELECTED_MARKET=="ht/ft":
     AMOUNT_LIST=(10,10,10,20,30,40,55,80,110,160,230,330,470,675,970,
@@ -29,6 +29,7 @@ elif SELECTED_MARKET=="3-3":
     MAX_AMOUNT_LENGTH=14
 LEAGUE={"name":"bundliga","num_of_weeks":34}
     
+MAX_SEASON=4
 
 while True:
     # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
@@ -42,52 +43,30 @@ while True:
         browser.get("https://m.betking.com/virtual/league/kings-bundliga")  
     
     print("i am about to check result")
-    games_to_check=LEAGUE["num_of_weeks"] - MAX_AMOUNT_LENGTH
-    if games_to_check<11:
-        week_to_save1=games_to_check
-    else:
-        week_to_save1=10
-    check_result=pattern.check_result(length="all result", latest_week="all",to_play=MAX_AMOUNT_LENGTH)
-    browser=check_result['driver']
-    if not check_result['outcome']:
-        log=LoginUser(browser,username=os.environ.get("BETKING_USERNAME"),password=os.environ.get("BETKING_PASSWORD"))
-        log.login()
-        time.sleep(1)
-
-        game_play=PlayGame(browser,market=SELECTED_MARKET)
-        game_play.choose_market()
-        time.sleep(1)
-        # week_selected=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50")
-
-        won=False
-        for n in range(len(AMOUNT_LIST[:MAX_AMOUNT_LENGTH])):
-            week_selected=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50")
-            try:
-                acc_bal=game_play.place_the_bet(amount=str(AMOUNT_LIST[n]*GAME_LEVEL),test=True)
-            except:
-                pass
-            # week_selected=game_play.select_stake_options(week="after_current_week",
-            #                                             previous_week_selected=week_selected)
-            reduced_week_selected=reduce_week_selected(week_selected,by=0,league=LEAGUE["name"])
-
-            pattern=CheckPattern(browser,market=SELECTED_MARKET)
-            if pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal)['outcome']:
-                # Calculate the number of weeks left before week 10 of the next season
-                won=True
-                weeks_left_to_finish_season = LEAGUE["num_of_weeks"] - int(reduced_week_selected.split()[1])
-                sleep_time_before_next_check=(weeks_left_to_finish_season + week_to_save1-1)*3
-                browser.quit()
-                time.sleep(sleep_time_before_next_check*60) 
-                break
-        if not won:
+    won=False
+    for n in range(1,MAX_SEASON+1):
+        pattern=CheckPattern(browser,market=SELECTED_MARKET)
+        check_result=pattern.check_result(length="all result", latest_week="all")
+        browser=check_result['driver']
+        time.sleep(180)    # To delay till week 11
+        if check_result['outcome']:
+            won=True
+            break
+        if n<MAX_SEASON:
+            print(f"SEASON {n} result has been CHECKED, waiting for next SEASON ")
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
-                       Password=os.environ.get("EMAIL_PASSWORD"),
-                       Subject="YOU'VE LOST IT ALL",
-                       Message=f"{SELECTED_MARKET} did not come till week {LEAGUE['num_of_weeks']}"
-                       )
-    else:
-        # Calculate the number of weeks left before week 10 of the next season
-        time_to_sleep = (LEAGUE["num_of_weeks"]-games_to_check+(week_to_save1-1))*3
-        browser.quit()
-        time.sleep(time_to_sleep*60)
+                    Password=os.environ.get("EMAIL_PASSWORD"),
+                    Subject=f"On To The NEXT 10 Stakes",
+                    Message=f"SEASON {n} result has been CHECKED, waiting for next SEASON "
+                    )
+        
+    if not won:        
+        print(f"{SELECTED_MARKET} did not come till week {LEAGUE['num_of_weeks']}")
+        send_email(Email=os.environ.get("EMAIL_USERNAME"),
+                    Password=os.environ.get("EMAIL_PASSWORD"),
+                    Subject="YOU'VE LOST IT ALL",
+                    Message=f"{SELECTED_MARKET} did not come till SEASON 3"
+                    )
+        
+    
 
