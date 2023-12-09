@@ -67,6 +67,7 @@ while True:
                     Subject="YOU'VE LOST IT ALL",
                     Message=f"{SELECTED_MARKET} did not come till SEASON 3"
                     )
+    browser.quit()
         
     
 
