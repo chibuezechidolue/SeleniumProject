@@ -375,7 +375,7 @@ class CheckPattern:
                 result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=self.market)
             except:
                 print("an error occured i skipped this session")
-                result={"outcome":True}
+                result={"outcome":True,"message":"an error occured i skipped this session"}
 
         elif length.lower() == "last result":
             try:
@@ -404,7 +404,7 @@ class CheckPattern:
                 if float(acc_balance_2.replace(",","_"))>float(acc_balance.replace(',','_')):
                     result={"outcome":True,"message":"I used the acc bal to confirm ticket won"}
                 else:
-                    result={"outcome":False}
+                    result={"outcome":False,"message":"I used the acc bal to confirm ticket won"}
 
         if result["outcome"] != True and length.lower() == "all result":
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
@@ -436,6 +436,11 @@ class CheckPattern:
             return {"outcome": True, "driver": self.browser}
 
         elif result["outcome"] == True and length.lower() == "all result":
+            send_email(Email=os.environ.get("EMAIL_USERNAME"),
+                       Password=os.environ.get("EMAIL_PASSWORD"),
+                       Subject="Halftime/Fulltime RESULT",
+                       Message=result["message"],
+                       )
             cancel_result_page_button = self.browser.find_element(By.CSS_SELECTOR, "svg path")
             cancel_result_page_button.click()
             return {"outcome": True, "driver": self.browser}
