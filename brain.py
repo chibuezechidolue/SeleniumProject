@@ -462,7 +462,7 @@ class LoginUser:
         self.wait = WebDriverWait(driver=self.browser, timeout=10)
 
     def login(self):
-        """ Login the user with the credentials from initialization"""
+        """ Login the user with the credentials from initialization and return the account balance of the user"""
         login = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.text")))
         try:
             login.click()
@@ -490,3 +490,6 @@ class LoginUser:
             cancel_notification_option_button.click()
         except (TimeoutException, NoSuchElementException):
             pass
+
+        acc_balance=self.browser.find_element(By.CSS_SELECTOR, '.user-balance-container .amount').text
+        return acc_balance

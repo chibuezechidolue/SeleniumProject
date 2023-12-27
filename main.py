@@ -15,18 +15,20 @@ load_dotenv()
 # TODO: test for time complexity
 # TODO: Reformat all modules and code 
 
-GAME_LEVEL=1
+
 SELECTED_MARKET="ht/ft"
 
 if SELECTED_MARKET=="ht/ft":
     AMOUNT_LIST=(10,10,10,20,30,40,55,80,110,160,230,330,470,675,970,
                 1390,1980,2840,4050,5800,8300,11850,16950,24250)
     MAX_AMOUNT_LENGTH=14
+    TOTAL_AMOUNT=9450
 elif SELECTED_MARKET=="3-3":
     AMOUNT_LIST=(10,10,10,10,10,10,20,20,30,30,40,40,55,55,80,80,110,
                  110,160,160,230,230,330,330,470,470,675,675,970,970,
                  1390,1390,1980,1980)
     MAX_AMOUNT_LENGTH=14
+    TOTAL_AMOUNT=9450
 LEAGUE={"name":"bundliga","num_of_weeks":34}
     
 
@@ -51,7 +53,9 @@ while True:
     browser=check_result['driver']
     if not check_result['outcome']:
         log=LoginUser(browser,username=os.environ.get("BETKING_USERNAME"),password=os.environ.get("BETKING_PASSWORD"))
-        log.login()
+        acc_bal=log.login()
+        acc_bal=float(acc_bal.replace(",","_"))
+        GAME_LEVEL=round((acc_bal-1000)/TOTAL_AMOUNT,2)
         time.sleep(1)
 
         game_play=PlayGame(browser,market=SELECTED_MARKET)
@@ -61,9 +65,18 @@ while True:
 
         won=False
         for n in range(len(AMOUNT_LIST[:MAX_AMOUNT_LENGTH])):
+            # provision to stake 10 games afterwhich funds are exhausted and place bet begins to skip
+            if n==10:
+                os.environ["TEST"]="True"
+                send_email(Email=os.environ.get("EMAIL_USERNAME"),
+                       Password=os.environ.get("EMAIL_PASSWORD"),
+                       Subject="YOU'VE LOST IT ALL",
+                       Message=f"{SELECTED_MARKET} did not come till week {n}. I have changed to TEST MODE"
+                       )
+                
             week_selected=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50")
             try:
-                acc_bal=game_play.place_the_bet(amount=str(AMOUNT_LIST[n]*GAME_LEVEL),test=True)
+                acc_bal=game_play.place_the_bet(amount=str(AMOUNT_LIST[n]*GAME_LEVEL),test=bool(os.environ.get("TEST")))
             except:
                 pass
             # week_selected=game_play.select_stake_options(week="after_current_week",

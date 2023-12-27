@@ -33,9 +33,11 @@ class BrainTest(unittest.TestCase):
         self.game_play.choose_market()
         week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000")
         # self.test_login()
-        for n in range(5):
+        for n in range(14):
             # clear_bet_slip(self.browser)
-            acc_bal=self.game_play.place_the_bet(amount=AMOUNT_LIST[n],test=True)
+            if n==10:
+                os.environ["TEST"]="True"
+            acc_bal=self.game_play.place_the_bet(amount=AMOUNT_LIST[n],test=os.environ.get("TEST"))
             print(acc_bal)
             # if n==1:                 # To test the try & except block if results are not available
             #     acc_bal="2,266"
@@ -52,7 +54,11 @@ class BrainTest(unittest.TestCase):
 
 
     def test_login(self):
-        self.log.login()
+        acc_bal=self.log.login()
+        acc_bal=float(acc_bal.replace(",","_"))
+        GAME_LEVEL=round((acc_bal-1000)/500,2)
+        print(acc_bal)
+        print(GAME_LEVEL)
         time.sleep(3)
         
     
