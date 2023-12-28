@@ -288,15 +288,41 @@ class CheckPattern:
         # standings_button=self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,"span.view-switch-icon")))
         standings_button.click()
         result_button = self.wait.until(EC.element_to_be_clickable((By.XPATH,
-                                                                    "/html/bor//dy/app-root/app-wrapper/div/virtuals"
+                                                                    "/html/body/app-root/app-wrapper/div/virtuals"
                                                                     "-league-wrapper/mobile-virtuals-soccer/mvs"
                                                                     "-virtual-league-page/div["
                                                                     "2]/mvs-results-page/div[2]/div[2]")))
         result_button.click()
         time.sleep(7)
+
+        if length.lower()=="new season":
+            game_weeks = [week.text for week in self.browser.find_elements(By.CSS_SELECTOR, ".week-number")][:week_to_save1]
+            current_game_week=int(game_weeks[0].split(" ")[-1])
+            first_week=1
+
+            if current_game_week>first_week:
+                time_to_sleep=(34-current_game_week)*3
+                self.browser.quit()
+                print(f"i'm waiting for {(time_to_sleep)*60} secs ")
+                time.sleep((time_to_sleep)*60)
+                # self.browser=webdriver.Chrome()         # driver instance with User Interface (not headless)
+                self.browser = set_up_driver_instance()   # driver instance without User Interface (--headless)
+                time.sleep(1)
+                self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
+                time.sleep(2)
+
+            # checking if the last week played is Week 10 before going ahead to save the page
+            game_weeks = [week.text for week in self.browser.find_elements(By.CSS_SELECTOR, ".week-number")]
+            game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks, week_to_check=f"Week {first_week}",
+                                                        time_delay=30)
+            cancel_result_page_button = self.browser.find_element(By.CSS_SELECTOR, "svg path")
+            cancel_result_page_button.click()
+            return True
+
+
         # check halftime fulltime result
         # 1 - 10 weeks matches
-        if length.lower() == "all result":
+        elif length.lower() == "all result":
 
             week_to_save1=10
             
@@ -342,6 +368,35 @@ class CheckPattern:
 
             result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=self.market)
 
+        elif length.lower() == "last result":
+            try:
+                game_weeks = [week.text for week in self.browser.find_elements(By.CSS_SELECTOR, ".week-number")]
+                # checking if the last week played is latest_week before going ahead to save the page
+                game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks,
+                                                            week_to_check=latest_week,time_delay=30)
+                game_weeks = game_weeks[:1]
+
+                # Re-fill the ht and ft_scores list by the reloaded/current score result of the last week played   
+                ht_scores = [ht_score.text for ht_score in self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")]
+                ft_scores = [ft_score.text for ft_score in self.browser.find_elements(By.CSS_SELECTOR, ".score.ft")]
+                ht_scores = ht_scores[:9]
+                ft_scores = ft_scores[:9]
+
+                result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=self.market)
+            except:
+                print("an error occured when checking last result i used acc balance to check")
+                # if the result page fails, compare balances to tell the outcome
+                time.sleep(110)  # TODO: Confirm the time to sleep before the balance reflects
+
+                refresh_bal_button=self.browser.find_element(By.CSS_SELECTOR, '.user-balance-container .refresh-icon')
+                refresh_bal_button.click()
+                time.sleep(2)
+                acc_balance_2=self.browser.find_element(By.CSS_SELECTOR, '.user-balance-container .amount').text
+                if float(acc_balance_2.replace(",","_"))>float(acc_balance.replace(',','_')):
+                    result={"outcome":True,"message":"I used the acc bal to confirm ticket won"}
+                else:
+                    result={"outcome":False,"message":"I used the acc bal to confirm ticket won"}
+        
         if result["outcome"] == True and length.lower() == "all result":
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
                        Password=os.environ.get("EMAIL_PASSWORD"),
@@ -349,6 +404,24 @@ class CheckPattern:
                        Message=result["message"],
                        File_path=[page_path1]
                        )
+            cancel_result_page_button = self.browser.find_element(By.CSS_SELECTOR, "svg path")
+            cancel_result_page_button.click()
+            return {"outcome": True, "driver": self.browser}
+        
+        elif result["outcome"] == True and length.lower() == "last result":
+            try:
+                page_path = "saved_pages/one_to_ten_page.html"
+                save_page(self.browser, page_name=page_path)
+            except FileNotFoundError:
+                page_path = "SeleniumProject/saved_pages/one_to_ten_page.html"
+                save_page(self.browser, page_name=page_path)  # save the games(1-10) page
+            send_email(Email=os.environ.get("EMAIL_USERNAME"),
+                       Password=os.environ.get("EMAIL_PASSWORD"),
+                       Subject=f"{self.market} came in the last result" ,
+                       Message=result["message"],
+                       File_path=[page_path]
+                       )
+
             cancel_result_page_button = self.browser.find_element(By.CSS_SELECTOR, "svg path")
             cancel_result_page_button.click()
             return {"outcome": True, "driver": self.browser}

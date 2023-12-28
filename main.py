@@ -26,10 +26,11 @@ elif SELECTED_MARKET=="3-3":
     AMOUNT_LIST=(10,10,10,10,10,10,20,20,30,30,40,40,55,55,80,80,110,
                  110,160,160,230,230,330,330,470,470,675,675,970,970,
                  1390,1390,1980,1980)
-    MAX_AMOUNT_LENGTH=14
+    MAX_AMOUNT_LENGTH=20
+    TOTAL_AMOUNT=9450
 LEAGUE={"name":"bundliga","num_of_weeks":34}
     
-MAX_SEASON=4
+MAX_SEASON=5
 
 while True:
     # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
@@ -45,6 +46,38 @@ while True:
     print("i am about to check result")
     won=False
     for n in range(1,MAX_SEASON+1):
+        if n==MAX_SEASON-1 or n==MAX_SEASON:
+            if  pattern.check_result(length="new season", latest_week="all"):
+                log=LoginUser(browser,username=os.environ.get("BETKING_USERNAME"),password=os.environ.get("BETKING_PASSWORD"))
+                acc_bal=log.login()
+                acc_bal=float(acc_bal.replace(",","_"))
+                GAME_LEVEL=round((acc_bal-1000)/TOTAL_AMOUNT,2)
+                time.sleep(1)
+
+                game_play=PlayGame(browser,market=SELECTED_MARKET)
+                game_play.choose_market()
+                time.sleep(1)
+
+
+                won=False
+                for n in range(10):
+                    # provision to stake 10 games afterwhich funds are exhausted and place bet begins to skip
+                    week_selected=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50")
+                    try:
+                        acc_bal=game_play.place_the_bet(amount=str(AMOUNT_LIST[n]*GAME_LEVEL),test=bool(os.environ.get("TEST")))
+                    except:
+                        pass
+                    # week_selected=game_play.select_stake_options(week="after_current_week",
+                    #                                             previous_week_selected=week_selected)
+                    reduced_week_selected=reduce_week_selected(week_selected,by=0,league=LEAGUE["name"])
+
+                    pattern=CheckPattern(browser,market=SELECTED_MARKET)
+                    if pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal)['outcome']:
+                        won=True
+                        # browser.quit()
+                        break
+
+
         pattern=CheckPattern(browser,market=SELECTED_MARKET)
         check_result=pattern.check_result(length="all result", latest_week="all")
         browser=check_result['driver']
@@ -59,6 +92,7 @@ while True:
                     Subject=f"On To The NEXT 10 Stakes",
                     Message=f"SEASON {n} result has been CHECKED, waiting for next SEASON "
                     )
+        
         
     if not won:        
         print(f"{SELECTED_MARKET} did not come till week {LEAGUE['num_of_weeks']}")

@@ -13,10 +13,11 @@ load_dotenv()
 
 class BrainTest(unittest.TestCase):
     def setUp(self):
+        market="3-3"
         self.browser=webdriver.Chrome()    # driver instance with User Interface (not headless)
         # self.browser=set_up_driver_instance() # driver instance without User Interface (--headless)
-        self.pattern=CheckPattern(self.browser,market="ht/ft")
-        self.game_play=PlayGame(self.browser,market="ht/ft")
+        self.pattern=CheckPattern(self.browser,market=market)
+        self.game_play=PlayGame(self.browser,market=market)
         self.log=LoginUser(self.browser,username=os.environ.get("BETKING_USERNAME"),password=os.environ.get("BETKING_PASSWORD"))
         self.browser.get("https://m.betking.com/virtual/league/kings-bundliga")
 
@@ -31,16 +32,16 @@ class BrainTest(unittest.TestCase):
     def test_select_stake_options_and_place_the_bet(self):
         AMOUNT_LIST=(10,10,10,20,30,40,55,80,110,160,230,330,470,675,970)
         self.game_play.choose_market()
-        week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000")
         # self.test_login()
         for n in range(5):
             # clear_bet_slip(self.browser)
+            week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000")
+
             acc_bal=self.game_play.place_the_bet(amount=AMOUNT_LIST[n],test=True)
             print(acc_bal)
             # if n==1:                 # To test the try & except block if results are not available
             #     acc_bal="2,266"
-            week_selected=self.game_play.select_stake_options(week="after_current_week",previous_week_selected=week_selected)
-            reduced_week_selected=reduce_week_selected(week_selected,by=1,league="bundliga")
+            reduced_week_selected=reduce_week_selected(week_selected,by=0,league="bundliga")
             # self.pattern.check_result(length="last result",latest_week=reduced_week_selected)
             self.pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal)
 
@@ -52,7 +53,11 @@ class BrainTest(unittest.TestCase):
 
 
     def test_login(self):
-        self.log.login()
+        acc_bal=self.log.login()
+        acc_bal=float(acc_bal.replace(",","_"))
+        GAME_LEVEL=round((acc_bal-1000)/500,2)
+        print(acc_bal)
+        print(GAME_LEVEL)
         time.sleep(3)
         
     
