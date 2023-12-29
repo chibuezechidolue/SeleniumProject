@@ -280,10 +280,16 @@ class CheckPattern:
 
     def check_result(self, length: str, latest_week: str,acc_balance:str=None,to_play:int=None) -> dict:
         """ To check the result outcomes of an inputed length or number of weeks"""
-        standings_button = self.wait.until(
+        
+        try:
+            standings_button = self.wait.until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="results-and-standings-button"]')))
         # standings_button=self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,"span.view-switch-icon")))
-        standings_button.click()
+        except TimeoutException:
+            standings_button=self.browser.find_element(By.CSS_SELECTOR, '[data-testid="results-and-standings-button"]')
+        finally:
+            standings_button.click()
+            
         result_button = self.wait.until(EC.element_to_be_clickable((By.XPATH,
                                                                     "/html/body/app-root/app-wrapper/div/virtuals"
                                                                     "-league-wrapper/mobile-virtuals-soccer/mvs"
