@@ -296,7 +296,7 @@ class CheckPattern:
         time.sleep(7)
 
         if length.lower()=="new season":
-            game_weeks = [week.text for week in self.browser.find_elements(By.CSS_SELECTOR, ".week-number")][:week_to_save1]
+            game_weeks = [week.text for week in self.browser.find_elements(By.CSS_SELECTOR, ".week-number")]
             current_game_week=int(game_weeks[0].split(" ")[-1])
             first_week=1
 
@@ -317,7 +317,7 @@ class CheckPattern:
                                                         time_delay=30)
             cancel_result_page_button = self.browser.find_element(By.CSS_SELECTOR, "svg path")
             cancel_result_page_button.click()
-            return True
+            return {"outcome":True,"driver":self.browser}
 
 
         # check halftime fulltime result
@@ -471,3 +471,6 @@ class LoginUser:
             cancel_notification_option_button.click()
         except (TimeoutException, NoSuchElementException):
             pass
+
+        acc_balance=self.browser.find_element(By.CSS_SELECTOR, '.user-balance-container .amount').text
+        return acc_balance

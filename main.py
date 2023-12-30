@@ -48,9 +48,12 @@ while True:
     for n in range(1,MAX_SEASON+1):
         if n==MAX_SEASON-1 or n==MAX_SEASON:
             pattern=CheckPattern(browser,market=SELECTED_MARKET)
-            if  pattern.check_result(length="new season", latest_week="all"):
+            check_result=pattern.check_result(length="new season", latest_week="all")
+            if check_result["outcome"]:
+                browser=check_result['driver']
                 log=LoginUser(browser,username=os.environ.get("BETKING_USERNAME"),password=os.environ.get("BETKING_PASSWORD"))
-                acc_bal=log.logingit stat()
+                time.sleep(2)
+                acc_bal=log.login()
                 acc_bal=float(acc_bal.replace(",","_"))
                 GAME_LEVEL=round((acc_bal-1000)/TOTAL_AMOUNT,2)
                 time.sleep(1)
