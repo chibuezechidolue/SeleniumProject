@@ -298,10 +298,10 @@ class CheckPattern:
         if length.lower()=="new season":
             game_weeks = [week.text for week in self.browser.find_elements(By.CSS_SELECTOR, ".week-number")]
             current_game_week=int(game_weeks[0].split(" ")[-1])
-            first_week=1
+            week_to_check=34
 
-            if current_game_week>first_week:
-                time_to_sleep=(34-current_game_week)*3
+            if current_game_week<week_to_check-1:
+                time_to_sleep=(week_to_check-1-current_game_week)*3
                 self.browser.quit()
                 print(f"i'm waiting for {(time_to_sleep)*60} secs ")
                 time.sleep((time_to_sleep)*60)
@@ -313,7 +313,7 @@ class CheckPattern:
 
             # checking if the last week played is Week 10 before going ahead to save the page
             game_weeks = [week.text for week in self.browser.find_elements(By.CSS_SELECTOR, ".week-number")]
-            game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks, week_to_check=f"Week {first_week}",
+            game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks, week_to_check=f"Week {week_to_check}",
                                                         time_delay=30)
             cancel_result_page_button = self.browser.find_element(By.CSS_SELECTOR, "svg path")
             cancel_result_page_button.click()
