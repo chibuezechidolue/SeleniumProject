@@ -3,7 +3,6 @@ import os
 from brain import LoginUser,CheckPattern,PlayGame
 from dotenv import load_dotenv
 from tools import reduce_week_selected, send_email, set_up_driver_instance
-from selenium import webdriver
 
 load_dotenv()
 
@@ -68,7 +67,7 @@ while True:
                     # provision to stake 10 games afterwhich funds are exhausted and place bet begins to skip
                     week_selected=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50")
                     try:
-                        acc_bal=game_play.place_the_bet(amount=str(AMOUNT_LIST[i]*GAME_LEVEL),test=bool(os.environ.get("TEST")))
+                        acc_bal=game_play.place_the_bet(amount=str(AMOUNT_LIST[i]*GAME_LEVEL),test=eval(os.environ.get("TEST")))
                     except:
                         pass
                     # week_selected=game_play.select_stake_options(week="after_current_week",

@@ -31,14 +31,21 @@ class BrainTest(unittest.TestCase):
 
     def test_select_stake_options_and_place_the_bet(self):
         AMOUNT_LIST=(10,10,10,20,30,40,55,80,110,160,230,330,470,675,970)
+        
+        acc_bal=self.log.login()
+        acc_bal=float(acc_bal.replace(",","_"))
+        GAME_LEVEL=round((acc_bal-1000)/9450,2)
+        time.sleep(1)
         self.game_play.choose_market()
         # self.test_login()
         for n in range(5):
             # clear_bet_slip(self.browser)
             week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000")
 
-            acc_bal=self.game_play.place_the_bet(amount=AMOUNT_LIST[n],test=True)
+            acc_bal=self.game_play.place_the_bet(amount=AMOUNT_LIST[n]*GAME_LEVEL,test=eval(os.environ.get("TEST")))
             print(acc_bal)
+            print(os.environ.get("TEST"))
+            print(type(bool(os.environ.get("TEST"))))
             # if n==1:                 # To test the try & except block if results are not available
             #     acc_bal="2,266"
             reduced_week_selected=reduce_week_selected(week_selected,by=0,league="bundliga")

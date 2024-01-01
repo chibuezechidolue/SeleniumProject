@@ -77,7 +77,7 @@ class PlayGame:
         # attempt2=attempt1*2
         if week == "current_week":
             start = 0  # Where to start selecting the option from (current week to start play)
-            end = 9  # Where to end selecting the option from (current week to start play)
+            end = 5  # Where to end selecting the option from (current week to start play)
             week_to_select_num = 0  # The week where the options is to be selected (current week to start play)
 
         elif week == "after_current_week":
@@ -296,8 +296,8 @@ class CheckPattern:
         time.sleep(7)
 
         if length.lower()=="new season":
-            game_weeks = [week.text for week in self.browser.find_elements(By.CSS_SELECTOR, ".week-number")]
-            current_game_week=int(game_weeks[0].split(" ")[-1])
+            game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")
+            current_game_week=int(game_weeks[0].text.split(" ")[-1])
             week_to_check=34
 
             if current_game_week<week_to_check-1:
@@ -312,7 +312,7 @@ class CheckPattern:
                 time.sleep(2)
 
             # checking if the last week played is Week 10 before going ahead to save the page
-            game_weeks = [week.text for week in self.browser.find_elements(By.CSS_SELECTOR, ".week-number")]
+            game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")
             game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks, week_to_check=f"Week {week_to_check}",
                                                         time_delay=30)
             cancel_result_page_button = self.browser.find_element(By.CSS_SELECTOR, "svg path")
@@ -326,8 +326,8 @@ class CheckPattern:
 
             week_to_save1=10
             try:
-                game_weeks = [week.text for week in self.browser.find_elements(By.CSS_SELECTOR, ".week-number")][:week_to_save1]
-                current_game_week=int(game_weeks[0].split(" ")[-1])  # To get the integer num of weeks
+                game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")
+                current_game_week=int(game_weeks[0].text.split(" ")[-1])  # To get the integer num of weeks
                 # To check if last result is 9th - 10th week or sleep till it is
                 if current_game_week<week_to_save1-1:
                     time_to_sleep=(week_to_save1-1-current_game_week)*3
@@ -351,13 +351,13 @@ class CheckPattern:
                     time.sleep(2)
 
                 # checking if the last week played is Week 10 before going ahead to save the page
-                game_weeks = [week.text for week in self.browser.find_elements(By.CSS_SELECTOR, ".week-number")][:week_to_save1]
+                game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")
                 game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks, week_to_check=f"Week {week_to_save1}",
                                                             time_delay=30)
-
+            
                 game_weeks=game_weeks[:week_to_save1]
-                ht_scores = [ht_score.text for ht_score in self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")][:week_to_save1*9]
-                ft_scores = [ft_score.text for ft_score in self.browser.find_elements(By.CSS_SELECTOR, ".score.ft")][:week_to_save1*9]
+                ht_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")[:week_to_save1*9]
+                ft_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ft")[:week_to_save1*9]
                 try:
                     page_path1 = "saved_pages/one_to_ten_page.html"
                     save_page(self.browser, page_name=page_path1)  # save the games(1-10) page
@@ -378,15 +378,16 @@ class CheckPattern:
 
         elif length.lower() == "last result":
             try:
-                game_weeks = [week.text for week in self.browser.find_elements(By.CSS_SELECTOR, ".week-number")]
+                game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")
                 # checking if the last week played is latest_week before going ahead to save the page
                 game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks,
                                                             week_to_check=latest_week,time_delay=30)
+                
                 game_weeks = game_weeks[:1]
 
                 # Re-fill the ht and ft_scores list by the reloaded/current score result of the last week played   
-                ht_scores = [ht_score.text for ht_score in self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")]
-                ft_scores = [ft_score.text for ft_score in self.browser.find_elements(By.CSS_SELECTOR, ".score.ft")]
+                ht_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")
+                ft_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ft")
                 ht_scores = ht_scores[:9]
                 ft_scores = ft_scores[:9]
 
