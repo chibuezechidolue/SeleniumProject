@@ -25,14 +25,14 @@ def check_if_last_result_equal_input(browser:object,game_weeks:list,week_to_chec
    
     if week_to_check=="Week 0":
         return game_weeks
-    last_result_week=game_weeks[0]
+    last_result_week=game_weeks[0].text
     while last_result_week!=week_to_check:
         print(last_result_week,week_to_check)
         time.sleep(time_delay)
         reload_result_page(browser)
         time.sleep(2)
-        game_weeks=[week.text for week in browser.find_elements(By.CSS_SELECTOR,".week-number")]
-        last_result_week=game_weeks[0]
+        game_weeks=browser.find_elements(By.CSS_SELECTOR,".week-number")
+        last_result_week=game_weeks[0].text
     return game_weeks
 
 
@@ -73,14 +73,25 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str)->l
     message=""
     outcome=None
     for n in range(len(ht_scores)):
-        
-        ht_home_score=int(ht_scores[n][0])
-        ht_away_score=int(ht_scores[n][4])
+        try:
+            ht_home_score=int(ht_scores[n].text[0])
+            ht_away_score=int(ht_scores[n].text[4])
 
-        ft_home_score=int(ft_scores[n][0])
-        ft_away_score=int(ft_scores[n][4])
-        current_week=n//9                                                      # the number of the game by 9(total games/week), i.e 54//9 will be week 6
-        week_number=game_weeks[current_week]
+            ft_home_score=int(ft_scores[n].text[0])
+            ft_away_score=int(ft_scores[n].text[4])
+
+            current_week=n//9                                                      # the number of the game by 9(total games/week), i.e 54//9 will be week 6
+            week_number=game_weeks[current_week].text
+        except AttributeError:
+            ht_home_score=int(ht_scores[n][0])
+            ht_away_score=int(ht_scores[n][4])
+
+            ft_home_score=int(ft_scores[n][0])
+            ft_away_score=int(ft_scores[n][4])
+
+            current_week=n//9                                                      # the number of the game by 9(total games/week), i.e 54//9 will be week 6
+            week_number=game_weeks[current_week]
+
 
         # use a try and except block to check the passed in bal and the current on screen bal
         if market=="ht/ft":
@@ -89,11 +100,13 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str)->l
                 count+=1
                 outcome=True
                 message+=f"{week_number}, "
+                break
         elif market=="3-3":
             if ft_home_score==3 and ft_away_score==3:
                 count+=1
                 outcome=True
                 message+=f"{week_number}, "
+                break
 
         
     message+=f"({market} appeeared {count} time(s)) "

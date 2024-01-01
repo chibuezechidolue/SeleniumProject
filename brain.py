@@ -1,5 +1,6 @@
 import time
 import os
+from uu import Error
 from selenium.webdriver.common.by import By
 from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
@@ -310,9 +311,10 @@ class CheckPattern:
                 week_to_save2=games_to_check
 
             try:
-                game_weeks = [week.text for week in self.browser.find_elements(By.CSS_SELECTOR, ".week-number")][:week_to_save1]
-                current_game_week=int(game_weeks[0].split(" ")[-1])  # To get the integer num of weeks
+                game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")[:week_to_save1]
+                current_game_week=int(game_weeks[0].text.split(" ")[-1])  # To get the integer num of weeks
                 # To check if last result is 9th - 10th week or sleep till it is
+
                 if current_game_week<week_to_save1-1:
                     time_to_sleep=(week_to_save1-1-current_game_week)*3
                     self.browser.quit()
@@ -333,14 +335,20 @@ class CheckPattern:
                     time.sleep(2)
 
                 # checking if the last week played is Week 10 before going ahead to save the page
-                game_weeks = [week.text for week in self.browser.find_elements(By.CSS_SELECTOR, ".week-number")][:week_to_save1]
+                game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")[:week_to_save1]
                 game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks, week_to_check=f"Week {week_to_save1}",
                                                             time_delay=30)
 
                 game_weeks=game_weeks[:week_to_save1]
                 print(f"Woow its week {week_to_save1}, lets wait for week {week_to_save2}")
-                ht_scores = [ht_score.text for ht_score in self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")][:week_to_save1*9]
-                ft_scores = [ft_score.text for ft_score in self.browser.find_elements(By.CSS_SELECTOR, ".score.ft")][:week_to_save1*9]
+                ht_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")[:week_to_save1*9]
+                ft_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ft")[:week_to_save1*9]
+                for i in range(len(ft_scores)):
+                    ht_scores[i]=ht_scores[i].text
+                    ft_scores[i]=ft_scores[i].text
+                    if i<len(game_weeks):
+                        game_weeks[i]=game_weeks[i].text
+
                 try:
                     page_path1 = "saved_pages/one_to_ten_page.html"
                     save_page(self.browser, page_name=page_path1)  # save the games(1-10) page
@@ -360,15 +368,15 @@ class CheckPattern:
                 self.browser = set_up_driver_instance()    # driver instance without User Interface (--headless)
                 self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
 
-                second_game_weeks = [week.text for week in self.browser.find_elements(By.CSS_SELECTOR, ".week-number")][:weeks_left]
+                second_game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")[:weeks_left]
                 # checking if the last week played is Week 20 before going ahead to save the page
                 second_game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=second_game_weeks,
                                                                     week_to_check=f"Week {week_to_save2}", time_delay=30)
                 second_game_weeks=second_game_weeks[:weeks_left]
                 
                 # Add the 11-20 weeks matches to the 1-10 weeks matchesx
-                ht_scores.extend([ht_score.text for ht_score in self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")][:weeks_left*9])
-                ft_scores.extend([ft_score.text for ft_score in self.browser.find_elements(By.CSS_SELECTOR, ".score.ft")][:weeks_left*9])
+                ht_scores.extend(self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")[:weeks_left*9])
+                ft_scores.extend(self.browser.find_elements(By.CSS_SELECTOR, ".score.ft")[:weeks_left*9])
                 game_weeks.extend(second_game_weeks)
 
                 try:
@@ -377,29 +385,27 @@ class CheckPattern:
                 except FileNotFoundError:
                     page_path2 = "SeleniumProject/saved_pages/eleven_to_twenty_page.html"
                     save_page(self.browser, page_name=page_path2)
-
                 result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=self.market)
-            except:
+            except Exception as error:
                 print("an error occured i skipped this session")
-                result={"outcome":True,"message":"an error occured i skipped this session"}
+                print(f"this is the error: {error}")
+                result={"outcome":True,"message":f"an error occured i skipped this session. This is the error: {error}"}
 
         elif length.lower() == "last result":
             try:
-                game_weeks = [week.text for week in self.browser.find_elements(By.CSS_SELECTOR, ".week-number")]
+                game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")
                 # checking if the last week played is latest_week before going ahead to save the page
                 game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks,
                                                             week_to_check=latest_week,time_delay=30)
                 game_weeks = game_weeks[:1]
 
                 # Re-fill the ht and ft_scores list by the reloaded/current score result of the last week played   
-                ht_scores = [ht_score.text for ht_score in self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")]
-                ft_scores = [ft_score.text for ft_score in self.browser.find_elements(By.CSS_SELECTOR, ".score.ft")]
-                ht_scores = ht_scores[:9]
-                ft_scores = ft_scores[:9]
+                ht_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")[:9]
+                ft_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ft")[:9]
 
                 result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=self.market)
-            except:
-                print("an error occured when checking last result i used acc balance to check")
+            except Exception as error:
+                print(f"an error occured when checking last result i used acc balance to check.this is the error: {error}")
                 # if the result page fails, compare balances to tell the outcome
                 time.sleep(110)  # TODO: Confirm the time to sleep before the balance reflects
 
@@ -408,9 +414,9 @@ class CheckPattern:
                 time.sleep(2)
                 acc_balance_2=self.browser.find_element(By.CSS_SELECTOR, '.user-balance-container .amount').text
                 if float(acc_balance_2.replace(",","_"))>float(acc_balance.replace(',','_')):
-                    result={"outcome":True,"message":"I used the acc bal to confirm ticket won"}
+                    result={"outcome":True,"message":f"I used the acc bal to confirm ticket won. this is the error: {error}"}
                 else:
-                    result={"outcome":False,"message":"I used the acc bal to confirm ticket won"}
+                    result={"outcome":False,"message":f"I used the acc bal to confirm ticket won. this is the error: {error}"}
 
         if result["outcome"] != True and length.lower() == "all result":
             send_email(Email=os.environ.get("EMAIL_USERNAME"),

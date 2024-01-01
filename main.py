@@ -76,7 +76,7 @@ while True:
                 
             week_selected=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50")
             try:
-                acc_bal=game_play.place_the_bet(amount=str(AMOUNT_LIST[n]*GAME_LEVEL),test=bool(os.environ.get("TEST")))
+                acc_bal=game_play.place_the_bet(amount=str(AMOUNT_LIST[n]*GAME_LEVEL),test=eval(os.environ.get("TEST")))
             except:
                 pass
             # week_selected=game_play.select_stake_options(week="after_current_week",
