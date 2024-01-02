@@ -1,4 +1,5 @@
 import codecs
+import datetime
 import time
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -27,6 +28,7 @@ def check_if_last_result_equal_input(browser:object,game_weeks:list,week_to_chec
         return game_weeks
     last_result_week=game_weeks[0].text
     while last_result_week!=week_to_check:
+        print(datetime.datetime.now().time())
         print(last_result_week,week_to_check)
         time.sleep(time_delay)
         reload_result_page(browser)

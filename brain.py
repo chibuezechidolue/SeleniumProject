@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 from tools import (cancel_popup, check_if_current_week_has_played,
                    check_if_current_week_islive, check_if_last_result_equal_input,
                    clear_bet_slip, save_page, confirm_outcome, send_email, set_up_driver_instance)
+import datetime
 
 load_dotenv()
 
@@ -66,6 +67,8 @@ class PlayGame:
 
     def select_stake_options(self, week: str, previous_week_selected: str) -> str:
         """ To select the stake option from the selected market, you wish to stake funds on """
+        print(f"select_stake_option Start: {datetime.datetime.now().time()}")
+
         available_games = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-content"]')
         week_to_select = self.browser.find_elements(By.CSS_SELECTOR, '.week')
 
@@ -77,7 +80,7 @@ class PlayGame:
         # attempt2=attempt1*2
         if week == "current_week":
             start = 0  # Where to start selecting the option from (current week to start play)
-            end = 5  # Where to end selecting the option from (current week to start play)
+            end = 9  # Where to end selecting the option from (current week to start play)
             week_to_select_num = 0  # The week where the options is to be selected (current week to start play)
 
         elif week == "after_current_week":
@@ -207,7 +210,8 @@ class PlayGame:
             except (IndexError,StaleElementReferenceException):
                 print(" The Network has crashed the program, i skipped this staking")
                 pass
-
+        print(f"select_stake_option End: {datetime.datetime.now().time()}")
+    
         return week_to_select_text
 
     def place_the_bet(self, amount: int, test: bool)->str:
@@ -283,7 +287,7 @@ class CheckPattern:
         try:
             standings_button = self.wait.until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="results-and-standings-button"]')))
-        except TimeoutError:
+        except TimeoutException:
             standings_button=self.browser.find_element(By.CSS_SELECTOR,'[data-testid="results-and-standings-button"]')
         # standings_button=self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,"span.view-switch-icon")))
         standings_button.click()
