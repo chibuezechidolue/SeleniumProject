@@ -206,7 +206,7 @@ class PlayGame:
             return week_to_select_text
         except Exception as error:
             # To clear all stake options selected if an error occurs while selecting stake options
-            print(f"An error occured during select_stake_options. This is the {error}")
+            print(f"An error occured during select_stake_options. This is the error: {error}")
             betslip_button = self.wait.until(
             EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="nav-bar-betslip"]')))
             betslip_button.click()
@@ -215,7 +215,7 @@ class PlayGame:
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
                        Password=os.environ.get("EMAIL_PASSWORD"),
                        Subject="ERROR during select_stake_options",
-                       Message=f"An error occured during select_stake_options. This is the {error}"
+                       Message=f"An error occured during select_stake_options. This is the error: {error}"
                        )
             return week_to_select_text
 
