@@ -332,7 +332,7 @@ class CheckPattern:
                     self.browser = set_up_driver_instance()   # driver instance without User Interface (--headless)
                     time.sleep(1)
                     self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
-                    time.sleep(2)
+                    time.sleep(5)
 
                 # checking if the last week played is Week 10 before going ahead to save the page
                 game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")[:week_to_save1]
@@ -367,7 +367,7 @@ class CheckPattern:
                 # self.browser=webdriver.Chrome()          # driver instance with User Interface (not headless)
                 self.browser = set_up_driver_instance()    # driver instance without User Interface (--headless)
                 self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
-
+                time.sleep(5)
                 second_game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")[:weeks_left]
                 # checking if the last week played is Week 20 before going ahead to save the page
                 second_game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=second_game_weeks,
