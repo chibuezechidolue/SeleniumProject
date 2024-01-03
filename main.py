@@ -64,6 +64,7 @@ while True:
         # week_selected=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50")
 
         won=False
+        acc_bal=str(acc_bal)
         for n in range(len(AMOUNT_LIST[:MAX_AMOUNT_LENGTH])):
             # provision to stake 10 games afterwhich funds are exhausted and place bet begins to skip
             if n==10:

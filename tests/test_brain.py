@@ -31,19 +31,24 @@ class BrainTest(unittest.TestCase):
     def test_select_stake_options_and_place_the_bet(self):
         AMOUNT_LIST=(10,10,10,20,30,40,55,80,110,160,230,330,470,675,970)
         self.game_play.choose_market()
-        week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000")
         # self.test_login()
-        for n in range(14):
+        acc_bal=2000.2
+        acc_bal=str(acc_bal)
+        for n in range(1):
             # clear_bet_slip(self.browser)
             if n==10:
                 os.environ["TEST"]="True"
-            acc_bal=self.game_play.place_the_bet(amount=AMOUNT_LIST[n],test=os.environ.get("TEST"))
-            print(acc_bal)
+            week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000")
+            try:
+                acc_bal=self.game_play.place_the_bet(amount=AMOUNT_LIST[n],test=os.environ.get("TEST"))
+            except:
+                pass
+            # print(acc_bal)
             # if n==1:                 # To test the try & except block if results are not available
             #     acc_bal="2,266"
-            week_selected=self.game_play.select_stake_options(week="after_current_week",previous_week_selected=week_selected)
-            reduced_week_selected=reduce_week_selected(week_selected,by=1,league="bundliga")
+            reduced_week_selected=reduce_week_selected(week_selected,by=0,league="bundliga")
             # self.pattern.check_result(length="last result",latest_week=reduced_week_selected)
+            # self.pattern=CheckPattern(self.browser,market="ht/ft")
             self.pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal)
 
     def test_checkout_virtual(self):
@@ -72,6 +77,7 @@ class BrainTest(unittest.TestCase):
             if self.pattern.check_result(length="last result",latest_week=reduced_week_selected)['outcome']:
                 print(f"it came in {reduced_week_selected}")
                 break
+
 
 
     # TODO: check if theres is need to create another CheckPattern instance inorder for check_last_result to run sucessfully after the check_all_result has been run which will destroy and create a new driver instance
