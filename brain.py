@@ -377,13 +377,6 @@ class CheckPattern:
                 game_weeks=game_weeks[:week_to_save1]
                 ht_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")[:week_to_save1*9]
                 ft_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ft")[:week_to_save1*9]
-                try:
-                    page_path1 = "saved_pages/one_to_ten_page.html"
-                    save_page(self.browser, page_name=page_path1)  # save the games(1-10) page
-                except FileNotFoundError:
-                    page_path1 = "SeleniumProject/saved_pages/one_to_ten_page.html"
-                    save_page(self.browser, page_name=page_path1)
-
 
                 result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=self.market)
             except:
@@ -394,6 +387,14 @@ class CheckPattern:
                        Subject="An Error Occured",
                        Message=result["message"],
                        )
+                
+            finally:
+                try:
+                    page_path1 = "saved_pages/one_to_ten_page.html"
+                    save_page(self.browser, page_name=page_path1)  # save the games(1-10) page
+                except FileNotFoundError:
+                    page_path1 = "SeleniumProject/saved_pages/one_to_ten_page.html"
+                    save_page(self.browser, page_name=page_path1)
 
         elif length.lower() == "last result":
             try:
@@ -424,30 +425,32 @@ class CheckPattern:
                     result={"outcome":True,"message":"I used the acc bal to confirm ticket won"}
                 else:
                     result={"outcome":False,"message":"I used the acc bal to confirm ticket won"}
+            finally:
+                try:
+                    page_path1 = "saved_pages/one_to_ten_page.html"
+                    save_page(self.browser, page_name=page_path1)  # save the games(1-10) page
+                except FileNotFoundError:
+                    page_path1 = "SeleniumProject/saved_pages/one_to_ten_page.html"
+                    save_page(self.browser, page_name=page_path1)
+        
         
         if result["outcome"] == True and length.lower() == "all result":
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
                        Password=os.environ.get("EMAIL_PASSWORD"),
                        Subject=f"{self.market} came in the last SEASON",
                        Message=result["message"],
-                       File_path=[page_path1]
+                    #    File_path=[page_path1]
                        )
             cancel_result_page_button = self.browser.find_element(By.CSS_SELECTOR, "svg path")
             cancel_result_page_button.click()
-            return {"outcome": True, "driver": self.browser}
+            return {"outcome": True, "driver": self.browser,"page_path":page_path1}
         
         elif result["outcome"] == True and length.lower() == "last result":
-            try:
-                page_path = "saved_pages/one_to_ten_page.html"
-                save_page(self.browser, page_name=page_path)
-            except FileNotFoundError:
-                page_path = "SeleniumProject/saved_pages/one_to_ten_page.html"
-                save_page(self.browser, page_name=page_path)  # save the games(1-10) page
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
                        Password=os.environ.get("EMAIL_PASSWORD"),
                        Subject=f"{self.market} came in the last result" ,
                        Message=result["message"],
-                       File_path=[page_path]
+                       File_path=[page_path1]
                        )
 
             cancel_result_page_button = self.browser.find_element(By.CSS_SELECTOR, "svg path")
@@ -457,7 +460,7 @@ class CheckPattern:
         else:
             cancel_result_page_button = self.browser.find_element(By.CSS_SELECTOR, "svg path")
             cancel_result_page_button.click()
-            return {"outcome": False, "driver": self.browser}
+            return {"outcome": False, "driver": self.browser,"page_path":page_path1}
 
 
 class LoginUser:

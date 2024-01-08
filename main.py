@@ -94,7 +94,8 @@ while True:
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
                     Password=os.environ.get("EMAIL_PASSWORD"),
                     Subject=f"On To The NEXT 10 Stakes",
-                    Message=f"SEASON {n} result has been CHECKED, waiting for next SEASON "
+                    Message=f"SEASON {n} result has been CHECKED, waiting for next SEASON ",
+                    File_path=check_result["page_path"]
                     )
         
         

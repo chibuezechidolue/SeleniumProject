@@ -39,7 +39,7 @@ class BrainTest(unittest.TestCase):
         self.game_play.choose_market()
         # self.test_login()
         acc_bal=str(acc_bal)
-        for n in range(1):
+        for n in range(3):
             # clear_bet_slip(self.browser)
             week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000")
             try:
