@@ -182,16 +182,18 @@ def clear_bet_slip(browser):
     try:
        clear_all_button= browser.find_element(By.CSS_SELECTOR,'.clear-all')
     except (TimeoutException,NoSuchElementException):
-        betslip_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')))
+        # betslip_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')))
+        betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')
         betslip_button.click()
-        time.sleep(1)
+        time.sleep(3)
     try:
-        clear_all_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'.clear-all')))
-        # clear_all_button=browser.find_element(By.CSS_SELECTOR,'.clear-all')
+        # clear_all_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'.clear-all')))
+        clear_all_button=browser.find_element(By.CSS_SELECTOR,'.clear-all')
         clear_all_button.click()
     except (TimeoutException,NoSuchElementException):
         pass
     time.sleep(1)
-    close_betslip_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'[data-testid="coupon-close-icon"]')))
+    # close_betslip_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'[data-testid="coupon-close-icon"]')))
+    close_betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="coupon-close-icon"]')
     close_betslip_button.click()
     time.sleep(2)
