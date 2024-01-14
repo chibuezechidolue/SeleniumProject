@@ -37,8 +37,9 @@ class PlayGame:
             self.browser.execute_script("window.scrollTo(0, 20);")
             if check_if_current_week_islive(self.browser):
                 time.sleep(40)
-            more_markets_button = self.wait.until(
-                EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="market-dropdown-more-markets"]')))
+            # more_markets_button = self.wait.until(
+            #     EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="market-dropdown-more-markets"]')))
+            more_markets_button=self.browser.find_element(By.CSS_SELECTOR,'[data-testid="market-dropdown-more-markets"]')
             more_markets_button.click()
 
         if self.market.lower() == "ht/ft":
@@ -54,7 +55,8 @@ class PlayGame:
         except (StaleElementReferenceException, ElementClickInterceptedException, TimeoutException):
             if check_if_current_week_islive(self.browser):
                 time.sleep(40)
-            market_to_select = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, market_selector)))
+            # market_to_select = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, market_selector)))
+            market_to_select=self.browser.find_element(By.CSS_SELECTOR, market_selector)
             market_to_select.click()
 
         time.sleep(0.5)
@@ -321,11 +323,17 @@ class CheckPattern:
             standings_button=self.browser.find_element(By.CSS_SELECTOR,'[data-testid="results-and-standings-button"]')
         # standings_button=self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,"span.view-switch-icon")))
         standings_button.click()
-        result_button = self.wait.until(EC.element_to_be_clickable((By.XPATH,
+        try:
+            result_button = self.wait.until(EC.element_to_be_clickable((By.XPATH,
                                                                     "/html/body/app-root/app-wrapper/div/virtuals"
                                                                     "-league-wrapper/mobile-virtuals-soccer/mvs"
                                                                     "-virtual-league-page/div["
                                                                     "2]/mvs-results-page/div[2]/div[2]")))
+        except TimeoutException:
+            result_button=self.browser.find_element(By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals"
+                                                                    "-league-wrapper/mobile-virtuals-soccer/mvs"
+                                                                    "-virtual-league-page/div["
+                                                                    "2]/mvs-results-page/div[2]/div[2]")
         result_button.click()
         time.sleep(7)
 
@@ -490,7 +498,8 @@ class LoginUser:
 
     def login(self):
         """ Login the user with the credentials from initialization"""
-        login = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.text")))
+        # login = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.text")))
+        login= self.browser.find_element(By.CSS_SELECTOR, "button.text")
         try:
             login.click()
         except ElementClickInterceptedException:
@@ -510,10 +519,12 @@ class LoginUser:
         time.sleep(1)
         login_button = self.browser.find_element(By.CSS_SELECTOR, '[text="Login"]')
         login_button.click()
-        time.sleep(1)
+        time.sleep(3)
         try:
-            cancel_notification_option_button = self.wait.until(
-                EC.element_to_be_clickable((By.CSS_SELECTOR, "button.kumulos-action-button-cancel")))
+            # cancel_notification_option_button = self.wait.until(
+            #     EC.element_to_be_clickable((By.CSS_SELECTOR, "button.kumulos-action-button-cancel")))
+            cancel_notification_option_button=self.browser.find_element(
+                By.CSS_SELECTOR, "button.kumulos-action-button-cancel")
             cancel_notification_option_button.click()
         except (TimeoutException, NoSuchElementException):
             pass
