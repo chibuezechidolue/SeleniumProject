@@ -519,12 +519,12 @@ class LoginUser:
         time.sleep(1)
         login_button = self.browser.find_element(By.CSS_SELECTOR, '[text="Login"]')
         login_button.click()
-        time.sleep(3)
+        time.sleep(2)
         try:
-            # cancel_notification_option_button = self.wait.until(
-            #     EC.element_to_be_clickable((By.CSS_SELECTOR, "button.kumulos-action-button-cancel")))
-            cancel_notification_option_button=self.browser.find_element(
-                By.CSS_SELECTOR, "button.kumulos-action-button-cancel")
+            cancel_notification_option_button = self.wait.until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, "button.kumulos-action-button-cancel")))
+            # cancel_notification_option_button=self.browser.find_element(
+            #     By.CSS_SELECTOR, "button.kumulos-action-button-cancel")
             cancel_notification_option_button.click()
         except (TimeoutException, NoSuchElementException):
             pass
