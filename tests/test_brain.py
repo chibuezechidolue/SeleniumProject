@@ -31,10 +31,10 @@ class BrainTest(unittest.TestCase):
     def test_select_stake_options_and_place_the_bet(self):
         AMOUNT_LIST=(10,10,10,20,30,40,55,80,110,160,230,330,470,675,970)
         self.game_play.choose_market()
-        # self.test_login()
+        self.test_login()
         acc_bal=2000.2
         acc_bal=str(acc_bal)
-        for n in range(1):
+        for n in range(3):
             # clear_bet_slip(self.browser)
             if n==10:
                 os.environ["TEST"]="True"

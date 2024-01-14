@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 from tools import (cancel_popup, check_if_current_week_has_played,
                    check_if_current_week_islive, check_if_last_result_equal_input,
                    clear_bet_slip, save_page, confirm_outcome, send_email, set_up_driver_instance)
+import datetime
 
 load_dotenv()
 
@@ -36,8 +37,9 @@ class PlayGame:
             self.browser.execute_script("window.scrollTo(0, 20);")
             if check_if_current_week_islive(self.browser):
                 time.sleep(40)
-            more_markets_button = self.wait.until(
-                EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="market-dropdown-more-markets"]')))
+            # more_markets_button = self.wait.until(
+            #     EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="market-dropdown-more-markets"]')))
+            more_markets_button=self.browser.find_element(By.CSS_SELECTOR,'[data-testid="market-dropdown-more-markets"]')
             more_markets_button.click()
 
         if self.market.lower() == "ht/ft":
@@ -53,7 +55,8 @@ class PlayGame:
         except (StaleElementReferenceException, ElementClickInterceptedException, TimeoutException):
             if check_if_current_week_islive(self.browser):
                 time.sleep(40)
-            market_to_select = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, market_selector)))
+            # market_to_select = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, market_selector)))
+            market_to_select=self.browser.find_element(By.CSS_SELECTOR, market_selector)
             market_to_select.click()
 
         time.sleep(0.5)
@@ -66,6 +69,8 @@ class PlayGame:
 
     def select_stake_options(self, week: str, previous_week_selected: str) -> str:
         """ To select the stake option from the selected market, you wish to stake funds on """
+        print(f"select_stake_option Start: {datetime.datetime.now().time()}")
+
         available_games = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-content"]')
         week_to_select = self.browser.find_elements(By.CSS_SELECTOR, '.week')
 
@@ -104,7 +109,8 @@ class PlayGame:
                             const = 9
 
                     available_games = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-content"]')
-                    available_games_1 = self.wait.until(EC.element_to_be_clickable(available_games[:end][n]))
+                    # available_games_1 = self.wait.until(EC.element_to_be_clickable(available_games[:end][n]))
+                    available_games_1=available_games[:end][n]
                     available_games_1.click()
                     time.sleep(0.5)
                 except (ElementClickInterceptedException, StaleElementReferenceException, TimeoutException):
@@ -121,7 +127,8 @@ class PlayGame:
                             const = 9
                             
                     available_games = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-content"]')
-                    available_games_1 = self.wait.until(EC.element_to_be_clickable(available_games[:end][n]))
+                    # available_games_1 = self.wait.until(EC.element_to_be_clickable(available_games[:end][n]))
+                    available_games_1=available_games[:end][n]
                     available_games_1.click()
 
                 if week == "after_current_week" and const != 9:
@@ -138,11 +145,13 @@ class PlayGame:
                             # stake_options=self.browser.find_elements(By.CSS_SELECTOR,'[data-testid="match-odd-value"]')[n*9:end*9]
                     if self.market=="ht/ft":
                         stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]  # Temp
-                        one_slash_two_option = self.wait.until(EC.element_to_be_clickable(stake_options[2]))
+                        # one_slash_two_option = self.wait.until(EC.element_to_be_clickable(stake_options[2]))
+                        one_slash_two_option=stake_options[2]
                         one_slash_two_option.click()
                     elif self.market=="3-3":
                         stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 28:end * 28]  # Temp
-                        three_three_option = self.wait.until(EC.element_to_be_clickable(stake_options[15]))
+                        # three_three_option = self.wait.until(EC.element_to_be_clickable(stake_options[15]))
+                        three_three_option=stake_options[15]
                         three_three_option.click()
                     time.sleep(0.5)
 
@@ -161,11 +170,13 @@ class PlayGame:
                             const = 9
                     if self.market=="ht/ft":
                         stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]  # Temp
-                        one_slash_two_option = self.wait.until(EC.element_to_be_clickable(stake_options[2]))
+                        # one_slash_two_option = self.wait.until(EC.element_to_be_clickable(stake_options[2]))
+                        one_slash_two_option=stake_options[2]
                         one_slash_two_option.click()
                     elif self.market=="3-3":
                         stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 28:end * 28]  # Temp
-                        three_three_option = self.wait.until(EC.element_to_be_clickable(stake_options[15]))
+                        # three_three_option = self.wait.until(EC.element_to_be_clickable(stake_options[15]))
+                        three_three_option=stake_options[15]
                         three_three_option.click()
                     time.sleep(0.5)
 
@@ -178,7 +189,8 @@ class PlayGame:
                             const = 9
                     if self.market=="ht/ft":
                         stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]
-                        two_slash_one_option = self.wait.until(EC.element_to_be_clickable(stake_options[6]))
+                        # two_slash_one_option = self.wait.until(EC.element_to_be_clickable(stake_options[6]))
+                        two_slash_one_option=stake_options[6]
                         two_slash_one_option.click()
                     elif self.market=="3-3":
                         pass
@@ -197,18 +209,20 @@ class PlayGame:
                             const = 9
                     if self.market=="ht/ft":
                         stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]
-                        two_slash_one_option = self.wait.until(EC.element_to_be_clickable(stake_options[6]))
+                        # two_slash_one_option = self.wait.until(EC.element_to_be_clickable(stake_options[6]))
+                        two_slash_one_option=stake_options[6]
                         two_slash_one_option.click()
                     elif self.market=="3-3":
                         pass
                     time.sleep(0.5)
-
+            print(f"select_stake_option End: {datetime.datetime.now().time()}")
             return week_to_select_text
         except Exception as error:
             # To clear all stake options selected if an error occurs while selecting stake options
             print(f"An error occured during select_stake_options. This is the error: {error}")
-            betslip_button = self.wait.until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="nav-bar-betslip"]')))
+            # betslip_button = self.wait.until(
+            # EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="nav-bar-betslip"]')))
+            betslip_button=self.browser.find_element(By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')
             betslip_button.click()
             time.sleep(1)
             clear_bet_slip(self.browser)
@@ -223,14 +237,16 @@ class PlayGame:
         """ To bet the selected stake options each with the inputed amount"""
         # identify and click the betslip botton
         time.sleep(1)
-        betslip_button = self.wait.until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="nav-bar-betslip"]')))
+        # betslip_button = self.wait.until(
+        #     EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="nav-bar-betslip"]')))
+        betslip_button=self.browser.find_element(By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')
         betslip_button.click()
-        time.sleep(1)
+        time.sleep(3)
         # identify and click the singles tab option
         try:
-            singles_button = self.wait.until(
-                EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="groupings-tab-singles"]')))
+            # singles_button = self.wait.until(
+            #     EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="groupings-tab-singles"]')))
+            singles_button=self.browser.find_element(By.CSS_SELECTOR,'[data-testid="groupings-tab-singles"]')
             singles_button.click()
             # identify, clear existing amount and input new amount
             stake_input_box = self.browser.find_element(By.CSS_SELECTOR, '[data-testid="coupon-groupings-group-stake"]')
@@ -245,17 +261,20 @@ class PlayGame:
                 clear_bet_slip(self.browser)
             else:
                 # identify and click the place bet button
-                place_bet_button = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, '[text="Place Bet"]')))
+                # place_bet_button = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, '[text="Place Bet"]')))
+                place_bet_button=self.browser.find_element(By.CSS_SELECTOR, '[text="Place Bet"]')
                 place_bet_button.click()
                 time.sleep(2)
                 # identify and click the continue betting button
                 try:
-                    continue_betting_button = self.wait.until(
-                        EC.element_to_be_clickable((By.CSS_SELECTOR, '.bet-success-dialog-buttons .btn-text')))
+                    # continue_betting_button = self.wait.until(
+                    #     EC.element_to_be_clickable((By.CSS_SELECTOR, '.bet-success-dialog-buttons .btn-text')))
+                    continue_betting_button=self.browser.find_element(By.CSS_SELECTOR, '.bet-success-dialog-buttons .btn-text')
                     continue_betting_button.click()
                 except (TimeoutException, NoSuchElementException):
-                    close_betslip_button = self.wait.until(
-                        EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="coupon-close-icon"]')))
+                    # close_betslip_button = self.wait.until(
+                    #     EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="coupon-close-icon"]')))
+                    close_betslip_button=self.browser.find_element(By.CSS_SELECTOR, '[data-testid="coupon-close-icon"]')
                     close_betslip_button.click()
             try:
                 acc_balance=self.browser.find_element(By.CSS_SELECTOR, '.user-balance-container .amount').text
@@ -263,8 +282,10 @@ class PlayGame:
             except (NoSuchElementException, TimeoutException):
                 pass
         except:
-            close_betslip_button = self.wait.until(
-                EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="coupon-close-icon"]')))
+            # close_betslip_button = self.wait.until(
+            #     EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="coupon-close-icon"]')))
+            close_betslip_button=self.browser.find_element(By.CSS_SELECTOR, '[data-testid="coupon-close-icon"]')
+            close_betslip_button.click()
             close_betslip_button.click()
 
 class CheckPattern:
@@ -303,11 +324,17 @@ class CheckPattern:
         finally:
             standings_button.click()
             
-        result_button = self.wait.until(EC.element_to_be_clickable((By.XPATH,
+        try:
+            result_button = self.wait.until(EC.element_to_be_clickable((By.XPATH,
                                                                     "/html/body/app-root/app-wrapper/div/virtuals"
                                                                     "-league-wrapper/mobile-virtuals-soccer/mvs"
                                                                     "-virtual-league-page/div["
                                                                     "2]/mvs-results-page/div[2]/div[2]")))
+        except TimeoutException:
+            result_button=self.browser.find_element(By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals"
+                                                                    "-league-wrapper/mobile-virtuals-soccer/mvs"
+                                                                    "-virtual-league-page/div["
+                                                                    "2]/mvs-results-page/div[2]/div[2]")
         result_button.click()
         time.sleep(7)
         # check halftime fulltime result
@@ -487,7 +514,8 @@ class LoginUser:
 
     def login(self):
         """ Login the user with the credentials from initialization and return the account balance of the user"""
-        login = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.text")))
+        # login = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.text")))
+        login= self.browser.find_element(By.CSS_SELECTOR, "button.text")
         try:
             login.click()
         except ElementClickInterceptedException:
@@ -507,10 +535,12 @@ class LoginUser:
         time.sleep(1)
         login_button = self.browser.find_element(By.CSS_SELECTOR, '[text="Login"]')
         login_button.click()
-        time.sleep(1)
+        time.sleep(2)
         try:
             cancel_notification_option_button = self.wait.until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, "button.kumulos-action-button-cancel")))
+            # cancel_notification_option_button=self.browser.find_element(
+            #     By.CSS_SELECTOR, "button.kumulos-action-button-cancel")
             cancel_notification_option_button.click()
         except (TimeoutException, NoSuchElementException):
             pass
