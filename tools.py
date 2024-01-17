@@ -71,7 +71,7 @@ def save_page(browser,page_name:str):
             page_content=browser.page_source        # get the content of the current page
             file.write(page_content)                # write the content of the current page to the file 
 
-def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str)->list:
+def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str,option:str)->list:
     """To check the result for the presence or possible presence of an intended or staked outcome"""
     count=0
     message=""
@@ -87,13 +87,19 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str)->l
         week_number=game_weeks[current_week].text
 
         # use a try and except block to check the passed in bal and the current on screen bal
-        if market=="ht/ft":
-            if (ht_home_score>ht_away_score and ft_home_score<ft_away_score or     # 2/1
-                ht_home_score<ht_away_score and ft_home_score>ft_away_score):     # 1/2
+        if market=="ht/ft" and option=="1/2":
+            if (ht_home_score>ht_away_score and ft_home_score<ft_away_score):     # 1/2
                 count+=1
                 outcome=True
                 message+=f"{week_number}, "
                 break
+        elif market=="ht/ft" and option=="2/1":
+            if (ht_home_score<ht_away_score and ft_home_score>ft_away_score):     # 2/1
+                count+=1
+                outcome=True
+                message+=f"{week_number}, "
+                break
+
         elif market=="3-3":
             if ft_home_score==3 and ft_away_score==3:
                 count+=1

@@ -67,9 +67,13 @@ class PlayGame:
         except:
             pass
 
-    def select_stake_options(self, week: str, previous_week_selected: str) -> str:
+    def select_stake_options(self, week: str, previous_week_selected: str,option:str) -> str:
         """ To select the stake option from the selected market, you wish to stake funds on """
         print(f"select_stake_option Start: {datetime.datetime.now().time()}")
+        if option=="1/2":
+            option=2
+        elif option=="2/1":
+            option=6
 
         available_games = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-content"]')
         week_to_select = self.browser.find_elements(By.CSS_SELECTOR, '.week')
@@ -146,7 +150,7 @@ class PlayGame:
                     if self.market=="ht/ft":
                         stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]  # Temp
                         # one_slash_two_option = self.wait.until(EC.element_to_be_clickable(stake_options[2]))
-                        one_slash_two_option=stake_options[2]
+                        one_slash_two_option=stake_options[option]
                         one_slash_two_option.click()
                     elif self.market=="3-3":
                         stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 28:end * 28]  # Temp
@@ -171,7 +175,7 @@ class PlayGame:
                     if self.market=="ht/ft":
                         stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]  # Temp
                         # one_slash_two_option = self.wait.until(EC.element_to_be_clickable(stake_options[2]))
-                        one_slash_two_option=stake_options[2]
+                        one_slash_two_option=stake_options[option]
                         one_slash_two_option.click()
                     elif self.market=="3-3":
                         stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 28:end * 28]  # Temp
@@ -181,41 +185,41 @@ class PlayGame:
                     time.sleep(0.5)
                
 
-                try:
-                    if check_if_current_week_islive(self.browser):
-                        time.sleep(40)
-                        print("i went live at stake_option_2")
-                        if week == "after_current_week" and const != 9:
-                            n -= 1
-                            const = 9
-                    if self.market=="ht/ft":
-                        stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]
-                        # two_slash_one_option = self.wait.until(EC.element_to_be_clickable(stake_options[6]))
-                        two_slash_one_option=stake_options[6]
-                        two_slash_one_option.click()
-                    elif self.market=="3-3":
-                        pass
-                    time.sleep(0.5)
-                except (ElementClickInterceptedException, TimeoutException):
-                    print("exception was thrown at stake_option_2")
-                    self.browser.execute_script(
-                        f"window.scrollTo(0, {window_height * attempt1});")  # To Scroll to where the element can be clicked()
+                # try:
+                #     if check_if_current_week_islive(self.browser):
+                #         time.sleep(40)
+                #         print("i went live at stake_option_2")
+                #         if week == "after_current_week" and const != 9:
+                #             n -= 1
+                #             const = 9
+                #     if self.market=="ht/ft":
+                #         stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]
+                #         # two_slash_one_option = self.wait.until(EC.element_to_be_clickable(stake_options[6]))
+                #         two_slash_one_option=stake_options[6]
+                #         two_slash_one_option.click()
+                #     elif self.market=="3-3":
+                #         pass
+                #     time.sleep(0.5)
+                # except (ElementClickInterceptedException, TimeoutException):
+                #     print("exception was thrown at stake_option_2")
+                #     self.browser.execute_script(
+                #         f"window.scrollTo(0, {window_height * attempt1});")  # To Scroll to where the element can be clicked()
 
-                    time.sleep(0.5)
-                    if check_if_current_week_islive(self.browser):
-                        time.sleep(40)
-                        print("i went live at stake_option_2")
-                        if week == "after_current_week" and const != 9:
-                            n -= 1
-                            const = 9
-                    if self.market=="ht/ft":
-                        stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]
-                        # two_slash_one_option = self.wait.until(EC.element_to_be_clickable(stake_options[6]))
-                        two_slash_one_option=stake_options[6]
-                        two_slash_one_option.click()
-                    elif self.market=="3-3":
-                        pass
-                    time.sleep(0.5)
+                #     time.sleep(0.5)
+                #     if check_if_current_week_islive(self.browser):
+                #         time.sleep(40)
+                #         print("i went live at stake_option_2")
+                #         if week == "after_current_week" and const != 9:
+                #             n -= 1
+                #             const = 9
+                #     if self.market=="ht/ft":
+                #         stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]
+                #         # two_slash_one_option = self.wait.until(EC.element_to_be_clickable(stake_options[6]))
+                #         two_slash_one_option=stake_options[6]
+                #         two_slash_one_option.click()
+                #     elif self.market=="3-3":
+                #         pass
+                #     time.sleep(0.5)
             print(f"select_stake_option End: {datetime.datetime.now().time()}")
         
             return week_to_select_text
@@ -314,7 +318,7 @@ class CheckPattern:
         virtual_choice_button = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, css_selector)))
         virtual_choice_button.click()
 
-    def check_result(self, length: str, latest_week: str,acc_balance:str=None,to_play:int=None) -> dict:
+    def check_result(self, length: str, latest_week: str,option: str=None,acc_balance:str=None) -> dict:
         """ To check the result outcomes of an inputed length or number of weeks"""
         try:
             standings_button = self.wait.until(
@@ -401,7 +405,7 @@ class CheckPattern:
                 ht_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")[:week_to_save1*9]
                 ft_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ft")[:week_to_save1*9]
 
-                result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=self.market)
+                result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=self.market,option=option)
             except:
                 print(f"an error occured, so i assumed {self.market} came and skipped this season")
                 result={"outcome":True,"message":f"an error occured, so i assumed {self.market} came and skipped this season"}
@@ -434,7 +438,7 @@ class CheckPattern:
                 ht_scores = ht_scores[:9]
                 ft_scores = ft_scores[:9]
 
-                result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=self.market)
+                result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=self.market,option=option)
             except:
                 print("an error occured when checking last result i used acc balance to check")
                 # if the result page fails, compare balances to tell the outcome

@@ -13,7 +13,8 @@ load_dotenv()
 
 class BrainTest(unittest.TestCase):
     def setUp(self):
-        market="3-3"
+        market="ht/ft"
+        self.PLAY_OPTION="1/2"
         self.browser=webdriver.Chrome()    # driver instance with User Interface (not headless)
         # self.browser=set_up_driver_instance() # driver instance without User Interface (--headless)
         self.pattern=CheckPattern(self.browser,market=market)
@@ -41,7 +42,7 @@ class BrainTest(unittest.TestCase):
         acc_bal=str(acc_bal)
         for n in range(3):
             # clear_bet_slip(self.browser)
-            week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000")
+            week_selected=self.game_play.select_stake_options(week="current_week",option=self.PLAY_OPTION,previous_week_selected="Week 1000")
             try:
                 acc_bal=self.game_play.place_the_bet(amount=AMOUNT_LIST[n]*GAME_LEVEL,test=eval(os.environ.get("TEST")))
             except:
@@ -50,7 +51,7 @@ class BrainTest(unittest.TestCase):
             #     acc_bal="2,266"
             reduced_week_selected=reduce_week_selected(week_selected,by=0,league="bundliga")
             # self.pattern.check_result(length="last result",latest_week=reduced_week_selected)
-            self.pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal)
+            self.pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal,option=self.PLAY_OPTION)
 
     def test_checkout_virtual(self):
         for _ in range(3):
@@ -70,19 +71,19 @@ class BrainTest(unittest.TestCase):
     
     def test_check_last_result(self):
         self.game_play.choose_market()
-        week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000")
+        week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000",option=self.PLAY_OPTION)
         while True:
             clear_bet_slip(self.browser)
-            week_selected=self.game_play.select_stake_options(week="after_current_week",previous_week_selected=week_selected)
+            week_selected=self.game_play.select_stake_options(week="after_current_week",previous_week_selected=week_selected,option=self.PLAY_OPTION)
             reduced_week_selected=reduce_week_selected(week_selected,by=1,league="bundliga")
-            if self.pattern.check_result(length="last result",latest_week=reduced_week_selected)['outcome']:
+            if self.pattern.check_result(length="last result",latest_week=reduced_week_selected,option=self.PLAY_OPTION)['outcome']:
                 print(f"it came in {reduced_week_selected}")
                 break
 
 
     # TODO: check if theres is need to create another CheckPattern instance inorder for check_last_result to run sucessfully after the check_all_result has been run which will destroy and create a new driver instance
     def test_check_all_result(self):
-        self.browser=self.pattern.check_result(length="all result", latest_week="all",to_play=20)['driver']
+        self.browser=self.pattern.check_result(length="all result", latest_week="all",option=self.PLAY_OPTION)['driver']
 
         # self.pattern=CheckPattern(self.browser,market="ht/ft")
         # print(self.pattern.check_result(length="last result",latest_week="Week 21")['outcome']) 

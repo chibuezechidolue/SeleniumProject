@@ -15,7 +15,8 @@ load_dotenv()
 # TODO: Reformat all modules and code 
 
 GAME_LEVEL=1
-SELECTED_MARKET="3-3"
+SELECTED_MARKET="ht/ft"
+PLAY_OPTION="2/1"
 
 if SELECTED_MARKET=="ht/ft":
     AMOUNT_LIST=(10,10,10,20,30,40,55,80,110,160,230,330,470,675,970,
@@ -66,7 +67,7 @@ while True:
                 acc_bal=str(acc_bal)
                 for i in range(10):
                     # provision to stake 10 games afterwhich funds are exhausted and place bet begins to skip
-                    week_selected=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50")
+                    week_selected=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50",option=PLAY_OPTION)
                     try:
                         acc_bal=game_play.place_the_bet(amount=str(AMOUNT_LIST[i]*GAME_LEVEL),test=eval(os.environ.get("TEST")))
                     except:
@@ -76,14 +77,14 @@ while True:
                     reduced_week_selected=reduce_week_selected(week_selected,by=0,league=LEAGUE["name"])
 
                     pattern=CheckPattern(browser,market=SELECTED_MARKET)
-                    if pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal)['outcome']:
+                    if pattern.check_result(length="last result",latest_week=reduced_week_selected,option=PLAY_OPTION,acc_balance=acc_bal)['outcome']:
                         won=True
                         # browser.quit()
                         break
 
 
         pattern=CheckPattern(browser,market=SELECTED_MARKET)
-        check_result=pattern.check_result(length="all result", latest_week="all")
+        check_result=pattern.check_result(length="all result", latest_week="all",option=PLAY_OPTION)
         browser=check_result['driver']
         time.sleep(180)    # To delay till week 11
         if check_result['outcome']:
