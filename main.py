@@ -47,7 +47,11 @@ while True:
     for n in range(1,MAX_SEASON+1):
         if n==MAX_SEASON-1 or n==MAX_SEASON:
             pattern=CheckPattern(browser,market=SELECTED_MARKET)
-            check_result=pattern.check_result(length="new season", latest_week="all")
+            try:
+                check_result=pattern.check_result(length="new season", latest_week="all")
+            except:
+                print("An error occured, I skipped check_result(new season)")
+                check_result={'outcome':False}
             if check_result["outcome"]:
                 browser=check_result['driver']
                 log=LoginUser(browser,username=os.environ.get("BETKING_USERNAME"),password=os.environ.get("BETKING_PASSWORD"))
@@ -83,8 +87,12 @@ while True:
 
 
         pattern=CheckPattern(browser,market=SELECTED_MARKET)
-        check_result=pattern.check_result(length="all result", latest_week="all")
-        browser=check_result['driver']
+        try:
+            check_result=pattern.check_result(length="all result", latest_week="all")
+            browser=check_result['driver']
+        except:
+            print("An error occured, I skipped check_result(all result)")
+            check_result={'outcome':True}
         time.sleep(180)    # To delay till week 11
         if check_result['outcome']:
             won=True
