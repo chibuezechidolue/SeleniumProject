@@ -49,8 +49,13 @@ while True:
         week_to_save1=games_to_check
     else:
         week_to_save1=10
-    check_result=pattern.check_result(length="all result", latest_week="all",to_play=MAX_AMOUNT_LENGTH)
-    browser=check_result['driver']
+    try:
+        check_result=pattern.check_result(length="all result", latest_week="all",to_play=MAX_AMOUNT_LENGTH)
+        browser=check_result['driver']
+    except:
+        print("An error occured i skipped check_result(all result)")
+        check_result={'outcome':True}
+
     if not check_result['outcome']:
         log=LoginUser(browser,username=os.environ.get("BETKING_USERNAME"),password=os.environ.get("BETKING_PASSWORD"))
         acc_bal=log.login()
