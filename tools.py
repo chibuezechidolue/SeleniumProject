@@ -37,6 +37,15 @@ def check_if_last_result_equal_input(browser:object,game_weeks:list,week_to_chec
         last_result_week=game_weeks[0].text
     return game_weeks
 
+def check_if_last_stake_has_played(browser:object,week_to_check:str,time_delay:float):
+    week_to_select = browser.find_elements(By.CSS_SELECTOR, '.week')
+    print(week_to_select[0].text,week_to_check)
+    while week_to_select[0].text==week_to_check:
+        print(week_to_select[0].text,week_to_check)
+        time.sleep(time_delay)
+        week_to_select = browser.find_elements(By.CSS_SELECTOR, '.week')
+    return True
+
 
 def reload_result_page(browser):
     """ To cancel and reload result page inorder to reflect new changes to the result"""
