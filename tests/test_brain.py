@@ -60,23 +60,25 @@ class BrainTest(unittest.TestCase):
 
     def test_login(self):
         acc_bal=self.log.login()
-        acc_bal=float(acc_bal.replace(",","_"))
-        GAME_LEVEL=round((acc_bal-1000)/500,2)
+        # acc_bal=float(acc_bal.replace(",","_"))
+        # GAME_LEVEL=round((acc_bal-1000)/500,2)
         print(acc_bal)
-        print(GAME_LEVEL)
+        # print(GAME_LEVEL)
         time.sleep(3)
+        return acc_bal
         
     
     def test_check_last_result(self):
         self.game_play.choose_market()
-        week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000")
+        acc_bal=self.test_login()
         while True:
+            week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000")
+            reduced_week_selected=reduce_week_selected(week_selected,by=0,league="bundliga")
             clear_bet_slip(self.browser)
-            week_selected=self.game_play.select_stake_options(week="after_current_week",previous_week_selected=week_selected)
-            reduced_week_selected=reduce_week_selected(week_selected,by=1,league="bundliga")
-            if self.pattern.check_result(length="last result",latest_week=reduced_week_selected)['outcome']:
+            if self.pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal)['outcome']:
                 print(f"it came in {reduced_week_selected}")
                 break
+            # break
 
 
 
