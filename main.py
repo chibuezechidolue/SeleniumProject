@@ -46,46 +46,13 @@ while True:
     print("i am about to check result")
     won=False
     for n in range(1,MAX_SEASON+1):
-        # if n==MAX_SEASON-1 or n==MAX_SEASON:
-        #     pattern=CheckPattern(browser,market=SELECTED_MARKET)
-        #     check_result=pattern.check_result(length="new season", latest_week="all")
-        #     if check_result["outcome"]:
-        #         browser=check_result['driver']
-        #         log=LoginUser(browser,username=os.environ.get("BETKING_USERNAME"),password=os.environ.get("BETKING_PASSWORD"))
-        #         time.sleep(2)
-        #         acc_bal=log.login()
-        #         acc_bal=float(acc_bal.replace(",","_"))
-        #         GAME_LEVEL=round((acc_bal-1000)/TOTAL_AMOUNT,2)
-        #         time.sleep(1)
-
-        #         game_play=PlayGame(browser,market=SELECTED_MARKET)
-        #         game_play.choose_market()
-        #         time.sleep(1)
-
-
-        #         won=False
-        #         acc_bal=str(acc_bal)
-        #         for i in range(10):
-        #             # provision to stake 10 games afterwhich funds are exhausted and place bet begins to skip
-        #             week_selected=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50",option=PLAY_OPTION)
-        #             try:
-        #                 acc_bal=game_play.place_the_bet(amount=str(AMOUNT_LIST[i]*GAME_LEVEL),test=eval(os.environ.get("TEST")))
-        #             except:
-        #                 pass
-        #             # week_selected=game_play.select_stake_options(week="after_current_week",
-        #             #                                             previous_week_selected=week_selected)
-        #             reduced_week_selected=reduce_week_selected(week_selected,by=0,league=LEAGUE["name"])
-
-        #             pattern=CheckPattern(browser,market=SELECTED_MARKET)
-        #             if pattern.check_result(length="last result",latest_week=reduced_week_selected,option=PLAY_OPTION,acc_balance=acc_bal)['outcome']:
-        #                 won=True
-        #                 # browser.quit()
-        #                 break
-
-
         pattern=CheckPattern(browser,market=SELECTED_MARKET)
-        check_result=pattern.check_result(length="all result", latest_week="all",option=PLAY_OPTION)
-        browser=check_result['driver']
+        try:
+            check_result=pattern.check_result(length="all result", latest_week="all")
+            browser=check_result['driver']
+        except:
+            print("An error occured, I skipped check_result(all result)")
+            check_result={'outcome':True}
         time.sleep(180)    # To delay till week 11
         if check_result['outcome']:
             won=True

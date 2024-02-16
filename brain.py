@@ -320,28 +320,30 @@ class CheckPattern:
 
     def check_result(self, length: str, latest_week: str,option: str=None,acc_balance:str=None) -> dict:
         """ To check the result outcomes of an inputed length or number of weeks"""
-        try:
-            standings_button = self.wait.until(
-            EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="results-and-standings-button"]')))
-        except TimeoutException:
-            standings_button=self.browser.find_element(By.CSS_SELECTOR,'[data-testid="results-and-standings-button"]')
-        # standings_button=self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,"span.view-switch-icon")))
-        standings_button.click()
-        try:
-            result_button = self.wait.until(EC.element_to_be_clickable((By.XPATH,
-                                                                    "/html/body/app-root/app-wrapper/div/virtuals"
-                                                                    "-league-wrapper/mobile-virtuals-soccer/mvs"
-                                                                    "-virtual-league-page/div["
-                                                                    "2]/mvs-results-page/div[2]/div[2]")))
-        except TimeoutException:
-            result_button=self.browser.find_element(By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals"
-                                                                    "-league-wrapper/mobile-virtuals-soccer/mvs"
-                                                                    "-virtual-league-page/div["
-                                                                    "2]/mvs-results-page/div[2]/div[2]")
-        result_button.click()
-        time.sleep(7)
 
         if length.lower()=="new season":
+            try:
+                standings_button = self.wait.until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="results-and-standings-button"]')))
+                # standings_button=self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,"span.view-switch-icon")))
+                standings_button.click()
+            except (TimeoutException,ElementClickInterceptedException):
+                standings_button=self.browser.find_element(By.CSS_SELECTOR, '[data-testid="results-and-standings-button"]')
+                standings_button.click()                
+            try:
+                result_button = self.wait.until(EC.element_to_be_clickable((By.XPATH,
+                                                                        "/html/body/app-root/app-wrapper/div/virtuals"
+                                                                        "-league-wrapper/mobile-virtuals-soccer/mvs"
+                                                                        "-virtual-league-page/div["
+                                                                        "2]/mvs-results-page/div[2]/div[2]")))
+                result_button.click()
+            except (TimeoutException,ElementClickInterceptedException):
+                result_button=self.browser.find_element(By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals"
+                                                                        "-league-wrapper/mobile-virtuals-soccer/mvs"
+                                                                        "-virtual-league-page/div["
+                                                                        "2]/mvs-results-page/div[2]/div[2]")
+                result_button.click()
+            time.sleep(7)
             game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")
             current_game_week=int(game_weeks[0].text.split(" ")[-1])
             week_to_check=34
@@ -372,6 +374,28 @@ class CheckPattern:
 
             week_to_save1=10
             try:
+                try:
+                    standings_button = self.wait.until(
+                    EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="results-and-standings-button"]')))
+                    # standings_button=self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,"span.view-switch-icon")))
+                    standings_button.click()
+                except (TimeoutException,ElementClickInterceptedException):
+                    standings_button=self.browser.find_element(By.CSS_SELECTOR, '[data-testid="results-and-standings-button"]')
+                    standings_button.click()                
+                try:
+                    result_button = self.wait.until(EC.element_to_be_clickable((By.XPATH,
+                                                                            "/html/body/app-root/app-wrapper/div/virtuals"
+                                                                            "-league-wrapper/mobile-virtuals-soccer/mvs"
+                                                                            "-virtual-league-page/div["
+                                                                            "2]/mvs-results-page/div[2]/div[2]")))
+                    result_button.click()
+                except (TimeoutException,ElementClickInterceptedException):
+                    result_button=self.browser.find_element(By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals"
+                                                                            "-league-wrapper/mobile-virtuals-soccer/mvs"
+                                                                            "-virtual-league-page/div["
+                                                                            "2]/mvs-results-page/div[2]/div[2]")
+                    result_button.click()
+                time.sleep(7)
                 game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")
                 current_game_week=int(game_weeks[0].text.split(" ")[-1])  # To get the integer num of weeks
                 # To check if last result is 9th - 10th week or sleep till it is
@@ -425,6 +449,28 @@ class CheckPattern:
 
         elif length.lower() == "last result":
             try:
+                try:
+                    standings_button = self.wait.until(
+                    EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="results-and-standings-button"]')))
+                    # standings_button=self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,"span.view-switch-icon")))
+                    standings_button.click()
+                except (TimeoutException,ElementClickInterceptedException):
+                    standings_button=self.browser.find_element(By.CSS_SELECTOR, '[data-testid="results-and-standings-button"]')
+                    standings_button.click()                
+                try:
+                    result_button = self.wait.until(EC.element_to_be_clickable((By.XPATH,
+                                                                            "/html/body/app-root/app-wrapper/div/virtuals"
+                                                                            "-league-wrapper/mobile-virtuals-soccer/mvs"
+                                                                            "-virtual-league-page/div["
+                                                                            "2]/mvs-results-page/div[2]/div[2]")))
+                    result_button.click()
+                except (TimeoutException,ElementClickInterceptedException):
+                    result_button=self.browser.find_element(By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals"
+                                                                            "-league-wrapper/mobile-virtuals-soccer/mvs"
+                                                                            "-virtual-league-page/div["
+                                                                            "2]/mvs-results-page/div[2]/div[2]")
+                    result_button.click()
+                time.sleep(7)
                 game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")
                 # checking if the last week played is latest_week before going ahead to save the page
                 game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks,
