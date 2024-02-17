@@ -44,9 +44,16 @@ while True:
     
     print("i am about to check result")
     won=False
+    
     for n in range(1,MAX_SEASON+1):
         if n==MAX_SEASON-1 or n==MAX_SEASON:
+            # Note: the number if statements depends on the number of seasons to be played (i.e current_stake_num=20)
+            if n==MAX_SEASON:
+                current_stake_num=10
+            else:
+                current_stake_num=0
             pattern=CheckPattern(browser,market=SELECTED_MARKET)
+            print(current_stake_num)
             try:
                 check_result=pattern.check_result(length="new season", latest_week="all")
             except:
@@ -69,10 +76,12 @@ while True:
                 won=False
                 acc_bal=str(acc_bal)
                 for i in range(10):
+                    i+=current_stake_num
                     # provision to stake 10 games afterwhich funds are exhausted and place bet begins to skip
                     week_selected=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50")
                     try:
                         acc_bal=game_play.place_the_bet(amount=str(AMOUNT_LIST[i]*GAME_LEVEL),test=eval(os.environ.get("TEST")))
+                        print(str(AMOUNT_LIST[i]*GAME_LEVEL))
                     except:
                         pass
                     # week_selected=game_play.select_stake_options(week="after_current_week",
