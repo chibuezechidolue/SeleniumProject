@@ -46,7 +46,7 @@ while True:
     won=False
     
     for n in range(1,MAX_SEASON+1):
-        if n==MAX_SEASON-1 or n==MAX_SEASON:
+        if n>=MAX_SEASON-1:
             # Note: the number if statements depends on the number of seasons to be played (i.e current_stake_num=20)
             if n==MAX_SEASON:
                 current_stake_num=10
@@ -65,7 +65,8 @@ while True:
                 time.sleep(2)
                 acc_bal=log.login()
                 acc_bal=float(acc_bal.replace(",","_"))
-                GAME_LEVEL=round((acc_bal-1000)/TOTAL_AMOUNT,2)
+                if n<MAX_SEASON:
+                    GAME_LEVEL=round((acc_bal-1000)/TOTAL_AMOUNT,2)
                 time.sleep(1)
 
                 game_play=PlayGame(browser,market=SELECTED_MARKET)
