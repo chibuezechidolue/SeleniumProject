@@ -346,7 +346,7 @@ class CheckPattern:
             time.sleep(7)
             game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")
             current_game_week=int(game_weeks[0].text.split(" ")[-1])
-            week_to_check=34
+            week_to_check=10
 
             if current_game_week<week_to_check-1:
                 time_to_sleep=(week_to_check-1-current_game_week)*3
@@ -358,6 +358,17 @@ class CheckPattern:
                 time.sleep(1)
                 self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
                 time.sleep(2)
+
+            elif current_game_week>week_to_save1:
+                    time_to_sleep=(34-current_game_week)*3
+                    self.browser.quit()
+                    print(f"i'm waiting for {((week_to_save1-1)*3+time_to_sleep)*60} secs ")
+                    time.sleep(((week_to_save1-1)*3+time_to_sleep)*60)
+                    # self.browser=webdriver.Chrome()         # driver instance with User Interface (not headless)
+                    self.browser = set_up_driver_instance()   # driver instance without User Interface (--headless)
+                    time.sleep(1)
+                    self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
+                    time.sleep(2)
 
             # checking if the last week played is Week 10 before going ahead to save the page
             game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")
@@ -372,7 +383,7 @@ class CheckPattern:
         # 1 - 10 weeks matches
         elif length.lower() == "all result":
 
-            week_to_save1=10
+            week_to_save1=20
             try:
                 try:
                     standings_button = self.wait.until(
