@@ -86,6 +86,7 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str,opt
     """To check the result for the presence or possible presence of an intended or staked outcome"""
     one_slash_two_count=0
     two_slash_one_count=0
+    three_three_score=0     #Note: to check correct score along with ht/ft
     message=""
     outcome=None
     for n in range(len(ht_scores)):
@@ -108,6 +109,12 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str,opt
                 two_slash_one_count+=1
                 outcome=True
                 # message+=f"2/1: {week_number}, "
+                
+            #Note: to check correct score along with ht/ft
+            elif ft_home_score==3 and ft_away_score==3:
+                three_three_score+=1
+                outcome=True
+                # message+=f"3-3: {week_number}, "
 
         # elif market=="3-3":
         #     if ft_home_score==3 and ft_away_score==3:
@@ -117,7 +124,7 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str,opt
         #         break
 
         
-    message+=f"(1/2= {one_slash_two_count} time(s) | 2/1= {two_slash_one_count} times(s)) "
+    message+=f"3-3= {three_three_score} | (1/2= {one_slash_two_count} | 2/1= {two_slash_one_count} times(s))  "
     print(message)
     return {"outcome":outcome,"message":message}
             
