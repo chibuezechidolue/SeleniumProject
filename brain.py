@@ -346,7 +346,7 @@ class CheckPattern:
             time.sleep(7)
             game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")
             current_game_week=int(game_weeks[0].text.split(" ")[-1])
-            week_to_check=10
+            week_to_check=20
 
             if current_game_week<week_to_check-1:
                 time_to_sleep=(week_to_check-1-current_game_week)*3
@@ -383,7 +383,7 @@ class CheckPattern:
         # 1 - 10 weeks matches
         elif length.lower() == "all result":
 
-            week_to_save1=20
+            week_to_save1=30
             try:
                 try:
                     standings_button = self.wait.until(
@@ -521,7 +521,7 @@ class CheckPattern:
         if result["outcome"] == True and length.lower() == "all result":
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
                        Password=os.environ.get("EMAIL_PASSWORD"),
-                       Subject=f"{self.market} came in the last SEASON",
+                       Subject=f"21st - 30th Week Results",
                        Message=result["message"],
                     #    File_path=[page_path1]
                        )
