@@ -124,7 +124,7 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str,opt
         #         break
 
         
-    message+=f"3-3= {three_three_score} | (1/2= {one_slash_two_count} | 2/1= {two_slash_one_count} times(s))  "
+    message+=f"3-3= {three_three_score} | 1/2= {one_slash_two_count} | 2/1= {two_slash_one_count} times(s)  "
     print(message)
     return {"outcome":outcome,"message":message}
             
