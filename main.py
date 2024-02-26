@@ -61,8 +61,8 @@ while True:
             print(f"SEASON {n} result has been CHECKED, waiting for next SEASON ")
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
                     Password=os.environ.get("EMAIL_PASSWORD"),
-                    Subject=f"On To The NEXT 10 Stakes",
-                    Message=f"SEASON {n} result has been CHECKED, waiting for next SEASON ",
+                    Subject=f"1st - 10th Week RESULTS",
+                    Message=f"1/2= 0 time(s) | 2/1= 0 times(s) | 3-3=0 ",
                     File_path=[check_result["page_path"]]
                     )
         

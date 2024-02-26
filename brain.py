@@ -521,7 +521,7 @@ class CheckPattern:
         elif result["outcome"] == True and length.lower() == "last result":
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
                        Password=os.environ.get("EMAIL_PASSWORD"),
-                       Subject=f"{self.market} came in the last result" ,
+                       Subject=f"1st - 10th Week RESULTS" ,
                        Message=result["message"],
                        File_path=[page_path1]
                        )
