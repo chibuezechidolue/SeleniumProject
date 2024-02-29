@@ -21,15 +21,20 @@ if SELECTED_MARKET=="ht/ft":
     AMOUNT_LIST=(10,10,10,20,30,40,55,80,110,160,230,330,470,675,970,
                 1390,1980,2840,4050,5800,8300,11850,16950,24250)
     MAX_AMOUNT_LENGTH=14
-elif SELECTED_MARKET=="3-3":
-    AMOUNT_LIST=(10,10,10,10,10,10,20,20,30,30,40,40,55,55,80,80,110,
-                 110,160,160,230,230,330,330,470,470,675,675,970,970,
-                 1390,1390,1980,1980)
-    MAX_AMOUNT_LENGTH=20
     TOTAL_AMOUNT=9450
+elif SELECTED_MARKET=="3-3":
+    # AMOUNT_LIST=(10,10,10,10,10,10,20,20,30,30,40,40,55,55,80,80,110,
+    #              110,160,160,230,230,330,330,470,470,675,675,970,970,
+    #              1390,1390,1980,1980)
+    AMOUNT_LIST=(10,10,10,10,10,10,20,20,20,30,30,35,45,50,55,65,80,95,110,
+                 130,155,185,220,250,300,350,410,490,580,680,805,935,1100,
+                 1300,1530,1800,2115,2490,2930,3500)
+    MAX_AMOUNT_LENGTH=30
+    # TOTAL_AMOUNT=9450
+    TOTAL_AMOUNT=40183
 LEAGUE={"name":"bundliga","num_of_weeks":34}
     
-MAX_SEASON=5
+MAX_SEASON=6
 
 while True:
     # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
@@ -46,10 +51,12 @@ while True:
     won=False
     
     for n in range(1,MAX_SEASON+1):
-        if n>=MAX_SEASON-1:
+        if n>=MAX_SEASON-2:
             # Note: the number if statements depends on the number of seasons to be played (i.e current_stake_num=20)
-            if n==MAX_SEASON:
+            if n==MAX_SEASON-1:
                 current_stake_num=10
+            elif n==MAX_SEASON:
+                current_stake_num=20
             else:
                 current_stake_num=0
             pattern=CheckPattern(browser,market=SELECTED_MARKET)
@@ -65,7 +72,7 @@ while True:
                 time.sleep(2)
                 acc_bal=log.login()
                 acc_bal=float(acc_bal.replace(",","_"))
-                if n<MAX_SEASON:
+                if n<MAX_SEASON-1:
                     GAME_LEVEL=round((acc_bal-1000)/TOTAL_AMOUNT,2)
                 time.sleep(1)
 
@@ -118,11 +125,11 @@ while True:
         
         
     if not won:        
-        print(f"{SELECTED_MARKET} did not come till week {LEAGUE['num_of_weeks']}")
+        print(f"{SELECTED_MARKET} did not come till SEASON {MAX_SEASON}")
         send_email(Email=os.environ.get("EMAIL_USERNAME"),
                     Password=os.environ.get("EMAIL_PASSWORD"),
                     Subject="YOU'VE LOST IT ALL",
-                    Message=f"{SELECTED_MARKET} did not come till SEASON 3"
+                    Message=f"{SELECTED_MARKET} did not come till SEASON {MAX_SEASON}"
                     )
     browser.quit()
         
