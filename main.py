@@ -39,14 +39,17 @@ MAX_SEASON=6
 while True:
     # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
     browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
-    browser.get("https://m.betking.com/")
-    print("i have lunched")
-    pattern=CheckPattern(browser,market=SELECTED_MARKET)
     try:
-        pattern.checkout_virtual(league=LEAGUE["name"])
-    except:
-        browser.get("https://m.betking.com/virtual/league/kings-bundliga")  
-    
+        browser.get("https://m.betking.com/")
+        print("i have lunched")
+        pattern=CheckPattern(browser,market=SELECTED_MARKET)
+        try:
+            pattern.checkout_virtual(league=LEAGUE["name"])
+        except:
+            browser.get("https://m.betking.com/virtual/league/kings-bundliga")  
+    except Exception as error:
+        print(f"THIS is the Error: {error}")
+        pass
     print("i am about to check result")
     won=False
     

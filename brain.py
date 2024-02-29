@@ -1,5 +1,6 @@
 import time
 import os
+from types import NoneType
 from selenium.webdriver.common.by import By
 from selenium import webdriver
 from selenium.webdriver.support.wait import WebDriverWait
@@ -430,11 +431,11 @@ class CheckPattern:
             except:
                 print(f"an error occured, so i assumed {self.market} came and skipped this season")
                 result={"outcome":True,"message":f"an error occured, so i assumed {self.market} came and skipped this season"}
-                send_email(Email=os.environ.get("EMAIL_USERNAME"),
-                       Password=os.environ.get("EMAIL_PASSWORD"),
-                       Subject="An Error Occured",
-                       Message=result["message"],
-                       )
+                # send_email(Email=os.environ.get("EMAIL_USERNAME"),
+                #        Password=os.environ.get("EMAIL_PASSWORD"),
+                #        Subject="An Error Occured",
+                #        Message=result["message"],
+                #        )
                 
             finally:
                 try:
@@ -519,6 +520,17 @@ class CheckPattern:
             cancel_result_page_button = self.browser.find_element(By.CSS_SELECTOR, "svg path")
             cancel_result_page_button.click()
             return {"outcome": True, "driver": self.browser,"page_path":page_path1}
+        
+        elif result["outcome"] == None and length.lower() == "all result":
+            send_email(Email=os.environ.get("EMAIL_USERNAME"),
+                       Password=os.environ.get("EMAIL_PASSWORD"),
+                       Subject=f"{self.market} DID NOT come in the last SEASON",
+                       Message=result["message"],
+                    #    File_path=[page_path1]
+                       )
+            cancel_result_page_button = self.browser.find_element(By.CSS_SELECTOR, "svg path")
+            cancel_result_page_button.click()
+            return {"outcome": False, "driver": self.browser,"page_path":page_path1}
         
         elif result["outcome"] == True and length.lower() == "last result":
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
