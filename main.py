@@ -28,7 +28,7 @@ elif SELECTED_MARKET=="3-3":
                  110,160,160,230,230,330,330,470,470,675,675,970,970,
                  1390,1390,1980,1980)
     MAX_AMOUNT_LENGTH=14
-    TOTAL_AMOUNT=9450
+    TOTAL_AMOUNT=40140
 LEAGUE={"name":"bundliga","num_of_weeks":34}
     
 
