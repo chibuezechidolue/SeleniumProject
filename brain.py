@@ -510,7 +510,7 @@ class CheckPattern:
         if result["outcome"] == True and length.lower() == "all result":
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
                        Password=os.environ.get("EMAIL_PASSWORD"),
-                       Subject=f"{self.market} came in the last SEASON",
+                       Subject=f"1st - 10th Week RESULTS",
                        Message=result["message"],
                     #    File_path=[page_path1]
                        )
