@@ -121,7 +121,7 @@ while True:
             print(f"SEASON {n} result has been CHECKED, waiting for next SEASON ")
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
                     Password=os.environ.get("EMAIL_PASSWORD"),
-                    Subject=f"On To The NEXT 10 Stakes",
+                    Subject=f"11th-20th On To The NEXT 10 Stakes",
                     Message=f"SEASON {n} result has been CHECKED, waiting for next SEASON ",
                     File_path=[check_result["page_path"]]
                     )
@@ -131,7 +131,7 @@ while True:
         print(f"{SELECTED_MARKET} did not come till SEASON {MAX_SEASON}")
         send_email(Email=os.environ.get("EMAIL_USERNAME"),
                     Password=os.environ.get("EMAIL_PASSWORD"),
-                    Subject="YOU'VE LOST IT ALL",
+                    Subject="11th-20th YOU'VE LOST IT ALL",
                     Message=f"{SELECTED_MARKET} did not come till SEASON {MAX_SEASON}"
                     )
     browser.quit()

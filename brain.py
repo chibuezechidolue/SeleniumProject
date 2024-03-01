@@ -230,7 +230,7 @@ class PlayGame:
                 clear_bet_slip(self.browser)
                 send_email(Email=os.environ.get("EMAIL_USERNAME"),
                         Password=os.environ.get("EMAIL_PASSWORD"),
-                        Subject="ERROR during select_stake_options",
+                        Subject="11th-20th ERROR during select_stake_options",
                         Message=f"An error occured during select_stake_options. This is the error: {error}"
                         )
                 return week_to_select_text
@@ -540,7 +540,7 @@ class CheckPattern:
         if result["outcome"] == True and length.lower() == "all result":
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
                        Password=os.environ.get("EMAIL_PASSWORD"),
-                       Subject=f"{self.market} came in the last SEASON",
+                       Subject=f"11th-20th {self.market} came in the last SEASON",
                        Message=result["message"],
                     #    File_path=[page_path1]
                        )
@@ -551,7 +551,7 @@ class CheckPattern:
         elif result["outcome"] == None and length.lower() == "all result":
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
                        Password=os.environ.get("EMAIL_PASSWORD"),
-                       Subject=f"{self.market} DID NOT come in the last SEASON",
+                       Subject=f"11th-20th {self.market} DID NOT come in the last SEASON",
                        Message=result["message"],
                     #    File_path=[page_path1]
                        )
@@ -562,7 +562,7 @@ class CheckPattern:
         elif result["outcome"] == True and length.lower() == "last result":
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
                        Password=os.environ.get("EMAIL_PASSWORD"),
-                       Subject=f"{self.market} came in the last result" ,
+                       Subject=f"11th-20th {self.market} came in the last result" ,
                        Message=result["message"],
                        File_path=[page_path1]
                        )
