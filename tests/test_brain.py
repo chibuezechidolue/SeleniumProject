@@ -110,7 +110,8 @@ class BrainTest(unittest.TestCase):
         # self.pattern=CheckPattern(self.browser,market="ht/ft")
         # print(self.pattern.check_result(length="last result",latest_week="Week 21")['outcome']) 
 
-
+    def test_check_new_season(self):
+        game_weeks=self.pattern.check_result(length="new season", latest_week="all")
 
     
 

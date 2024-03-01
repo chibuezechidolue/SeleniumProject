@@ -44,8 +44,8 @@ def check_if_last_result_equal_input(browser:object,game_weeks:list,week_to_chec
         last_result_week=game_weeks[0].text
     return game_weeks
 
-def check_if_current_week_equal_input(browser:object,game_weeks:list,week_to_check:str,time_delay:float)->list:   #updated game weeks
-    """ To check if the current last result is the same with the week_to_check 
+def check_if_current_week_equal_input(browser:object,week_to_check:str,time_delay:float)->list:   #updated game weeks
+    """ To check if the current week to play is the same with the week_to_check 
     input variable, then return an updated game_weeks """
     game_weeks = browser.find_elements(By.CSS_SELECTOR, '.week')
     current_week=game_weeks[0].text
