@@ -348,7 +348,7 @@ class CheckPattern:
                 game_weeks = self.browser.find_elements(By.CSS_SELECTOR, '.week')
             current_game_week=int(game_weeks[0].text.split(" ")[-1])
 
-            week_to_check=34
+            week_to_check=10
 
             if current_game_week<week_to_check-1:
                 time_to_sleep=(week_to_check-1-current_game_week)*3
@@ -392,7 +392,7 @@ class CheckPattern:
         # 1 - 10 weeks matches
         elif length.lower() == "all result":
 
-            week_to_save1=10
+            week_to_save1=20
             try:
                 try:
                     try:
