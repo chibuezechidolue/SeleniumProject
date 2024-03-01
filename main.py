@@ -66,8 +66,8 @@ while True:
             print(current_stake_num)
             try:
                 check_result=pattern.check_result(length="new season", latest_week="all")
-            except:
-                print("An error occured, I skipped check_result(new season)")
+            except Exception as error:
+                print(f"An error occured, I skipped check_result(new season). This is the error {error}")
                 check_result={'outcome':False}
             if check_result["outcome"]:
                 browser=check_result['driver']
@@ -110,8 +110,8 @@ while True:
         try:
             check_result=pattern.check_result(length="all result", latest_week="all")
             browser=check_result['driver']
-        except:
-            print("An error occured, I skipped check_result(all result)")
+        except Exception as error:
+            print(f"An error occured, I skipped check_result(all result). This is the error {error}")
             check_result={'outcome':True}
         time.sleep(180)    # To delay till week 11
         if check_result['outcome']:

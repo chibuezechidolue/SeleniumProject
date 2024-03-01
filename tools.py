@@ -29,6 +29,7 @@ def check_if_last_result_equal_input(browser:object,game_weeks:list,week_to_chec
     last_result_week=game_weeks[0].text
     while last_result_week!=week_to_check:
         print(datetime.datetime.now().time())
+
         print(last_result_week,week_to_check)
         time.sleep(time_delay)
         reload_result_page(browser)
@@ -42,6 +43,19 @@ def check_if_last_result_equal_input(browser:object,game_weeks:list,week_to_chec
             time.sleep(2)
         last_result_week=game_weeks[0].text
     return game_weeks
+
+def check_if_current_week_equal_input(browser:object,game_weeks:list,week_to_check:str,time_delay:float)->list:   #updated game weeks
+    """ To check if the current last result is the same with the week_to_check 
+    input variable, then return an updated game_weeks """
+    game_weeks = browser.find_elements(By.CSS_SELECTOR, '.week')
+    current_week=game_weeks[0].text
+    while current_week!=week_to_check:        
+        print(current_week,week_to_check)
+        time.sleep(time_delay)
+        game_weeks = browser.find_elements(By.CSS_SELECTOR, '.week')
+        current_week=game_weeks[0].text
+    return game_weeks
+
 
 def check_if_last_stake_has_played(browser:object,week_to_check:str,time_delay:float):
     week_to_select = browser.find_elements(By.CSS_SELECTOR, '.week')
