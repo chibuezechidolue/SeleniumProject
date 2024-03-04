@@ -267,26 +267,29 @@ class CheckPattern:
         if length.lower() == "all result":
             try:
                 try:
-                    standings_button = self.wait.until(
-                    EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="results-and-standings-button"]')))
-                    # standings_button=self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,"span.view-switch-icon")))
-                    standings_button.click()
-                except (TimeoutException,ElementClickInterceptedException):
-                    standings_button=self.browser.find_element(By.CSS_SELECTOR, '[data-testid="results-and-standings-button"]')
-                    standings_button.click()                
-                try:
-                    result_button = self.wait.until(EC.element_to_be_clickable((By.XPATH,
-                                                                            "/html/body/app-root/app-wrapper/div/virtuals"
-                                                                            "-league-wrapper/mobile-virtuals-soccer/mvs"
-                                                                            "-virtual-league-page/div["
-                                                                            "2]/mvs-results-page/div[2]/div[2]")))
-                    result_button.click()
-                except (TimeoutException,ElementClickInterceptedException):
-                    result_button=self.browser.find_element(By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals"
-                                                                            "-league-wrapper/mobile-virtuals-soccer/mvs"
-                                                                            "-virtual-league-page/div["
-                                                                            "2]/mvs-results-page/div[2]/div[2]")
-                    result_button.click()
+                    try:
+                        standings_button = self.wait.until(
+                        EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="results-and-standings-button"]')))
+                        # standings_button=self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,"span.view-switch-icon")))
+                        standings_button.click()
+                    except (TimeoutException,ElementClickInterceptedException):
+                        standings_button=self.browser.find_element(By.CSS_SELECTOR, '[data-testid="results-and-standings-button"]')
+                        standings_button.click()                
+                    try:
+                        result_button = self.wait.until(EC.element_to_be_clickable((By.XPATH,
+                                                                                "/html/body/app-root/app-wrapper/div/virtuals"
+                                                                                "-league-wrapper/mobile-virtuals-soccer/mvs"
+                                                                                "-virtual-league-page/div["
+                                                                                "2]/mvs-results-page/div[2]/div[2]")))
+                        result_button.click()
+                    except (TimeoutException,ElementClickInterceptedException):
+                        result_button=self.browser.find_element(By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals"
+                                                                                "-league-wrapper/mobile-virtuals-soccer/mvs"
+                                                                                "-virtual-league-page/div["
+                                                                                "2]/mvs-results-page/div[2]/div[2]")
+                        result_button.click()
+                except:
+                    self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
                 time.sleep(7)
 
 
@@ -383,26 +386,29 @@ class CheckPattern:
         elif length.lower() == "last result":
             try:
                 try:
-                    standings_button = self.wait.until(
-                    EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="results-and-standings-button"]')))
-                    # standings_button=self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,"span.view-switch-icon")))
-                    standings_button.click()
-                except (TimeoutException,ElementClickInterceptedException):
-                    standings_button=self.browser.find_element(By.CSS_SELECTOR, '[data-testid="results-and-standings-button"]')
-                    standings_button.click()                
-                try:
-                    result_button = self.wait.until(EC.element_to_be_clickable((By.XPATH,
-                                                                            "/html/body/app-root/app-wrapper/div/virtuals"
-                                                                            "-league-wrapper/mobile-virtuals-soccer/mvs"
-                                                                            "-virtual-league-page/div["
-                                                                            "2]/mvs-results-page/div[2]/div[2]")))
-                    result_button.click()
-                except (TimeoutException,ElementClickInterceptedException):
-                    result_button=self.browser.find_element(By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals"
-                                                                            "-league-wrapper/mobile-virtuals-soccer/mvs"
-                                                                            "-virtual-league-page/div["
-                                                                            "2]/mvs-results-page/div[2]/div[2]")
-                    result_button.click()
+                    try:
+                        standings_button = self.wait.until(
+                        EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="results-and-standings-button"]')))
+                        # standings_button=self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,"span.view-switch-icon")))
+                        standings_button.click()
+                    except (TimeoutException,ElementClickInterceptedException):
+                        standings_button=self.browser.find_element(By.CSS_SELECTOR, '[data-testid="results-and-standings-button"]')
+                        standings_button.click()                
+                    try:
+                        result_button = self.wait.until(EC.element_to_be_clickable((By.XPATH,
+                                                                                "/html/body/app-root/app-wrapper/div/virtuals"
+                                                                                "-league-wrapper/mobile-virtuals-soccer/mvs"
+                                                                                "-virtual-league-page/div["
+                                                                                "2]/mvs-results-page/div[2]/div[2]")))
+                        result_button.click()
+                    except (TimeoutException,ElementClickInterceptedException):
+                        result_button=self.browser.find_element(By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals"
+                                                                                "-league-wrapper/mobile-virtuals-soccer/mvs"
+                                                                                "-virtual-league-page/div["
+                                                                                "2]/mvs-results-page/div[2]/div[2]")
+                        result_button.click()
+                except:
+                    self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
                 time.sleep(7)
             
                 game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")
