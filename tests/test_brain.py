@@ -32,13 +32,14 @@ class BrainTest(unittest.TestCase):
     def test_select_stake_options_and_place_the_bet(self):
         AMOUNT_LIST=(10,10,10,20,30,40,55,80,110,160,230,330,470,675,970)
         
-        acc_bal=self.log.login()
-        acc_bal=float(acc_bal.replace(",","_"))
-        GAME_LEVEL=round((acc_bal-1000)/9450,2)
-        time.sleep(1)
+        # acc_bal=self.log.login()
+        # acc_bal=float(acc_bal.replace(",","_"))
+        # GAME_LEVEL=round((acc_bal-1000)/9450,2)
+        # time.sleep(1)
+        GAME_LEVEL=1
         self.game_play.choose_market()
         # self.test_login()
-        acc_bal=str(acc_bal)
+        # acc_bal=str(acc_bal)
         for n in range(3):
             # clear_bet_slip(self.browser)
             week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000")
