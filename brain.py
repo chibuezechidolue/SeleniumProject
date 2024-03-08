@@ -322,7 +322,8 @@ class CheckPattern:
                 game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")
                 game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks, week_to_check=f"Week {week_to_check}",
                                                             time_delay=30)
-            except:
+            except Exception as error:
+                print(f"Error occured using find_elements(By.CSS_SELECTOR, .week-number). This is the Error: {error}")
                 if week_to_check==34:
                     week_to_check=1
                 else:

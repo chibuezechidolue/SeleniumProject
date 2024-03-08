@@ -48,6 +48,13 @@ def check_if_current_week_equal_input(browser:object,week_to_check:str,time_dela
     """ To check if the current week to play is the same with the week_to_check 
     input variable, then return an updated game_weeks """
     game_weeks = browser.find_elements(By.CSS_SELECTOR, '.week')
+    for _ in range(3):
+        if game_weeks==[]:
+            print("game weeks == [], i will try again")
+            time.sleep(3)
+            game_weeks = browser.find_elements(By.CSS_SELECTOR, '.week')
+        else:
+            break
     current_week=game_weeks[0].text
     while current_week!=week_to_check:        
         print(current_week,week_to_check)
@@ -112,14 +119,14 @@ def save_page(browser,page_name:str):
 
 def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str)->list:
     """To check the result for the presence or possible presence of an intended or staked outcome"""
-    count=0
-    one_slash_two_count=0
+    three_three_count=0     #Note: to check correct score along with ht/ft
     two_slash_one_count=0
-    three_three_score=0     #Note: to check correct score along with ht/ft
+    one_slash_two_count=0
     message=""
     outcome=None
-    for n in range(len(ht_scores)):
-        
+    score_dict={'4 - 1':0, "1 - 4":0, "4 - 2":0, "2 - 4":0, "5 - 0":0, "0 - 5":0, "5 - 1":0, "1 - 5":0, 
+                "6 - 0":0, "0 - 6":0, "3 - 3":0,}
+    for n in range(len(ft_scores)):
         ht_home_score=int(ht_scores[n].text[0])
         ht_away_score=int(ht_scores[n].text[4])
 
@@ -127,42 +134,25 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str)->l
         ft_away_score=int(ft_scores[n].text[4])
         current_week=n//9                                                      # the number of the game by 9(total games/week), i.e 54//9 will be week 6
         week_number=game_weeks[current_week].text
+        current_ft_score=ft_scores[n].text
+        print(current_ft_score)
+        if current_ft_score in score_dict:
+            score_dict[current_ft_score]+=1
+            # message+=f"{current_ft_score}: {week_number}, "
 
-        # use a try and except block to check the passed in bal and the current on screen bal
-        if market=="ht/ft":
-            if (ht_home_score>ht_away_score and ft_home_score<ft_away_score or     # 2/1
-                ht_home_score<ht_away_score and ft_home_score>ft_away_score):     # 1/2
-                count+=1
-                outcome=True
-                message+=f"{week_number}, "
-                break
-        elif market=="3-3":
-            # if ft_home_score==3 and ft_away_score==3:
-            #     count+=1
-            #     outcome=True
-            #     message+=f"{week_number}, "
-            #     break
-
-            
-            #Note: to check ht/ft along with correct score
-            if (ht_home_score>ht_away_score and ft_home_score<ft_away_score):     # 1/2
-                one_slash_two_count+=1
-                # message+=f"1/2: {week_number}, "
-            elif (ht_home_score<ht_away_score and ft_home_score>ft_away_score):     # 2/1
-                two_slash_one_count+=1
-                # message+=f"2/1: {week_number}, "
-                
-            
-            elif ft_home_score==3 and ft_away_score==3:
-                three_three_score+=1
-                outcome=True
-                # message+=f"3-3: {week_number}, "
-
-        
-    # message+=f"({market} appeeared {count} time(s)) "
-    message+=f"1/2= {one_slash_two_count} | 2/1= {two_slash_one_count} times(s) | 3-3= {three_three_score}  "
+        if (ht_home_score>ht_away_score and ft_home_score<ft_away_score):     # 1/2
+            one_slash_two_count+=1
+            # message+=f"1/2: {week_number}, "
+        elif (ht_home_score<ht_away_score and ft_home_score>ft_away_score):     # 2/1
+            two_slash_one_count+=1
+            # message+=f"2/1: {week_number}, "
+    if score_dict["3 - 3"]>0:
+        outcome=True
+    message+=f"{score_dict} | 2/1={two_slash_one_count} | 1/2={one_slash_two_count}"
     print(message)
-    return {"outcome":outcome,"count":three_three_score,"message":message}
+    # message+=f"({market} appeeared {three_three_count} time(s)) "
+    # print(message)
+    return {"outcome":outcome,"message":message}
             
 
 

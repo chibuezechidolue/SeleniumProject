@@ -72,7 +72,8 @@ class BrainTest(unittest.TestCase):
     
     def test_check_last_result(self):
         self.game_play.choose_market()
-        acc_bal=self.test_login()
+        # acc_bal=self.test_login()
+        acc_bal=40500
         while True:
             week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000")
             reduced_week_selected=reduce_week_selected(week_selected,by=0,league="bundliga")
