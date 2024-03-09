@@ -176,7 +176,7 @@ class PlayGame:
                 clear_bet_slip(self.browser)
                 send_email(Email=os.environ.get("EMAIL_USERNAME"),
                         Password=os.environ.get("EMAIL_PASSWORD"),
-                        Subject="(1st-10th) ERROR during select_stake_options",
+                        Subject="(11th-20th) ERROR during select_stake_options",
                         Message=f"An error occured during select_stake_options. This is the error: {error}"
                         )
                 return week_to_select_text
