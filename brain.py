@@ -322,7 +322,7 @@ class CheckPattern:
                 ht_scores=[]
                 ft_scores=[]
                 game_weeks=[]
-                for n in range(3):
+                for n in range(4):
                     self.browser = set_up_driver_instance()   # driver instance without User Interface (--headless)
                     time.sleep(1)
                     self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
@@ -341,10 +341,11 @@ class CheckPattern:
                     except FileNotFoundError:
                         save_page(self.browser, page_name=f"SeleniumProject/{page_to_save[n]}")
 
-                    self.browser.quit()
-                    weeks_left=week_to_save[n+1]-week_to_save[n]
+                    if n<3:
+                        self.browser.quit()
+                        weeks_left=week_to_save[n+1]-week_to_save[n]
 
-                    time.sleep((weeks_left-1)*3*60)  # To wait untill start_week2
+                        time.sleep((weeks_left-1)*3*60)  # To wait untill start_week2
                 
                 result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=self.market)
             except Exception as error:
