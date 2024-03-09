@@ -486,7 +486,7 @@ class CheckPattern:
         if result["outcome"] == True and length.lower() == "all result":
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
                        Password=os.environ.get("EMAIL_PASSWORD"),
-                       Subject=f"(11th-20th) {self.market} came in the last SEASON",
+                       Subject=f"(1st-10th) {self.market} came in the last SEASON",
                        Message=result["message"],
                     #    File_path=[page_path1]
                        )
@@ -497,7 +497,7 @@ class CheckPattern:
         elif result["outcome"] == None and length.lower() == "all result":
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
                        Password=os.environ.get("EMAIL_PASSWORD"),
-                       Subject=f"(11th-20th) {self.market} DID NOT come in the last SEASON",
+                       Subject=f"(1st-10th) {self.market} DID NOT come in the last SEASON",
                        Message=result["message"],
                     #    File_path=[page_path1]
                        )
@@ -508,7 +508,7 @@ class CheckPattern:
         elif result["outcome"] == True and length.lower() == "last result":
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
                        Password=os.environ.get("EMAIL_PASSWORD"),
-                       Subject=f"(11th-20th) {self.market} came in the last result" ,
+                       Subject=f"(1st-10th) {self.market} came in the last result" ,
                        Message=result["message"],
                        File_path=[page_path1]
                        )
