@@ -14,7 +14,7 @@ def set_up_driver_instance():
     """ To create and return a webdriver object with disabled gpu and headless"""
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--headless")
+    # chrome_options.add_argument("--headless")
     chrome_options.add_argument('--window-size=1920,1080')
     chrome_options.add_argument("--disable-gpu")
     return webdriver.Chrome(options=chrome_options)
@@ -96,49 +96,41 @@ def save_page(browser,page_name:str):
 
 def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str)->list:
     """To check the result for the presence or possible presence of an intended or staked outcome"""
-    count=0
+    one_slash_two_count=0
+    two_slash_one_count=0
     message=""
     outcome=None
-    for n in range(len(ht_scores)):
+    score_dict={'4 - 1':0, "1 - 4":0, "4 - 2":0, "2 - 4":0, "5 - 0":0, "0 - 5":0, "5 - 1":0, "1 - 5":0, 
+                "6 - 0":0, "0 - 6":0, "3 - 3":0,}
+    for n in range(len(ft_scores)):
         try:
             ht_home_score=int(ht_scores[n].text[0])
             ht_away_score=int(ht_scores[n].text[4])
-
             ft_home_score=int(ft_scores[n].text[0])
             ft_away_score=int(ft_scores[n].text[4])
-
             current_week=n//9                                                      # the number of the game by 9(total games/week), i.e 54//9 will be week 6
             week_number=game_weeks[current_week].text
         except AttributeError:
             ht_home_score=int(ht_scores[n][0])
             ht_away_score=int(ht_scores[n][4])
-
             ft_home_score=int(ft_scores[n][0])
             ft_away_score=int(ft_scores[n][4])
-
             current_week=n//9                                                      # the number of the game by 9(total games/week), i.e 54//9 will be week 6
             week_number=game_weeks[current_week]
 
-
-        # use a try and except block to check the passed in bal and the current on screen bal
-        if market=="ht/ft":
-            if (ht_home_score>ht_away_score and ft_home_score<ft_away_score or     # 2/1
-                ht_home_score<ht_away_score and ft_home_score>ft_away_score):     # 1/2
-                count+=1
-                outcome=True
-                message+=f"{week_number}, "
-                break
-        elif market=="3-3":
-            if ft_home_score==3 and ft_away_score==3:
-                count+=1
-                outcome=True
-                message+=f"{week_number}, "
-                break
-
+        current_ft_score=ft_scores[n].text
+        if current_ft_score in score_dict:
+            score_dict[current_ft_score]+=1
+            # message+=f"{current_ft_score}: {week_number}, "
+        if (ht_home_score>ht_away_score and ft_home_score<ft_away_score):     # 1/2
+            one_slash_two_count+=1
+            # message+=f"1/2: {week_number}, "
+        elif (ht_home_score<ht_away_score and ft_home_score>ft_away_score):     # 2/1
+            two_slash_one_count+=1
         
-    message+=f"({market} appeeared {count} time(s)) "
+    message+=f"{score_dict} | 2/1={two_slash_one_count} | 1/2={one_slash_two_count}"
     print(message)
-    return {"outcome":outcome,"count":count,"message":message}
+    return {"outcome":outcome,"message":message}
             
 
 
