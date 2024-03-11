@@ -5,6 +5,12 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import StaleElementReferenceException,NoSuchElementException,TimeoutException
 from selenium import webdriver
+import pygsheets 
+import datetime
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 
 
@@ -94,41 +100,70 @@ def save_page(browser,page_name:str):
             page_content=browser.page_source        # get the content of the current page
             file.write(page_content)                # write the content of the current page to the file 
 
+def tabulate_result(score_dictionary,sheet_name,cell_list):
+    """To transfer and tabulate the score_dictory to an online google sheet"""
+    
+    client = pygsheets.authorize(service_account_file=os.environ.get("GDRIVE_API_CREDENTIALS"))
+    
+    print(client.spreadsheet_titles()) 
+    spreadsht = client.open(sheet_name) 
+
+    worksht = spreadsht.worksheet("title", "Sheet1") 
+
+    today=datetime.datetime.now().date().strftime("%d/%m")
+    print(today)
+    col=worksht.get_col(col=1)[3:]
+    pattern=worksht.find(today)
+    if pattern==[]:
+        col_num=col.index("")+4
+        worksht.cell(f"A{col_num}").value=today 
+
+    else:
+        col_num=pattern[0].row
+    print(f"This is the column num: {col_num}")
+    n=0
+    for k,v in score_dictionary.items():
+        if v==0:    
+                current_value=worksht.get_value(addr=f"{cell_list[n]}{col_num}")
+                if current_value== "":
+                    val_to_update=1
+                else:
+                    val_to_update=str(int(current_value)+1)
+                worksht.update_value(addr=f"{cell_list[n]}{col_num}", val=val_to_update, parse=None)
+        n+=1
+
 def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str)->list:
     """To check the result for the presence or possible presence of an intended or staked outcome"""
-    one_slash_two_count=0
-    two_slash_one_count=0
     message=""
     outcome=None
     score_dict={'4 - 1':0, "1 - 4":0, "4 - 2":0, "2 - 4":0, "5 - 0":0, "0 - 5":0, "5 - 1":0, "1 - 5":0, 
-                "6 - 0":0, "0 - 6":0, "3 - 3":0,}
+                "6 - 0":0, "0 - 6":0, "3 - 3":0, "2/1":0, "1/2":0}
     for n in range(len(ft_scores)):
-        try:
-            ht_home_score=int(ht_scores[n].text[0])
-            ht_away_score=int(ht_scores[n].text[4])
-            ft_home_score=int(ft_scores[n].text[0])
-            ft_away_score=int(ft_scores[n].text[4])
-            current_week=n//9                                                      # the number of the game by 9(total games/week), i.e 54//9 will be week 6
-            week_number=game_weeks[current_week].text
-        except AttributeError:
-            ht_home_score=int(ht_scores[n][0])
-            ht_away_score=int(ht_scores[n][4])
-            ft_home_score=int(ft_scores[n][0])
-            ft_away_score=int(ft_scores[n][4])
-            current_week=n//9                                                      # the number of the game by 9(total games/week), i.e 54//9 will be week 6
-            week_number=game_weeks[current_week]
+        
+        ht_home_score=int(ht_scores[n][0])
+        ht_away_score=int(ht_scores[n][4])
+        ft_home_score=int(ft_scores[n][0])
+        ft_away_score=int(ft_scores[n][4])
+        # current_week=n//9                                                      # the number of the game by 9(total games/week), i.e 54//9 will be week 6
+        # week_number=game_weeks[current_week]
 
-        current_ft_score=ft_scores[n].text
+        current_ft_score=ft_scores[n]
         if current_ft_score in score_dict:
             score_dict[current_ft_score]+=1
             # message+=f"{current_ft_score}: {week_number}, "
         if (ht_home_score>ht_away_score and ft_home_score<ft_away_score):     # 1/2
-            one_slash_two_count+=1
+            score_dict["1/2"]+=1
             # message+=f"1/2: {week_number}, "
         elif (ht_home_score<ht_away_score and ft_home_score>ft_away_score):     # 2/1
-            two_slash_one_count+=1
+            score_dict["2/1"]+=1
         
-    message+=f"{score_dict} | 2/1={two_slash_one_count} | 1/2={one_slash_two_count}"
+    message+=f"{score_dict}"
+    sheet_name='FullSeason_SeleniumProject_Spreadsheet'
+    CELL=['B','C','D','E','F','G','H','I','J','K','L','M','N']
+    try:
+        tabulate_result(score_dictionary=score_dict,sheet_name=sheet_name,cell_list=CELL)
+    except:
+        pass
     print(message)
     return {"outcome":outcome,"message":message}
             
@@ -225,3 +260,4 @@ def clear_bet_slip(browser):
     close_betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="coupon-close-icon"]')
     close_betslip_button.click()
     time.sleep(2)
+
