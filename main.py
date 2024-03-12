@@ -33,12 +33,12 @@ while True:
     
     print("i am about to check result")
    
-    # try:
-    check_result=pattern.check_result(length="all result", latest_week="all")
-    browser=check_result['driver']
-    # except:
-    #     print("An error occured i skipped check_result(all result)")
-    #     check_result={'outcome':True}
+    try:
+        check_result=pattern.check_result(length="all result", latest_week="all")
+        browser=check_result['driver']
+    except:
+        print("An error occured i skipped check_result(all result)")
+        check_result={'outcome':True}
 
     browser.quit()
 
