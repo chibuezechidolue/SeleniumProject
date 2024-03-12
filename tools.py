@@ -6,9 +6,12 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import StaleElementReferenceException,NoSuchElementException,TimeoutException
 from selenium import webdriver
+import pygsheets 
+import datetime
+from dotenv import load_dotenv
+import os
 
-
-
+load_dotenv()
 
 
 def set_up_driver_instance():
@@ -117,15 +120,44 @@ def save_page(browser,page_name:str):
             page_content=browser.page_source        # get the content of the current page
             file.write(page_content)                # write the content of the current page to the file 
 
+
+def tabulate_result(score_dictionary,sheet_name,cell_list):
+    """To transfer and tabulate the score_dictory to an online google sheet"""
+    
+    client = pygsheets.authorize(service_account_file=os.environ.get("GDRIVE_API_CREDENTIALS"))
+    
+    spreadsht = client.open(sheet_name) 
+
+    worksht = spreadsht.worksheet("title", "Sheet1") 
+
+    today=datetime.datetime.now().date().strftime("%d/%m")
+    print(today)
+    col=worksht.get_col(col=1)[3:]
+    pattern=worksht.find(today)
+    if pattern==[]:
+        col_num=col.index("")+4
+        worksht.cell(f"A{col_num}").value=today 
+
+    else:
+        col_num=pattern[0].row
+    print(f"This is the column num: {col_num}")
+    n=0
+    for k,v in score_dictionary.items():
+        if v==0:    
+                current_value=worksht.get_value(addr=f"{cell_list[n]}{col_num}")
+                if current_value== "":
+                    val_to_update=1
+                else:
+                    val_to_update=str(int(current_value)+1)
+                worksht.update_value(addr=f"{cell_list[n]}{col_num}", val=val_to_update, parse=None)
+        n+=1
+
 def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str)->list:
     """To check the result for the presence or possible presence of an intended or staked outcome"""
-    three_three_count=0     #Note: to check correct score along with ht/ft
-    two_slash_one_count=0
-    one_slash_two_count=0
     message=""
     outcome=None
     score_dict={'4 - 1':0, "1 - 4":0, "4 - 2":0, "2 - 4":0, "5 - 0":0, "0 - 5":0, "5 - 1":0, "1 - 5":0, 
-                "6 - 0":0, "0 - 6":0, "3 - 3":0,}
+                "6 - 0":0, "0 - 6":0, "3 - 3":0, "2/1":0, "1/2":0}
     for n in range(len(ft_scores)):
         ht_home_score=int(ht_scores[n].text[0])
         ht_away_score=int(ht_scores[n].text[4])
@@ -135,20 +167,27 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str)->l
         current_week=n//9                                                      # the number of the game by 9(total games/week), i.e 54//9 will be week 6
         week_number=game_weeks[current_week].text
         current_ft_score=ft_scores[n].text
-        print(current_ft_score)
         if current_ft_score in score_dict:
             score_dict[current_ft_score]+=1
             # message+=f"{current_ft_score}: {week_number}, "
 
         if (ht_home_score>ht_away_score and ft_home_score<ft_away_score):     # 1/2
-            one_slash_two_count+=1
+            score_dict["1/2"]+=1
             # message+=f"1/2: {week_number}, "
         elif (ht_home_score<ht_away_score and ft_home_score>ft_away_score):     # 2/1
-            two_slash_one_count+=1
+            score_dict["2/1"]+=1
             # message+=f"2/1: {week_number}, "
     if score_dict["3 - 3"]>0:
         outcome=True
-    message+=f"{score_dict} | 2/1={two_slash_one_count} | 1/2={one_slash_two_count}"
+    message+=f"{score_dict}"
+    sheet_name='SeleniumProject spreadsheet'
+    # CELL=['B','C','D','E','F','G','H','I','J','K','L','M','N']
+    CELL=['P','Q','R','S','T','U','V','W','X','Y','Z','AA','AB']
+    # CELL=['AD','AE','AF','AG','AH','AI','AJ','AK','AL','AM','AN','AO','AP']
+    try:
+        tabulate_result(score_dictionary=score_dict,sheet_name=sheet_name,cell_list=CELL)
+    except:
+        pass
     print(message)
     # message+=f"({market} appeeared {three_three_count} time(s)) "
     # print(message)
