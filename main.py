@@ -37,9 +37,9 @@ LEAGUE={"name":"bundliga","num_of_weeks":34}
 MAX_SEASON=6
 
 while True:
-    # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
-    browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
     try:
+        # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
+        browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
         browser.get("https://m.betking.com/")
         print("i have lunched")
         pattern=CheckPattern(browser,market=SELECTED_MARKET)
@@ -89,7 +89,10 @@ while True:
                 for i in range(10):
                     i+=current_stake_num
                     # provision to stake 10 games afterwhich funds are exhausted and place bet begins to skip
-                    week_selected=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50")
+                    try:
+                        week_selected=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50")
+                    except:
+                        pass
                     try:
                         acc_bal=game_play.place_the_bet(amount=str(AMOUNT_LIST[i]*GAME_LEVEL),test=eval(os.environ.get("TEST")))
                         print(str(AMOUNT_LIST[i]*GAME_LEVEL))
