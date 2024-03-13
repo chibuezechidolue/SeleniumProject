@@ -100,12 +100,12 @@ def save_page(browser,page_name:str):
             page_content=browser.page_source        # get the content of the current page
             file.write(page_content)                # write the content of the current page to the file 
 
-def tabulate_result(score_dictionary,sheet_name,cell_list):
+def tabulate_result(score_dictionary,sheet_name,cell_list,type):
     """To transfer and tabulate the score_dictory to an online google sheet"""
     
     client = pygsheets.authorize(service_account_file=os.environ.get("GDRIVE_API_CREDENTIALS"))
     
-    print(client.spreadsheet_titles()) 
+    # print(client.spreadsheet_titles()) 
     spreadsht = client.open(sheet_name) 
 
     worksht = spreadsht.worksheet("title", "Sheet1") 
@@ -123,13 +123,25 @@ def tabulate_result(score_dictionary,sheet_name,cell_list):
     print(f"This is the column num: {col_num}")
     n=0
     for k,v in score_dictionary.items():
-        if v==0:    
+        if type=="pair":
+            if k=="3 - 3":
+                pass
+            elif v==0 and score_dictionary[k[::-1]]==0:
                 current_value=worksht.get_value(addr=f"{cell_list[n]}{col_num}")
                 if current_value== "":
                     val_to_update=1
                 else:
                     val_to_update=str(int(current_value)+1)
                 worksht.update_value(addr=f"{cell_list[n]}{col_num}", val=val_to_update, parse=None)
+        elif type=="single": 
+            if v==0:
+                current_value=worksht.get_value(addr=f"{cell_list[n]}{col_num}")
+                if current_value== "":
+                    val_to_update=1
+                else:
+                    val_to_update=str(int(current_value)+1)
+                worksht.update_value(addr=f"{cell_list[n]}{col_num}", val=val_to_update, parse=None)   
+        
         n+=1
 
 def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str)->list:
@@ -159,11 +171,13 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str)->l
         
     message+=f"{score_dict}"
     sheet_name='FullSeason_SeleniumProject_Spreadsheet'
-    CELL=['B','C','D','E','F','G','H','I','J','K','L','M','N']
-    try:
-        tabulate_result(score_dictionary=score_dict,sheet_name=sheet_name,cell_list=CELL)
-    except:
-        pass
+    CELLS=[['B','C','D','E','F','G','H','I','J','K','L','M','N'],['P','Q','R','S','T','U','V','W','X','Y','Z','AA',"AB"]]
+    TYPES=["single","pair"]
+    for n in range(2):
+        try:
+            tabulate_result(score_dictionary=score_dict,sheet_name=sheet_name,cell_list=CELLS[n],type=TYPES[n])
+        except:
+            pass
     print(message)
     return {"outcome":outcome,"message":message}
             

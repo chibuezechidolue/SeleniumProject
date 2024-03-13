@@ -22,11 +22,14 @@ LEAGUE={"name":"bundliga","num_of_weeks":34}
 
 while True:
     # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
-    browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
-    browser.get("https://m.betking.com/")
-    print("i have lunched")
-    pattern=CheckPattern(browser,market=SELECTED_MARKET)
     try:
+        browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
+        browser.get("https://m.betking.com/")
+        print("i have lunched")
+    except:
+        pass
+    try:
+        pattern=CheckPattern(browser,market=SELECTED_MARKET)
         pattern.checkout_virtual(league=LEAGUE["name"])
     except:
         browser.get("https://m.betking.com/virtual/league/kings-bundliga")  
