@@ -166,8 +166,8 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str)->l
     cs_21_30_dict={'4 - 1':0, "1 - 4":0, "4 - 2":0, "2 - 4":0, "5 - 0":0, "0 - 5":0, "5 - 1":0, "1 - 5":0, 
                 "6 - 0":0, "0 - 6":0, "3 - 3":0, "2/1":0, "1/2":0}
     cs_21_30_range=30
-
-    for n in range(1,len(ft_scores)+1):
+    print("about to check outcome")
+    for n in range(len(ft_scores)):
         
         ht_home_score=int(ht_scores[n][0])
         ht_away_score=int(ht_scores[n][4])
@@ -180,16 +180,16 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str)->l
 
         if current_ft_score in score_dict:
             score_dict[current_ft_score]+=1
-            if n<=9*hf_ft_range:
+            if n<9*hf_ft_range:
                 hf_ft_score_dict[current_ft_score]+=1
 
-            if n<=9*cs_1_10_range:
+            if n<9*cs_1_10_range:
                 cs_1_10_dict[current_ft_score]+=1
 
-            if n>9*cs_1_10_range and n<=9*cs_11_20_range:
+            if n>=9*cs_1_10_range and n<9*cs_11_20_range:
                 cs_11_20_dict[current_ft_score]+=1
 
-            if n>9*cs_11_20_range and n<=9*cs_21_30_range:
+            if n>=9*cs_11_20_range and n<9*cs_21_30_range:
                 cs_21_30_dict[current_ft_score]+=1
             # message+=f"{current_ft_score}: {week_number}, "
         if (ht_home_score>ht_away_score and ft_home_score<ft_away_score):     # 1/2
@@ -202,8 +202,7 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str)->l
             if n<9*hf_ft_range:
                 hf_ft_score_dict["2/1"]+=1
         
-    message+=f"FullSeason = {score_dict} | Halftime/Fulltime = {hf_ft_score_dict} | 
-    CS_1-10 = {cs_1_10_dict} | CS_11-20 = {cs_11_20_dict} | CS_21-30 = {cs_21_30_dict} "
+    message+=f"FullSeason = {score_dict} | Halftime/Fulltime = {hf_ft_score_dict} | CS_1-10 = {cs_1_10_dict} | CS_11-20 = {cs_11_20_dict} | CS_21-30 = {cs_21_30_dict} "
     sheet_name=['FullSeason_SeleniumProject_Spreadsheet','FullSeason_SeleniumProject_Spreadsheet',
                 'FullSeason_SeleniumProject_Spreadsheet','SeleniumProject spreadsheet',
                 'SeleniumProject spreadsheet','SeleniumProject spreadsheet']
@@ -218,7 +217,7 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str)->l
            ['AD','AE','AF','AG','AH','AI','AJ','AK','AL','AM','AN','AO','AP']]
     
     TYPES=["single","pair","pair","single","single","single"]
-
+    print("finnished checking outcome")
     for n in range(6):
         try:
             tabulate_result(score_dictionary=dictionaries[n],sheet_name=sheet_name[n],cell_list=CELLS[n],type=TYPES[n])
