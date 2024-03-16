@@ -150,7 +150,24 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str)->l
     outcome=None
     score_dict={'4 - 1':0, "1 - 4":0, "4 - 2":0, "2 - 4":0, "5 - 0":0, "0 - 5":0, "5 - 1":0, "1 - 5":0, 
                 "6 - 0":0, "0 - 6":0, "3 - 3":0, "2/1":0, "1/2":0}
-    for n in range(len(ft_scores)):
+    
+    hf_ft_score_dict={'4 - 1':0, "1 - 4":0, "4 - 2":0, "2 - 4":0, "5 - 0":0, "0 - 5":0, "5 - 1":0, "1 - 5":0, 
+                "6 - 0":0, "0 - 6":0, "3 - 3":0, "2/1":0, "1/2":0}
+    hf_ft_range=20
+
+    cs_1_10_dict={'4 - 1':0, "1 - 4":0, "4 - 2":0, "2 - 4":0, "5 - 0":0, "0 - 5":0, "5 - 1":0, "1 - 5":0, 
+                "6 - 0":0, "0 - 6":0, "3 - 3":0, "2/1":0, "1/2":0}
+    cs_1_10_range=10
+
+    cs_11_20_dict={'4 - 1':0, "1 - 4":0, "4 - 2":0, "2 - 4":0, "5 - 0":0, "0 - 5":0, "5 - 1":0, "1 - 5":0, 
+                "6 - 0":0, "0 - 6":0, "3 - 3":0, "2/1":0, "1/2":0}
+    cs_11_20_range=20
+
+    cs_21_30_dict={'4 - 1':0, "1 - 4":0, "4 - 2":0, "2 - 4":0, "5 - 0":0, "0 - 5":0, "5 - 1":0, "1 - 5":0, 
+                "6 - 0":0, "0 - 6":0, "3 - 3":0, "2/1":0, "1/2":0}
+    cs_21_30_range=30
+
+    for n in range(1,len(ft_scores)+1):
         
         ht_home_score=int(ht_scores[n][0])
         ht_away_score=int(ht_scores[n][4])
@@ -160,22 +177,50 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str)->l
         # week_number=game_weeks[current_week]
 
         current_ft_score=ft_scores[n]
+
         if current_ft_score in score_dict:
             score_dict[current_ft_score]+=1
+            if n<=9*hf_ft_range:
+                hf_ft_score_dict[current_ft_score]+=1
+
+            if n<=9*cs_1_10_range:
+                cs_1_10_dict[current_ft_score]+=1
+
+            if n>9*cs_1_10_range and n<=9*cs_11_20_range:
+                cs_11_20_dict[current_ft_score]+=1
+
+            if n>9*cs_11_20_range and n<=9*cs_21_30_range:
+                cs_21_30_dict[current_ft_score]+=1
             # message+=f"{current_ft_score}: {week_number}, "
         if (ht_home_score>ht_away_score and ft_home_score<ft_away_score):     # 1/2
             score_dict["1/2"]+=1
+            if n<9*hf_ft_range:
+                hf_ft_score_dict["1/2"]+=1
             # message+=f"1/2: {week_number}, "
         elif (ht_home_score<ht_away_score and ft_home_score>ft_away_score):     # 2/1
             score_dict["2/1"]+=1
+            if n<9*hf_ft_range:
+                hf_ft_score_dict["2/1"]+=1
         
     message+=f"{score_dict}"
-    sheet_name='FullSeason_SeleniumProject_Spreadsheet'
-    CELLS=[['B','C','D','E','F','G','H','I','J','K','L','M','N'],['P','Q','R','S','T','U','V','W','X','Y','Z','AA',"AB"]]
-    TYPES=["single","pair"]
-    for n in range(2):
+    sheet_name=['FullSeason_SeleniumProject_Spreadsheet','FullSeason_SeleniumProject_Spreadsheet',
+                'FullSeason_SeleniumProject_Spreadsheet','SeleniumProject spreadsheet',
+                'SeleniumProject spreadsheet','SeleniumProject spreadsheet']
+    
+    dictionaries=[score_dict,score_dict,hf_ft_score_dict,cs_1_10_dict,cs_11_20_dict,cs_21_30_dict]
+
+    CELLS=[['B','C','D','E','F','G','H','I','J','K','L','M','N'],
+           ['P','Q','R','S','T','U','V','W','X','Y','Z','AA',"AB"],
+           ['AD','AE','AF','AG','AH','AI','AJ','AK','AL','AM','AN','AO','AP'],
+           ['B','C','D','E','F','G','H','I','J','K','L','M','N'],
+           ['P','Q','R','S','T','U','V','W','X','Y','Z','AA','AB'],
+           ['AD','AE','AF','AG','AH','AI','AJ','AK','AL','AM','AN','AO','AP']]
+    
+    TYPES=["single","pair","pair","single","single","single"]
+
+    for n in range(6):
         try:
-            tabulate_result(score_dictionary=score_dict,sheet_name=sheet_name,cell_list=CELLS[n],type=TYPES[n])
+            tabulate_result(score_dictionary=dictionaries[n],sheet_name=sheet_name[n],cell_list=CELLS[n],type=TYPES[n])
         except:
             pass
     print(message)
