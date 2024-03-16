@@ -134,7 +134,7 @@ def tabulate_result(score_dictionary,sheet_name,cell_list):
         n+=1
 
 
-def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str)->list:
+def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str,length:str)->list:
     """To check the result for the presence or possible presence of an intended or staked outcome"""
     count=0
     message=""
@@ -182,12 +182,13 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str)->l
                 # message+=f"2/1: {week_number}, "
 
     message+=f"{score_dict}"
-    sheet_name='FullSeason_SeleniumProject_Spreadsheet'        
-    CELL=['AD','AE','AF','AG','AH','AI','AJ','AK','AL','AM','AN','AO','AP']
-    try:
-        tabulate_result(score_dictionary=score_dict,sheet_name=sheet_name,cell_list=CELL)
-    except:
-        pass    
+    if length.lower()=="all result":
+        sheet_name='FullSeason_SeleniumProject_Spreadsheet'        
+        CELL=['AD','AE','AF','AG','AH','AI','AJ','AK','AL','AM','AN','AO','AP']
+        try:
+            tabulate_result(score_dictionary=score_dict,sheet_name=sheet_name,cell_list=CELL)
+        except:
+            pass    
         
     message+=f"({market} appeeared {count} time(s)) "
     print(message)

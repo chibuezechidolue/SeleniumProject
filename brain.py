@@ -377,7 +377,7 @@ class CheckPattern:
                 except FileNotFoundError:
                     page_path2 = "SeleniumProject/saved_pages/eleven_to_twenty_page.html"
                     save_page(self.browser, page_name=page_path2)
-                result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=self.market)
+                result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=self.market,length=length)
             except Exception as error:
                 print("an error occured i skipped this session")
                 print(f"this is the error: {error}")
@@ -421,7 +421,7 @@ class CheckPattern:
                 ht_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")[:9]
                 ft_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ft")[:9]
 
-                result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=self.market)
+                result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=self.market,length=length)
             except Exception as error:
                 print(f"an error occured when checking last result i want to use acc balance to check.This is the error: {error}")
                 # if the result page fails, compare balances to tell the outcome
