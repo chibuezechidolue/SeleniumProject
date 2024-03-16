@@ -202,7 +202,8 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str)->l
             if n<9*hf_ft_range:
                 hf_ft_score_dict["2/1"]+=1
         
-    message+=f"{score_dict}"
+    message+=f"FullSeason = {score_dict} | Halftime/Fulltime = {hf_ft_score_dict} | 
+    CS_1-10 = {cs_1_10_dict} | CS_11-20 = {cs_11_20_dict} | CS_21-30 = {cs_21_30_dict} "
     sheet_name=['FullSeason_SeleniumProject_Spreadsheet','FullSeason_SeleniumProject_Spreadsheet',
                 'FullSeason_SeleniumProject_Spreadsheet','SeleniumProject spreadsheet',
                 'SeleniumProject spreadsheet','SeleniumProject spreadsheet']
