@@ -100,10 +100,9 @@ def save_page(browser,page_name:str):
             page_content=browser.page_source        # get the content of the current page
             file.write(page_content)                # write the content of the current page to the file 
 
-def tabulate_result(score_dictionary,sheet_name,cell_list,type):
+def tabulate_result(score_dictionary,sheet_name,cell_list,type,client):
     """To transfer and tabulate the score_dictory to an online google sheet"""
     
-    client = pygsheets.authorize(service_account_file=os.environ.get("GDRIVE_API_CREDENTIALS"))
     
     # print(client.spreadsheet_titles()) 
     spreadsht = client.open(sheet_name) 
@@ -218,9 +217,10 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str)->l
     
     TYPES=["single","pair","pair","single","single","single"]
     print("finnished checking outcome")
+    client = pygsheets.authorize(service_account_file=os.environ.get("GDRIVE_API_CREDENTIALS"))
     for n in range(6):
         try:
-            tabulate_result(score_dictionary=dictionaries[n],sheet_name=sheet_name[n],cell_list=CELLS[n],type=TYPES[n])
+            tabulate_result(score_dictionary=dictionaries[n],sheet_name=sheet_name[n],cell_list=CELLS[n],type=TYPES[n],client=client)
         except:
             pass
     print(message)
