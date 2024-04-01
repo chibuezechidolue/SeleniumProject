@@ -4,6 +4,8 @@ from brain import LoginUser,CheckPattern,PlayGame
 from dotenv import load_dotenv
 from tools import reduce_week_selected, send_email, set_up_driver_instance
 from selenium import webdriver
+import pygsheets 
+
 
 load_dotenv()
 
@@ -19,7 +21,7 @@ load_dotenv()
 SELECTED_MARKET="ht/ft"
 
 LEAGUE={"name":"bundliga","num_of_weeks":34}
-
+client = pygsheets.authorize(service_account_file=os.environ.get("GDRIVE_API_CREDENTIALS"))
 while True:
     # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
     try:
@@ -37,7 +39,7 @@ while True:
     print("i am about to check result")
    
     try:
-        check_result=pattern.check_result(length="all result", latest_week="all")
+        check_result=pattern.check_result(length="all result", latest_week="all",client=client)
         browser=check_result['driver']
     except:
         print("An error occured i skipped check_result(all result)")

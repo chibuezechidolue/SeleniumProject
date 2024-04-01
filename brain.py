@@ -260,7 +260,7 @@ class CheckPattern:
         virtual_choice_button = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, css_selector)))
         virtual_choice_button.click()
 
-    def check_result(self, length: str, latest_week: str,acc_balance:str=None,to_play:int=None) -> dict:
+    def check_result(self, length: str, latest_week: str,acc_balance:str=None,to_play:int=None,client=None) -> dict:
         """ To check the result outcomes of an inputed length or number of weeks"""
         # check halftime fulltime result
         # 1 - 20 weeks matches
@@ -364,7 +364,7 @@ class CheckPattern:
                 print("I am about to confirm outcome")
                 print(f"this is the len of ft_scores AFTER adding the 36 scores: {len(ft_scores)}")
                 print(len(game_weeks))
-                result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=self.market)
+                result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=self.market ,client=client)
             except Exception as error:
                 print("an error occured i skipped this session")
                 print(f"this is the error: {error}")
@@ -379,6 +379,8 @@ class CheckPattern:
                        )
             cancel_result_page_button = self.browser.find_element(By.CSS_SELECTOR, "svg path")
             cancel_result_page_button.click()
+            print("i have canceled result page button")
+            print(self.browser)
             return {"outcome": False, "driver": self.browser}
 
         else:

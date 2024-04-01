@@ -143,7 +143,7 @@ def tabulate_result(score_dictionary,sheet_name,cell_list,type,client):
         
         n+=1
 
-def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str)->list:
+def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str,client)->list:
     """To check the result for the presence or possible presence of an intended or staked outcome"""
     message=""
     outcome=None
@@ -217,7 +217,7 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str)->l
     
     TYPES=["single","pair","pair","single","single","single"]
     print("finnished checking outcome")
-    client = pygsheets.authorize(service_account_file=os.environ.get("GDRIVE_API_CREDENTIALS"))
+    # client = pygsheets.authorize(service_account_file=os.environ.get("GDRIVE_API_CREDENTIALS"))
     for n in range(6):
         try:
             tabulate_result(score_dictionary=dictionaries[n],sheet_name=sheet_name[n],cell_list=CELLS[n],type=TYPES[n],client=client)
