@@ -200,8 +200,8 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str,cli
             score_dict["2/1"]+=1
             if n<9*hf_ft_range:
                 hf_ft_score_dict["2/1"]+=1
-        
-    message+=f"email_date={datetime.datetime.now().date().strftime("%d/%m")} \n FullSeason = {score_dict} \n Halftime_Fulltime = {hf_ft_score_dict} \n CS_1_10 = {cs_1_10_dict} \n CS_11_20 = {cs_11_20_dict} \n CS_21_30 = {cs_21_30_dict} "
+    today=datetime.datetime.now().date().strftime("%d/%m")    
+    message+=f"email_date={today} \n FullSeason = {score_dict} \n Halftime_Fulltime = {hf_ft_score_dict} \n CS_1_10 = {cs_1_10_dict} \n CS_11_20 = {cs_11_20_dict} \n CS_21_30 = {cs_21_30_dict} "
     sheet_name=['FullSeason_SeleniumProject_Spreadsheet','FullSeason_SeleniumProject_Spreadsheet',
                 'FullSeason_SeleniumProject_Spreadsheet','SeleniumProject spreadsheet',
                 'SeleniumProject spreadsheet','SeleniumProject spreadsheet']
