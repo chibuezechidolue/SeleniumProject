@@ -201,7 +201,7 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str,cli
             if n<9*hf_ft_range:
                 hf_ft_score_dict["2/1"]+=1
         
-    message+=f"FullSeason = {score_dict} | Halftime/Fulltime = {hf_ft_score_dict} | CS_1-10 = {cs_1_10_dict} | CS_11-20 = {cs_11_20_dict} | CS_21-30 = {cs_21_30_dict} "
+    message+=f"email_date={datetime.datetime.now().date().strftime("%d/%m")} \n FullSeason = {score_dict} \n Halftime_Fulltime = {hf_ft_score_dict} \n CS_1_10 = {cs_1_10_dict} \n CS_11_20 = {cs_11_20_dict} \n CS_21_30 = {cs_21_30_dict} "
     sheet_name=['FullSeason_SeleniumProject_Spreadsheet','FullSeason_SeleniumProject_Spreadsheet',
                 'FullSeason_SeleniumProject_Spreadsheet','SeleniumProject spreadsheet',
                 'SeleniumProject spreadsheet','SeleniumProject spreadsheet']
@@ -217,12 +217,11 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str,cli
     
     TYPES=["single","pair","pair","single","single","single"]
     print("finnished checking outcome")
-    # client = pygsheets.authorize(service_account_file=os.environ.get("GDRIVE_API_CREDENTIALS"))
-    for n in range(6):
-        try:
-            tabulate_result(score_dictionary=dictionaries[n],sheet_name=sheet_name[n],cell_list=CELLS[n],type=TYPES[n],client=client)
-        except:
-            pass
+    # for n in range(6):
+    #     try:
+    #         tabulate_result(score_dictionary=dictionaries[n],sheet_name=sheet_name[n],cell_list=CELLS[n],type=TYPES[n],client=client)
+    #     except:
+    #         pass
     print(message)
     return {"outcome":outcome,"message":message}
             
