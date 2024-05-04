@@ -148,22 +148,22 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str,cli
     message=""
     outcome=None
     score_dict={'4 - 0':0, "0 - 4":0,'4 - 1':0, "1 - 4":0, "4 - 2":0, "2 - 4":0, "5 - 0":0, "0 - 5":0, "5 - 1":0, "1 - 5":0, 
-                "6 - 0":0, "0 - 6":0, "3 - 3":0, "2/1":0, "1/2":0}
+                "6 - 0":0, "0 - 6":0, "3 - 3":0, "2/1":0, "1/2":0, "3 - 2":0, "2 - 3":0}
     
     hf_ft_score_dict={'4 - 0':0, "0 - 4":0,'4 - 1':0, "1 - 4":0, "4 - 2":0, "2 - 4":0, "5 - 0":0, "0 - 5":0, "5 - 1":0, "1 - 5":0, 
-                "6 - 0":0, "0 - 6":0, "3 - 3":0, "2/1":0, "1/2":0}
+                "6 - 0":0, "0 - 6":0, "3 - 3":0, "2/1":0, "1/2":0, "3 - 2":0, "2 - 3":0}
     hf_ft_range=20
 
     cs_1_10_dict={'4 - 0':0, "0 - 4":0,'4 - 1':0, "1 - 4":0, "4 - 2":0, "2 - 4":0, "5 - 0":0, "0 - 5":0, "5 - 1":0, "1 - 5":0, 
-                "6 - 0":0, "0 - 6":0, "3 - 3":0, "2/1":0, "1/2":0}
+                "6 - 0":0, "0 - 6":0, "3 - 3":0, "2/1":0, "1/2":0, "3 - 2":0, "2 - 3":0}
     cs_1_10_range=10
 
     cs_11_20_dict={'4 - 0':0, "0 - 4":0,'4 - 1':0, "1 - 4":0, "4 - 2":0, "2 - 4":0, "5 - 0":0, "0 - 5":0, "5 - 1":0, "1 - 5":0, 
-                "6 - 0":0, "0 - 6":0, "3 - 3":0, "2/1":0, "1/2":0}
+                "6 - 0":0, "0 - 6":0, "3 - 3":0, "2/1":0, "1/2":0, "3 - 2":0, "2 - 3":0}
     cs_11_20_range=20
 
     cs_21_30_dict={'4 - 0':0, "0 - 4":0,'4 - 1':0, "1 - 4":0, "4 - 2":0, "2 - 4":0, "5 - 0":0, "0 - 5":0, "5 - 1":0, "1 - 5":0, 
-                "6 - 0":0, "0 - 6":0, "3 - 3":0, "2/1":0, "1/2":0}
+                "6 - 0":0, "0 - 6":0, "3 - 3":0, "2/1":0, "1/2":0, "3 - 2":0, "2 - 3":0}
     cs_21_30_range=30
     print("about to check outcome")
     for n in range(len(ft_scores)):
@@ -201,7 +201,7 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str,cli
             if n<9*hf_ft_range:
                 hf_ft_score_dict["2/1"]+=1
     today=datetime.datetime.now().date().strftime("%d/%m")    
-    message+=f"email_date={today} \n FullSeason = {score_dict} \n Halftime_Fulltime = {hf_ft_score_dict} \n CS_1_10 = {cs_1_10_dict} \n CS_11_20 = {cs_11_20_dict} \n CS_21_30 = {cs_21_30_dict} "
+    message+=f"email_date={today}\nFullSeason = {score_dict}\nHalftime_Fulltime = {hf_ft_score_dict}\nCS_1_10 = {cs_1_10_dict}\nCS_11_20 = {cs_11_20_dict}\nCS_21_30 = {cs_21_30_dict}"
     sheet_name=['FullSeason_SeleniumProject_Spreadsheet','FullSeason_SeleniumProject_Spreadsheet',
                 'FullSeason_SeleniumProject_Spreadsheet','SeleniumProject spreadsheet',
                 'SeleniumProject spreadsheet','SeleniumProject spreadsheet']
