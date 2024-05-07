@@ -59,9 +59,13 @@ while True:
         browser=check_result['driver']
     except:
         print("An error occured i skipped check_result(all result)")
-        check_result={'outcome':True}
+        check_result={'outcome':""}
 
-    if not check_result['outcome']:
+    if check_result['outcome'] != "":
+        if check_result['outcome']=='2/1' or check_result['outcome']=='1/2':
+            SELECTED_MARKET="ht/ft"
+        else:
+            SELECTED_MARKET="correct_score"
         log=LoginUser(browser,username=os.environ.get("BETKING_USERNAME"),password=os.environ.get("BETKING_PASSWORD"))
         acc_bal=log.login()
         acc_bal=float(acc_bal.replace(",","_"))
@@ -75,6 +79,7 @@ while True:
 
         won=False
         acc_bal=str(acc_bal)
+        pattern_stake_options={"3 - 2":[5], "2 - 3":[21],'4 - 0':[6,22], "0 - 4":[6,22],'4 - 1':[7,23], "1 - 4":[7,23], "4 - 2":[8,24], "2 - 4":[8,24], "2/1":[2,6], "1/2":[2,6]}
         for n in range(len(AMOUNT_LIST[:MAX_AMOUNT_LENGTH])):
             # provision to stake 10 games afterwhich funds are exhausted and place bet begins to skip
             # if n==10:
@@ -85,7 +90,7 @@ while True:
             #            Message=f"{SELECTED_MARKET} did not come till week {n}. I have changed to TEST MODE"
             #            )
             try:    
-                week_selected=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50")
+                week_selected=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50",pattern_stake=pattern_stake_options[check_result['outcome']])
             except:
                 pass
             try:
@@ -97,7 +102,7 @@ while True:
             reduced_week_selected=reduce_week_selected(week_selected,by=0,league=LEAGUE["name"])
 
             pattern=CheckPattern(browser,market=SELECTED_MARKET)
-            if pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal)['outcome']:
+            if pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal,market=check_result['outcome']):
                 # Calculate the number of weeks left before week 10 of the next season
                 won=True
                 weeks_left_to_finish_season = LEAGUE["num_of_weeks"] - int(reduced_week_selected.split()[1])

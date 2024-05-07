@@ -44,7 +44,7 @@ class PlayGame:
 
         if self.market.lower() == "ht/ft":
             market_selector = "[data-testid='ht/ft-area']"
-        elif self.market == "3-3":
+        elif self.market == "correct_score":
             market_selector = '[data-testid="correct-score-area"]'
         time.sleep(0.5)
         try:
@@ -67,7 +67,7 @@ class PlayGame:
         except:
             pass
 
-    def select_stake_options(self, week: str, previous_week_selected: str) -> str:
+    def select_stake_options(self, week: str, previous_week_selected: str,pattern_stake:list) -> str:
         """ To select the stake option from the selected market, you wish to stake funds on """
         print(f"select_stake_option Start: {datetime.datetime.now().time()}")
 
@@ -113,15 +113,13 @@ class PlayGame:
                     n -= 8
 
                 try:
-                    if self.market=="ht/ft":
+                    if pattern_stake==[2,6]:
                         stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]  # Temp
-                        # one_slash_two_option = self.wait.until(EC.element_to_be_clickable(stake_options[2]))
-                        one_slash_two_option=stake_options[2]
-                        one_slash_two_option.click()
-                    elif self.market=="3-3":
+                    else:
                         stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 28:end * 28]  # Temp
-                        three_three_option=stake_options[15]
-                        three_three_option.click()
+                        # one_slash_two_option = self.wait.until(EC.element_to_be_clickable(stake_options[2]))
+                        first_option=stake_options[pattern_stake[0]]
+                        first_option.click()
                     time.sleep(0.5)
 
                 except (ElementClickInterceptedException, TimeoutException):
@@ -131,24 +129,21 @@ class PlayGame:
                         f"window.scrollTo(0, {window_height * attempt1});")  # To Scroll to where the element can be clicked()
 
                     time.sleep(0.5)
-                    if self.market=="ht/ft":
+                    if pattern_stake==[2,6]:
                         stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]  # Temp
-                        one_slash_two_option=stake_options[2]
-                        one_slash_two_option.click()
-                    elif self.market=="3-3":
+                    else:
                         stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 28:end * 28]  # Temp
-                        three_three_option=stake_options[15]
-                        three_three_option.click()
+                        # one_slash_two_option = self.wait.until(EC.element_to_be_clickable(stake_options[2]))
+                        first_option=stake_options[pattern_stake[0]]
+                        first_option.click()
                     time.sleep(0.5)
                
 
                 try:
-                    if self.market=="ht/ft":
+                    if len(pattern_stake)>1:
                         # stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]
-                        two_slash_one_option=stake_options[6]
+                        two_slash_one_option=stake_options[pattern_stake[1]]
                         two_slash_one_option.click()
-                    elif self.market=="3-3":
-                        pass
                     time.sleep(0.5)
                 except (ElementClickInterceptedException, TimeoutException):
                     print("exception was thrown at stake_option_2")
@@ -156,12 +151,10 @@ class PlayGame:
                         f"window.scrollTo(0, {window_height * attempt1});")  # To Scroll to where the element can be clicked()
 
                     time.sleep(0.5)
-                    if self.market=="ht/ft":
+                    if len(pattern_stake)>1:
                         # stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]
-                        two_slash_one_option=stake_options[6]
+                        two_slash_one_option=stake_options[pattern_stake[1]]
                         two_slash_one_option.click()
-                    elif self.market=="3-3":
-                        pass
                     time.sleep(0.5)
             print(f"select_stake_option End: {datetime.datetime.now().time()}")
         
@@ -241,7 +234,6 @@ class CheckPattern:
     It takes a driver instance as first argument """
 
     def __init__(self, driver: object, market: str) -> None:
-        self.market = market
         self._VIRTUAL_BUTTON_LINK_TEXT = "VIRTUAL"
         self.browser = driver
         self.wait = WebDriverWait(driver=self.browser, timeout=10)
@@ -260,7 +252,7 @@ class CheckPattern:
         virtual_choice_button = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, css_selector)))
         virtual_choice_button.click()
 
-    def check_result(self, length: str, latest_week: str,acc_balance:str=None,to_play:int=None) -> dict:
+    def check_result(self, length: str, latest_week: str,acc_balance:str=None,to_play:int=None,market:str=None) -> dict:
         """ To check the result outcomes of an inputed length or number of weeks"""
         # check halftime fulltime result
         # 1 - 20 weeks matches
@@ -377,11 +369,11 @@ class CheckPattern:
                 except FileNotFoundError:
                     page_path2 = "SeleniumProject/saved_pages/eleven_to_twenty_page.html"
                     save_page(self.browser, page_name=page_path2)
-                result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=self.market,length=length)
+                result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=market,length=length)
             except Exception as error:
                 print("an error occured i skipped this session")
                 print(f"this is the error: {error}")
-                result={"outcome":True,"message":f"an error occured i skipped this session. This is the error: {error}"}
+                result={"outcome":"","message":f"an error occured i skipped this session. This is the error: {error}"}
 
         elif length.lower() == "last result":
             try:
@@ -421,7 +413,7 @@ class CheckPattern:
                 ht_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")[:9]
                 ft_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ft")[:9]
 
-                result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=self.market,length=length)
+                result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=market,length=length)
             except Exception as error:
                 print(f"an error occured when checking last result i want to use acc balance to check.This is the error: {error}")
                 # if the result page fails, compare balances to tell the outcome

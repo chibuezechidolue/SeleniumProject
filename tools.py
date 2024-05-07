@@ -139,8 +139,7 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str,len
     count=0
     message=""
     outcome=None
-    score_dict={'4 - 1':0, "1 - 4":0, "4 - 2":0, "2 - 4":0, "5 - 0":0, "0 - 5":0, "5 - 1":0, "1 - 5":0, 
-                "6 - 0":0, "0 - 6":0, "3 - 3":0, "2/1":0, "1/2":0}
+    score_dict={"3 - 2":0, "2 - 3":0,'4 - 0':0, "0 - 4":0,'4 - 1':0, "1 - 4":0, "4 - 2":0, "2 - 4":0, "2/1":0, "1/2":0}
     for n in range(len(ht_scores)):
         try:
             ht_home_score=int(ht_scores[n].text[0])
@@ -163,36 +162,39 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str,len
             current_week=n//9                                                      # the number of the game by 9(total games/week), i.e 54//9 will be week 6
             week_number=game_weeks[current_week]
 
-
         # use a try and except block to check the passed in bal and the current on screen bal
-        if market=="ht/ft":
-            if current_ft_score in score_dict:
-                score_dict[current_ft_score]+=1
-                # message+=f"{current_ft_score}: {week_number}, "
+        if current_ft_score in score_dict:
+            score_dict[current_ft_score]+=1
 
-            if (ht_home_score>ht_away_score and ft_home_score<ft_away_score):     # 1/2
-                score_dict["1/2"]+=1
-                count+=1
-                outcome=True
-                # message+=f"1/2: {week_number}, "
-            elif (ht_home_score<ht_away_score and ft_home_score>ft_away_score):     # 2/1
-                score_dict["2/1"]+=1
-                count+=1
-                outcome=True
-                # message+=f"2/1: {week_number}, "
+        if (ht_home_score>ht_away_score and ft_home_score<ft_away_score):     # 1/2
+            score_dict["1/2"]+=1
+            count+=1
 
-    message+=f"{score_dict}"
+        elif (ht_home_score<ht_away_score and ft_home_score>ft_away_score):     # 2/1
+            score_dict["2/1"]+=1
+            count+=1
     if length.lower()=="all result":
-        sheet_name='FullSeason_SeleniumProject_Spreadsheet'        
-        CELL=['AD','AE','AF','AG','AH','AI','AJ','AK','AL','AM','AN','AO','AP']
-        try:
-            tabulate_result(score_dictionary=score_dict,sheet_name=sheet_name,cell_list=CELL)
-        except:
-            pass    
+        for k,v in score_dict.items():
+            if k=="3 - 2" or k=="2 - 3":
+                if v==0:
+                    message+=f"({k} appeeared {v} time(s)) "
+                    print(message)
+                    return {"outcome":k,"message":message}
+            if v==0 and score_dict[k[::-1]]==0:
+                message+=f"({k} & {score_dict[k[::-1]]} appeeared {v} time(s)) "
+                print(message)
+                return {"outcome":k,"message":message}
         
-    message+=f"({market} appeeared {count} time(s)) "
-    print(message)
-    return {"outcome":outcome,"count":count,"message":message}
+        message+=f"(no pattern appeeared this season) "
+        print(message)
+        return {"outcome":"","message":message}
+    elif length.lower()=="last result":
+        if score_dict[market]>0:
+            message+=f"({market} appeeared {score_dict[market]} time(s)) "
+            print(message)
+            return {"outcome":True,"message":message}
+
+
             
 
 

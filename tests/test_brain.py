@@ -12,24 +12,29 @@ load_dotenv()
 
 
 class BrainTest(unittest.TestCase):
+    # test_market="ht/ft"
     def setUp(self):
+        test_market="correct_score"
         self.browser=webdriver.Chrome()    # driver instance with User Interface (not headless)
         # self.browser=set_up_driver_instance() # driver instance without User Interface (--headless)
-        self.pattern=CheckPattern(self.browser,market="ht/ft")
-        self.game_play=PlayGame(self.browser,market="ht/ft")
+        self.pattern=CheckPattern(self.browser,market=test_market)
+        self.game_play=PlayGame(self.browser,market=test_market)
         self.log=LoginUser(self.browser,username=os.environ.get("BETKING_USERNAME"),password=os.environ.get("BETKING_PASSWORD"))
         self.browser.get("https://m.betking.com/virtual/league/kings-bundliga")
 
     
     def test_choose_market(self):
         time.sleep(2)
-        for _ in range(10):
+        for _ in range(2):
             self.game_play.choose_market()
             time.sleep(10)
 
 
     def test_select_stake_options_and_place_the_bet(self):
+        check_result={'outcome':'3 - 2'}
         AMOUNT_LIST=(10,10,10,20,30,40,55,80,110,160,230,330,470,675,970)
+        pattern_stake_options={"3 - 2":[5], "2 - 3":[21],'4 - 0':[6,22], "0 - 4":[6,22],'4 - 1':[7,23], "1 - 4":[7,23], "4 - 2":[8,24], "2 - 4":[8,24], "2/1":[2,6], "1/2":[2,6]}
+        time.sleep(2)
         self.game_play.choose_market()
         # self.test_login()
         # acc_bal=2000.2
@@ -38,7 +43,7 @@ class BrainTest(unittest.TestCase):
             # clear_bet_slip(self.browser)
             if n==10:
                 os.environ["TEST"]="True"
-            week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000")
+            week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000",pattern_stake=pattern_stake_options[check_result['outcome']])
             try:
                 acc_bal=self.game_play.place_the_bet(amount=AMOUNT_LIST[n],test=os.environ.get("TEST"))
             except:
@@ -49,7 +54,7 @@ class BrainTest(unittest.TestCase):
             reduced_week_selected=reduce_week_selected(week_selected,by=0,league="bundliga")
             # self.pattern.check_result(length="last result",latest_week=reduced_week_selected)
             # self.pattern=CheckPattern(self.browser,market="ht/ft")
-            self.pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal)
+            self.pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal,market=check_result['outcome'])
 
     def test_checkout_virtual(self):
         for _ in range(3):
@@ -70,7 +75,8 @@ class BrainTest(unittest.TestCase):
     
     def test_check_last_result(self):
         self.game_play.choose_market()
-        acc_bal=self.test_login()
+        # acc_bal=self.test_login()
+        acc_bal="40000"
         while True:
             week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000")
             reduced_week_selected=reduce_week_selected(week_selected,by=0,league="bundliga")
