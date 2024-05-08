@@ -3,7 +3,8 @@ import time
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import StaleElementReferenceException,NoSuchElementException,TimeoutException
+from selenium.common.exceptions import (StaleElementReferenceException,NoSuchElementException,
+                                        TimeoutException,ElementClickInterceptedException)
 from selenium import webdriver
 import pygsheets 
 import datetime
@@ -186,13 +187,25 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str,len
                 return {"outcome":k,"message":message}
         
         message+=f"(no pattern appeeared this season) "
+        message+=score_dict
         print(message)
         return {"outcome":"","message":message}
     elif length.lower()=="last result":
-        if score_dict[market]>0:
-            message+=f"({market} appeeared {score_dict[market]} time(s)) "
-            print(message)
-            return {"outcome":True,"message":message}
+        if market=="3 - 2" or market=="2 - 3":
+            if score_dict[market]>0:
+                message+=f"({market} appeeared {score_dict[market]} time(s)) "
+                print(message)
+                return {"outcome":True,"message":message}
+            else: 
+                return {"outcome":False,"message":f"{market} did not appear"} 
+            
+        else:
+            if score_dict[market]>0 or score_dict[market[::-1]]>0:
+                message+=f"({market} or {market[::-1]} appeeared {score_dict[market]+score_dict[market[::-1]]} time(s)) "
+                print(message)
+                return {"outcome":True,"message":message}
+            else: 
+                return {"outcome":False,"message":f"{market} did not appear"} 
 
 
             
@@ -273,6 +286,7 @@ def clear_bet_slip(browser):
     wait=WebDriverWait(driver=browser,timeout=10)
     try:
        clear_all_button= browser.find_element(By.CSS_SELECTOR,'.clear-all')
+       clear_all_button.click()
     except (TimeoutException,NoSuchElementException):
         # betslip_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')))
         betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')
@@ -284,7 +298,12 @@ def clear_bet_slip(browser):
         clear_all_button.click()
     except (TimeoutException,NoSuchElementException):
         pass
-    time.sleep(1)
+    except ElementClickInterceptedException:
+        browser.execute_script("window.scrollTo(0, 0);")
+        time.sleep(2)
+        clear_all_button=browser.find_element(By.CSS_SELECTOR,'.clear-all')
+        clear_all_button.click()
+    time.sleep(2)
     # close_betslip_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'[data-testid="coupon-close-icon"]')))
     close_betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="coupon-close-icon"]')
     close_betslip_button.click()

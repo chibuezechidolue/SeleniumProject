@@ -53,6 +53,7 @@ class PlayGame:
             market_to_select = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, market_selector)))
             market_to_select.click()
         except (StaleElementReferenceException, ElementClickInterceptedException, TimeoutException):
+            self.browser.execute_script(f"window.scrollTo(0, {market_to_select.location['y']});")
             if check_if_current_week_islive(self.browser):
                 time.sleep(40)
             # market_to_select = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, market_selector)))
@@ -103,7 +104,7 @@ class PlayGame:
                 except (ElementClickInterceptedException, StaleElementReferenceException, TimeoutException):
                     print("exception was thrown at available_games_1")
                     self.browser.execute_script(
-                        f"window.scrollTo(0, {window_height * attempt1});")  # To Scroll to where the element can be clicked()
+                        f"window.scrollTo(0, {available_games_1.location['y']-100});")  # To Scroll to where the element can be clicked()
 
                     time.sleep(0.5)
                     available_games_1=available_games[:end][n]
@@ -118,15 +119,15 @@ class PlayGame:
                     else:
                         stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 28:end * 28]  # Temp
                         # one_slash_two_option = self.wait.until(EC.element_to_be_clickable(stake_options[2]))
-                        first_option=stake_options[pattern_stake[0]]
-                        first_option.click()
+                    first_option=stake_options[pattern_stake[0]]
+                    first_option.click()
                     time.sleep(0.5)
 
                 except (ElementClickInterceptedException, TimeoutException):
                     print("exception was thrown at stake_option_1")
 
                     self.browser.execute_script(
-                        f"window.scrollTo(0, {window_height * attempt1});")  # To Scroll to where the element can be clicked()
+                        f"window.scrollTo(0, {first_option.location['y']-100});")  # To Scroll to where the element can be clicked()
 
                     time.sleep(0.5)
                     if pattern_stake==[2,6]:
@@ -134,30 +135,28 @@ class PlayGame:
                     else:
                         stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 28:end * 28]  # Temp
                         # one_slash_two_option = self.wait.until(EC.element_to_be_clickable(stake_options[2]))
-                        first_option=stake_options[pattern_stake[0]]
-                        first_option.click()
+                    first_option=stake_options[pattern_stake[0]]
+                    first_option.click()
                     time.sleep(0.5)
                
-
                 try:
                     if len(pattern_stake)>1:
                         # stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]
-                        two_slash_one_option=stake_options[pattern_stake[1]]
-                        two_slash_one_option.click()
+                        second_option=stake_options[pattern_stake[1]]
+                        second_option.click()
                     time.sleep(0.5)
                 except (ElementClickInterceptedException, TimeoutException):
                     print("exception was thrown at stake_option_2")
                     self.browser.execute_script(
-                        f"window.scrollTo(0, {window_height * attempt1});")  # To Scroll to where the element can be clicked()
+                        f"window.scrollTo(0, {second_option.location['y']-100});")  # To Scroll to where the element can be clicked()
 
                     time.sleep(0.5)
                     if len(pattern_stake)>1:
                         # stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]
-                        two_slash_one_option=stake_options[pattern_stake[1]]
-                        two_slash_one_option.click()
+                        second_option=stake_options[pattern_stake[1]]
+                        second_option.click()
                     time.sleep(0.5)
             print(f"select_stake_option End: {datetime.datetime.now().time()}")
-        
             return week_to_select_text
         except Exception as error:
                 # To clear all stake options selected if an error occurs while selecting stake options
@@ -387,17 +386,11 @@ class CheckPattern:
                         standings_button=self.browser.find_element(By.CSS_SELECTOR, '[data-testid="results-and-standings-button"]')
                         standings_button.click()                
                     try:
-                        result_button = self.wait.until(EC.element_to_be_clickable((By.XPATH,
-                                                                                "/html/body/app-root/app-wrapper/div/virtuals"
-                                                                                "-league-wrapper/mobile-virtuals-soccer/mvs"
-                                                                                "-virtual-league-page/div["
-                                                                                "2]/mvs-results-page/div[2]/div[2]")))
-                        result_button.click()
+                        result_button = self.browser.find_elements(By.CSS_SELECTOR,'[data-testid="results-page-tab-standings"]')
+                        result_button[1].click()
+
                     except (TimeoutException,ElementClickInterceptedException):
-                        result_button=self.browser.find_element(By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals"
-                                                                                "-league-wrapper/mobile-virtuals-soccer/mvs"
-                                                                                "-virtual-league-page/div["
-                                                                                "2]/mvs-results-page/div[2]/div[2]")
+                        result_button=self.browser.find_element(By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals-league-wrapper/div/mobile-virtuals-soccer/mvs-virtual-league-page/div[2]/mvs-results-page/div[2]/div[2]")
                         result_button.click()
                 except:
                     self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
@@ -430,16 +423,16 @@ class CheckPattern:
                     else:
                         result={"outcome":False,"message":f"I used the acc bal to confirm ticket won. this is the error: {error}"}
 
-        if result["outcome"] != True and length.lower() == "all result":
+        if result["outcome"] == "" and length.lower() == "all result":
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
                        Password=os.environ.get("EMAIL_PASSWORD"),
-                       Subject=f"No {self.market} yet",
+                       Subject=f"No PATTERN found yet",
                        Message=result["message"],
                        File_path=[page_path1, page_path2]
                        )
             cancel_result_page_button = self.browser.find_element(By.CSS_SELECTOR, "svg path")
             cancel_result_page_button.click()
-            return {"outcome": False, "driver": self.browser}
+            return {"outcome": result["outcome"], "driver": self.browser}
 
         elif result["outcome"] == True and length.lower() == "last result":
             try:
@@ -450,7 +443,7 @@ class CheckPattern:
                 save_page(self.browser, page_name=page_path)  # save the games(1-10) page
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
                        Password=os.environ.get("EMAIL_PASSWORD"),
-                       Subject=f"{self.market} came in the last result" ,
+                       Subject=f"{market} came in the last result" ,
                        Message=result["message"],
                        File_path=[page_path]
                        )
@@ -459,15 +452,15 @@ class CheckPattern:
             cancel_result_page_button.click()
             return {"outcome": True, "driver": self.browser}
 
-        elif result["outcome"] == True and length.lower() == "all result":
+        elif result["outcome"] != "" and length.lower() == "all result":
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
                        Password=os.environ.get("EMAIL_PASSWORD"),
-                       Subject="Halftime/Fulltime RESULT",
+                       Subject=f"PATTERN found",
                        Message=result["message"],
                        )
             cancel_result_page_button = self.browser.find_element(By.CSS_SELECTOR, "svg path")
             cancel_result_page_button.click()
-            return {"outcome": True, "driver": self.browser}
+            return {"outcome": result["outcome"], "driver": self.browser}
 
         else:
             cancel_result_page_button = self.browser.find_element(By.CSS_SELECTOR, "svg path")
