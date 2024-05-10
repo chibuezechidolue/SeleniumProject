@@ -287,16 +287,20 @@ def clear_bet_slip(browser):
     try:
        clear_all_button= browser.find_element(By.CSS_SELECTOR,'.clear-all')
        clear_all_button.click()
+       print("it was cleared")
     except (TimeoutException,NoSuchElementException):
         # betslip_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')))
-        betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')
-        betslip_button.click()
-        time.sleep(1)
+        # betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')
+        # betslip_button.click()
+        # time.sleep(1)
+        pass
     try:
         # clear_all_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'.clear-all')))
         clear_all_button=browser.find_element(By.CSS_SELECTOR,'.clear-all')
         clear_all_button.click()
+        print("it was cleared again")
     except (TimeoutException,NoSuchElementException):
+        print("NoSuchElementException")
         pass
     except ElementClickInterceptedException:
         browser.execute_script("window.scrollTo(0, 0);")
@@ -305,6 +309,20 @@ def clear_bet_slip(browser):
         clear_all_button.click()
     time.sleep(2)
     # close_betslip_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'[data-testid="coupon-close-icon"]')))
-    close_betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="coupon-close-icon"]')
-    close_betslip_button.click()
+    try:
+        print('pls close')
+        close_betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="coupon-close-icon"]')
+        close_betslip_button.click()
+    except:
+        print("pls continue")
+        continue_betting_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="coupon-continue-betting"]')
+        continue_betting_button.click  
     time.sleep(2)
+
+
+def calc_stake_amount(amount:float,odd:float,base:int=60)->float:
+    expected_sum=amount*base
+    possible_stake=expected_sum/odd
+    if possible_stake<50:
+        possible_stake=50
+    return possible_stake

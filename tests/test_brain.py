@@ -23,7 +23,8 @@ class BrainTest(unittest.TestCase):
         self.log=LoginUser(self.browser,username=os.environ.get("BETKING_USERNAME"),password=os.environ.get("BETKING_PASSWORD"))
         self.browser.get("https://m.betking.com/virtual/league/kings-bundliga")
         self.pattern_stake_options={"3 - 2":[5], "2 - 3":[21],'4 - 0':[6,22], "0 - 4":[6,22],'4 - 1':[7,23], "1 - 4":[7,23], "4 - 2":[8,24], "2 - 4":[8,24], "2/1":[2,6], "1/2":[2,6]}
-
+        self.AMOUNT_LIST=[50, 50, 50, 100, 150, 200, 275, 400, 550, 800, 1150, 1650, 2350, 3375, 4850, 6950, 9900,
+                        14200, 20250, 29000, 41500, 59250, 84750, 121250]
 
     
     def test_choose_market(self):
@@ -34,28 +35,33 @@ class BrainTest(unittest.TestCase):
 
 
     def test_select_stake_options_and_place_the_bet(self):
-        check_result={'outcome':'4 - 0'}
+        check_result={'outcome':'4 - 2'}
         # check_result={'outcome':'2/1'}
-        AMOUNT_LIST=(10,10,10,20,30,40,55,80,110,160,230,330,470,675,970)
-        # pattern_stake_options={"3 - 2":[5], "2 - 3":[21],'4 - 0':[6,22], "0 - 4":[6,22],'4 - 1':[7,23], "1 - 4":[7,23], "4 - 2":[8,24], "2 - 4":[8,24], "2/1":[2,6], "1/2":[2,6]}
+        stake_option_length=18
+        
         time.sleep(2)
         self.game_play.choose_market()
         # self.test_login()
         acc_bal=2000.2
         # acc_bal=str(acc_bal)
+        self.pattern.check_result(length="last result",latest_week="Week 9",acc_balance=acc_bal,market=check_result['outcome'])
+
         for n in range(3):
             # clear_bet_slip(self.browser)
             if n==10:
                 os.environ["TEST"]="True"
-            week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000",pattern_stake=self.pattern_stake_options[check_result['outcome']])
-            try:
-                acc_bal=self.game_play.place_the_bet(amount=AMOUNT_LIST[n],test=os.environ.get("TEST"))
-            except:
-                pass
+            # for _ in range(stake_option_length):
+            week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000",
+                                                                pattern_stake=self.pattern_stake_options[check_result['outcome']],stake_amount=self.AMOUNT_LIST[n])
+            # try:
+            #     acc_bal=self.game_play.place_the_bet(amount=self.AMOUNT_LIST[n],test=os.environ.get("TEST"))
+            # except:
+            #     pass
             # print(acc_bal)
             # if n==1:                 # To test the try & except block if results are not available
             #     acc_bal="2,266"
             reduced_week_selected=reduce_week_selected(week_selected,by=0,league="bundliga")
+            print(reduce_week_selected)
             # self.pattern.check_result(length="last result",latest_week=reduced_week_selected)
             # self.pattern=CheckPattern(self.browser,market="ht/ft")
             self.pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal,market=check_result['outcome'])
@@ -83,7 +89,8 @@ class BrainTest(unittest.TestCase):
         # acc_bal=self.test_login()
         acc_bal="40000"
         while True:
-            week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000",pattern_stake=self.pattern_stake_options[check_result['outcome']])
+            week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000",
+                                                              pattern_stake=self.pattern_stake_options[check_result['outcome']],stake_amount=self.AMOUNT_LIST[0])
             reduced_week_selected=reduce_week_selected(week_selected,by=0,league="bundliga")
             time.sleep(3)
             clear_bet_slip(self.browser)

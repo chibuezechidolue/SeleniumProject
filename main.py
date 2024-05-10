@@ -79,7 +79,15 @@ while True:
 
         won=False
         acc_bal=str(acc_bal)
-        pattern_stake_options={"3 - 2":[5], "2 - 3":[21],'4 - 0':[6,22], "0 - 4":[6,22],'4 - 1':[7,23], "1 - 4":[7,23], "4 - 2":[8,24], "2 - 4":[8,24], "2/1":[2,6], "1/2":[2,6]}
+        if check_result['outcome']=="3 - 2" or check_result['outcome']=="2 - 3":
+            stake_options_length=9
+            AMOUNT_LIST=(50, 50, 100, 200, 350, 650, 1200, 2150, 3900, 7100, 12950, 23575, 42925)
+        else:
+            AMOUNT_LIST=(50, 50, 50, 100, 150, 200, 275, 400, 550, 800, 1150, 1650, 2350, 3375, 4850, 6950, 9900,
+                        14200, 20250, 29000, 41500, 59250, 84750, 121250)
+            stake_options_length=18
+            
+        pattern_stake_options={"3 - 2":[5], "2 - 3":[21],'4 - 0':[6,22], "0 - 4":[6,22],'4 - 1':[7,23], "1 - 4":[7,23], "4 - 2":[8,24], "2 - 4":[8,24], "2/1":[2,6], "1/2":[2,6]} 
         for n in range(len(AMOUNT_LIST[:MAX_AMOUNT_LENGTH])):
             # provision to stake 10 games afterwhich funds are exhausted and place bet begins to skip
             # if n==10:
@@ -89,14 +97,15 @@ while True:
             #            Subject="YOU'VE LOST IT ALL",
             #            Message=f"{SELECTED_MARKET} did not come till week {n}. I have changed to TEST MODE"
             #            )
-            try:    
-                week_selected=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50",pattern_stake=pattern_stake_options[check_result['outcome']])
-            except:
-                pass
-            try:
-                acc_bal=game_play.place_the_bet(amount=str(AMOUNT_LIST[n]*GAME_LEVEL),test=eval(os.environ.get("TEST")))
-            except:
-                pass
+            for _ in range(stake_options_length):
+                try:    
+                    week_selected=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50",pattern_stake=pattern_stake_options[check_result['outcome']],stake_amount=AMOUNT_LIST[n]*GAME_LEVEL)
+                except:
+                    pass
+            # try:
+            #     acc_bal=game_play.place_the_bet(amount=str(AMOUNT_LIST[n]*GAME_LEVEL),test=eval(os.environ.get("TEST")))
+            # except:
+            #     pass
             # week_selected=game_play.select_stake_options(week="after_current_week",
             #                                             previous_week_selected=week_selected)
             reduced_week_selected=reduce_week_selected(week_selected,by=0,league=LEAGUE["name"])
