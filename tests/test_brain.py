@@ -14,8 +14,8 @@ load_dotenv()
 class BrainTest(unittest.TestCase):
 
     def setUp(self):
-        test_market="correct_score"
-        # test_market="ht/ft"
+        # test_market="correct_score"
+        test_market="ht/ft"
         self.browser=webdriver.Chrome()    # driver instance with User Interface (not headless)
         # self.browser=set_up_driver_instance() # driver instance without User Interface (--headless)
         self.pattern=CheckPattern(self.browser,market=test_market)
@@ -35,8 +35,8 @@ class BrainTest(unittest.TestCase):
 
 
     def test_select_stake_options_and_place_the_bet(self):
-        check_result={'outcome':'4 - 2'}
-        # check_result={'outcome':'2/1'}
+        # check_result={'outcome':'4 - 1'}
+        check_result={'outcome':'2/1'}
         stake_option_length=18
         
         time.sleep(2)
@@ -44,7 +44,7 @@ class BrainTest(unittest.TestCase):
         # self.test_login()
         acc_bal=2000.2
         # acc_bal=str(acc_bal)
-        self.pattern.check_result(length="last result",latest_week="Week 9",acc_balance=acc_bal,market=check_result['outcome'])
+        self.pattern.check_result(length="last result",latest_week="Week 15",acc_balance=acc_bal,market=check_result['outcome'])
 
         for n in range(3):
             # clear_bet_slip(self.browser)
@@ -61,7 +61,6 @@ class BrainTest(unittest.TestCase):
             # if n==1:                 # To test the try & except block if results are not available
             #     acc_bal="2,266"
             reduced_week_selected=reduce_week_selected(week_selected,by=0,league="bundliga")
-            print(reduce_week_selected)
             # self.pattern.check_result(length="last result",latest_week=reduced_week_selected)
             # self.pattern=CheckPattern(self.browser,market="ht/ft")
             self.pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal,market=check_result['outcome'])

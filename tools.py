@@ -20,7 +20,7 @@ def set_up_driver_instance():
     """ To create and return a webdriver object with disabled gpu and headless"""
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--headless")
+    # chrome_options.add_argument("--headless")
     chrome_options.add_argument('--window-size=1920,1080')
     chrome_options.add_argument("--disable-gpu")
     return webdriver.Chrome(options=chrome_options)
@@ -63,23 +63,23 @@ def reload_result_page(browser):
     try:
         betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')
         betslip_button.click()
-        time.sleep(2)
+        time.sleep(1)
         close_betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="coupon-close-icon"]')
         close_betslip_button.click()
-        time.sleep(3)
+        time.sleep(1)
 
     except:
 
         # cancel_result_page_button=browser.find_element(By.CSS_SELECTOR,"svg path")
         cancel_result_page_button=browser.find_element(By.CSS_SELECTOR,"svg path")
         cancel_result_page_button.click()
-        time.sleep(2)
+        time.sleep(1)
         # standings_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,"span.view-switch-icon")))
         standings_button=browser.find_element(By.CSS_SELECTOR,"span.view-switch-icon")
         standings_button.click()
         time.sleep(1)
-        # result_button=wait.until(EC.element_to_be_clickable((By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals-league-wrapper/mobile-virtuals-soccer/mvs-virtual-league-page/div[2]/mvs-results-page/div[2]/div[2]")))
-        result_button=browser.find_element(By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals-league-wrapper/mobile-virtuals-soccer/mvs-virtual-league-page/div[2]/mvs-results-page/div[2]/div[2]")
+        result_button = browser.find_elements(By.CSS_SELECTOR,'[data-testid="results-page-tab-standings"]')
+        # result_button=browser.find_element(By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals-league-wrapper/mobile-virtuals-soccer/mvs-virtual-league-page/div[2]/mvs-results-page/div[2]/div[2]")
         result_button.click()
         time.sleep(3)
 
@@ -164,6 +164,7 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str,len
             week_number=game_weeks[current_week]
 
         # use a try and except block to check the passed in bal and the current on screen bal
+        print(2)
         if current_ft_score in score_dict:
             score_dict[current_ft_score]+=1
 
@@ -174,16 +175,15 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str,len
         elif (ht_home_score<ht_away_score and ft_home_score>ft_away_score):     # 2/1
             score_dict["2/1"]+=1
             count+=1
+    print(3)
     if length.lower()=="all result":
         for k,v in score_dict.items():
             if k=="3 - 2" or k=="2 - 3":
                 if v==0:
                     message+=f"({k} appeeared {v} time(s)) "
-                    print(message)
                     return {"outcome":k,"message":message}
             if v==0 and score_dict[k[::-1]]==0:
                 message+=f"({k} & {score_dict[k[::-1]]} appeeared {v} time(s)) "
-                print(message)
                 return {"outcome":k,"message":message}
         
         message+=f"(no pattern appeeared this season) "
@@ -304,20 +304,18 @@ def clear_bet_slip(browser):
         pass
     except ElementClickInterceptedException:
         browser.execute_script("window.scrollTo(0, 0);")
-        time.sleep(2)
+        time.sleep(0.5)
         clear_all_button=browser.find_element(By.CSS_SELECTOR,'.clear-all')
         clear_all_button.click()
-    time.sleep(2)
+    # time.sleep(2)
     # close_betslip_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'[data-testid="coupon-close-icon"]')))
     try:
-        print('pls close')
         close_betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="coupon-close-icon"]')
         close_betslip_button.click()
     except:
-        print("pls continue")
         continue_betting_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="coupon-continue-betting"]')
         continue_betting_button.click  
-    time.sleep(2)
+    time.sleep(1)
 
 
 def calc_stake_amount(amount:float,odd:float,base:int=60)->float:
