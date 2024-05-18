@@ -7,9 +7,9 @@ load_dotenv()
  
     
 
-SINCE_DATE="1-May-2024"
-# EXCLUDE_DATE="GDSH" 
-EXCLUDE_DATE="30 Apr 2024"
+SINCE_DATE="10-May-2024"
+# EXCLUDE_DATE="DATE" 
+EXCLUDE_DATE="09 May 2024"
 imap_url = 'imap.gmail.com'
  
 # Function to get email content part i.e its body part
