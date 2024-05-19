@@ -57,7 +57,7 @@ while True:
     try:
         check_result=pattern.check_result(length="all result", latest_week="all",to_play=MAX_AMOUNT_LENGTH)
         browser=check_result['driver']
-        print(check_result['outcome'])
+        print(f"this is the outcome: {check_result['outcome']}")
         check_result['outcome']="4 - 1"
     except:
         print("An error occured i skipped check_result(all result)")
@@ -76,7 +76,6 @@ while True:
         game_play=PlayGame(browser,market=SELECTED_MARKET)
         game_play.choose_market()
         time.sleep(0.5)
-        # week_selected=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50")
 
         won=False
         if check_result['outcome']=="3 - 2" or check_result['outcome']=="2 - 3":
@@ -101,17 +100,10 @@ while True:
             #            Subject="YOU'VE LOST IT ALL",
             #            Message=f"{SELECTED_MARKET} did not come till week {n}. I have changed to TEST MODE"
             #            )
-            # for _ in range(stake_options_length):
-            try:    
+            try:
                 week_selected=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50",pattern_stake=pattern_stake_options[check_result['outcome']],stake_amount=AMOUNT_LIST[n]*GAME_LEVEL)
             except:
                 pass
-            # try:
-            #     acc_bal=game_play.place_the_bet(amount=str(AMOUNT_LIST[n]*GAME_LEVEL),test=eval(os.environ.get("TEST")))
-            # except:
-            #     pass
-            # week_selected=game_play.select_stake_options(week="after_current_week",
-            #                                             previous_week_selected=week_selected)
             reduced_week_selected=reduce_week_selected(week_selected,by=0,league=LEAGUE["name"])
 
             pattern=CheckPattern(browser,market=SELECTED_MARKET)
@@ -121,6 +113,7 @@ while True:
                 weeks_left_to_finish_season = LEAGUE["num_of_weeks"] - int(reduced_week_selected.split()[1])
                 sleep_time_before_next_check=(weeks_left_to_finish_season + week_to_save1-1)*3
                 browser.quit()
+                print(f'waiting for {sleep_time_before_next_check*60 * 60} secs')
                 time.sleep(sleep_time_before_next_check*60) 
                 break
         if not won:
@@ -133,5 +126,6 @@ while True:
         # Calculate the number of weeks left before week 10 of the next season
         time_to_sleep = (LEAGUE["num_of_weeks"]-games_to_check+(week_to_save1-1))*3
         browser.quit()
+        print(f'waiting for {time_to_sleep*60} secs')
         time.sleep(time_to_sleep*60)
 

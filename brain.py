@@ -306,10 +306,10 @@ class CheckPattern:
                     week_to_save1=games_to_check
                     week_to_save2=0
                 elif games_to_check>10:
-                    # week_to_save1=10
-                    # week_to_save2=games_to_check
-                    week_to_save1=22
-                    week_to_save2=25
+                    week_to_save1=10
+                    week_to_save2=games_to_check
+                    # week_to_save1=32
+                    # week_to_save2=34
 
             
                 game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")[:week_to_save1]
@@ -365,14 +365,12 @@ class CheckPattern:
                 else:
                     time.sleep((weeks_left-1)*3*60)  # To wait untill start_week2
                 
-                print(100)
-                self.browser=webdriver.Chrome()          # driver instance with User Interface (not headless)
-                # self.browser = set_up_driver_instance()    # driver instance without User Interface (--headless)
+                # self.browser=webdriver.Chrome()          # driver instance with User Interface (not headless)
+                self.browser = set_up_driver_instance()    # driver instance without User Interface (--headless)
                 self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
                 time.sleep(5)
                 second_game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")[:weeks_left]
                 # checking if the last week played is Week 20 before going ahead to save the page
-                print(0)
                 second_game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=second_game_weeks,
                                                                     week_to_check=f"Week {week_to_save2}", time_delay=10)
                 second_game_weeks=second_game_weeks[:weeks_left]
@@ -388,7 +386,6 @@ class CheckPattern:
                 except FileNotFoundError:
                     page_path2 = "SeleniumProject/saved_pages/eleven_to_twenty_page.html"
                     save_page(self.browser, page_name=page_path2)
-                print(1)
                 result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=market,length=length)
             except Exception as error:
                 print("an error occured i skipped this session")

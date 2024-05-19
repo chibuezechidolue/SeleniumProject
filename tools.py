@@ -20,7 +20,7 @@ def set_up_driver_instance():
     """ To create and return a webdriver object with disabled gpu and headless"""
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("--no-sandbox")
-    # chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--headless")
     chrome_options.add_argument('--window-size=1920,1080')
     chrome_options.add_argument("--disable-gpu")
     return webdriver.Chrome(options=chrome_options)
@@ -164,7 +164,6 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str,len
             week_number=game_weeks[current_week]
 
         # use a try and except block to check the passed in bal and the current on screen bal
-        print(2)
         if current_ft_score in score_dict:
             score_dict[current_ft_score]+=1
 
@@ -175,7 +174,6 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str,len
         elif (ht_home_score<ht_away_score and ft_home_score>ft_away_score):     # 2/1
             score_dict["2/1"]+=1
             count+=1
-    print(3)
     if length.lower()=="all result":
         for k,v in score_dict.items():
             if k=="3 - 2" or k=="2 - 3":
@@ -183,11 +181,11 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str,len
                     message+=f"({k} appeeared {v} time(s)) "
                     return {"outcome":k,"message":message}
             if v==0 and score_dict[k[::-1]]==0:
-                message+=f"({k} & {score_dict[k[::-1]]} appeeared {v} time(s)) "
+                message+=f"({k} & {k[::-1]} appeeared {v} time(s)) "
                 return {"outcome":k,"message":message}
         
         message+=f"(no pattern appeeared this season) "
-        message+=score_dict
+        message+=str(score_dict)
         print(message)
         return {"outcome":"","message":message}
     elif length.lower()=="last result":
@@ -287,7 +285,6 @@ def clear_bet_slip(browser):
     try:
        clear_all_button= browser.find_element(By.CSS_SELECTOR,'.clear-all')
        clear_all_button.click()
-       print("it was cleared")
     except (TimeoutException,NoSuchElementException):
         # betslip_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')))
         # betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')
@@ -298,9 +295,7 @@ def clear_bet_slip(browser):
         # clear_all_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'.clear-all')))
         clear_all_button=browser.find_element(By.CSS_SELECTOR,'.clear-all')
         clear_all_button.click()
-        print("it was cleared again")
     except (TimeoutException,NoSuchElementException):
-        print("NoSuchElementException")
         pass
     except ElementClickInterceptedException:
         browser.execute_script("window.scrollTo(0, 0);")
