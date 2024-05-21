@@ -10,7 +10,7 @@ from selenium.common.exceptions import (ElementClickInterceptedException,
 from dotenv import load_dotenv
 from tools import (cancel_popup, check_if_current_week_equal_input, check_if_current_week_has_played,
                    check_if_current_week_islive, check_if_last_result_equal_input,
-                   clear_bet_slip, save_page, confirm_outcome, send_email, set_up_driver_instance,check_if_last_stake_has_played)
+                   clear_bet_slip, save_page, confirm_outcome, send_email, set_up_driver_instance,check_if_last_stake_has_played,calc_stake_amount)
 import datetime
 
 load_dotenv()
@@ -67,7 +67,7 @@ class PlayGame:
         except:
             pass
 
-    def select_stake_options(self, week: str, previous_week_selected: str) -> str:
+    def select_stake_options(self, week: str, previous_week_selected: str,pattern_stake:int,stake_amount:float) -> str:
         """ To select the stake option from the selected market, you wish to stake funds on """
         print(f"select_stake_option Start: {datetime.datetime.now().time()}")
 
@@ -103,7 +103,7 @@ class PlayGame:
                 except (ElementClickInterceptedException, StaleElementReferenceException, TimeoutException):
                     print("exception was thrown at available_games_1")
                     self.browser.execute_script(
-                        f"window.scrollTo(0, {window_height * attempt1});")  # To Scroll to where the element can be clicked()
+                        f"window.scrollTo(0, {available_games_1.location['y']-100});")  # To Scroll to where the element can be clicked()
 
                     time.sleep(0.5)
                     available_games_1=available_games[:end][n]
@@ -112,60 +112,53 @@ class PlayGame:
                 if week == "after_current_week" and const != 9:
                     n -= 8
 
+                if n==0:
+                    current_open_stake_options=0
+                else:
+                    current_open_stake_options=1
+                stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[current_open_stake_options * 28:end * 28]  # Temp
+                
+                option_btn=stake_options[pattern_stake]  
                 try:
-                    if self.market=="ht/ft":
-                        stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]  # Temp
-                        # one_slash_two_option = self.wait.until(EC.element_to_be_clickable(stake_options[2]))
-                        one_slash_two_option=stake_options[2]
-                        one_slash_two_option.click()
-                    elif self.market=="3-3":
-                        stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 28:end * 28]  # Temp
-                        three_three_option=stake_options[15]
-                        three_three_option.click()
-                    time.sleep(0.5)
-
+                    # option_btn=option_btns[i]
+                    option_btn.click()
+                    # time.sleep(0.5)
                 except (ElementClickInterceptedException, TimeoutException):
                     print("exception was thrown at stake_option_1")
-
                     self.browser.execute_script(
-                        f"window.scrollTo(0, {window_height * attempt1});")  # To Scroll to where the element can be clicked()
+                        f"window.scrollTo(0, {option_btn.location['y']-100});")  # To Scroll to where the element can be clicked()
+                    time.sleep(0.5)
+                    option_btn.click()
+                    # time.sleep(0.5)
 
-                    time.sleep(0.5)
-                    if self.market=="ht/ft":
-                        stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]  # Temp
-                        one_slash_two_option=stake_options[2]
-                        one_slash_two_option.click()
-                    elif self.market=="3-3":
-                        stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 28:end * 28]  # Temp
-                        three_three_option=stake_options[15]
-                        three_three_option.click()
-                    time.sleep(0.5)
-               
+                amount=calc_stake_amount(amount=stake_amount,odd=float(option_btn.text.replace(" ",'')))
+                acc_bal=self.place_the_bet(amount=amount,test=eval(os.environ.get("TEST")))
+                
+                # renew Stale Elements
+                
+                available_games = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-content"]')
+                
+                # if i==0 and len(pattern_stake)>1:
+                #     # re-click the current available_games
+                #     available_games_1=available_games[:end][n]
+                #     try:
+                #         self.browser.execute_script(
+                #             f"window.scrollTo(0, {available_games_1.location['y']-100});")  # To Scroll to where the element can be clicked()
+                #         time.sleep(0.5)
+                #         available_games_1.click()
+                #         # time.sleep(0.5)
+                #     except (ElementClickInterceptedException, StaleElementReferenceException, TimeoutException):
+                #         print("exception was thrown at available_games_1")
+                #         self.browser.execute_script(
+                #             f"window.scrollTo(0, {available_games_1.location['y']-150});")  # To Scroll to where the element can be clicked()
 
-                try:
-                    if self.market=="ht/ft":
-                        # stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]
-                        two_slash_one_option=stake_options[6]
-                        two_slash_one_option.click()
-                    elif self.market=="3-3":
-                        pass
-                    time.sleep(0.5)
-                except (ElementClickInterceptedException, TimeoutException):
-                    print("exception was thrown at stake_option_2")
-                    self.browser.execute_script(
-                        f"window.scrollTo(0, {window_height * attempt1});")  # To Scroll to where the element can be clicked()
+                #         time.sleep(0.5)
+                #         available_games_1=available_games[:end][n]
+                #         available_games_1.click()
 
-                    time.sleep(0.5)
-                    if self.market=="ht/ft":
-                        # stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[n * 9:end * 9]
-                        two_slash_one_option=stake_options[6]
-                        two_slash_one_option.click()
-                    elif self.market=="3-3":
-                        pass
-                    time.sleep(0.5)
             print(f"select_stake_option End: {datetime.datetime.now().time()}")
         
-            return week_to_select_text
+            return [week_to_select_text,acc_bal]
         except Exception as error:
                 # To clear all stake options selected if an error occurs while selecting stake options
                 print(f"An error occured during select_stake_options. This is the error: {error}")
@@ -188,21 +181,23 @@ class PlayGame:
         #     EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="nav-bar-betslip"]')))
         betslip_button=self.browser.find_element(By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')
         betslip_button.click()
-        time.sleep(4)
+        # time.sleep(3)
         # identify and click the singles tab option
         try:
-            # singles_button = self.wait.until(
-            #     EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="groupings-tab-singles"]')))
-            singles_button=self.browser.find_element(By.CSS_SELECTOR,'[data-testid="groupings-tab-singles"]')
-            singles_button.click()
+
+            # singles_button=self.browser.find_element(By.CSS_SELECTOR,'[data-testid="groupings-tab-singles"]')
+            # singles_button.click()
             # identify, clear existing amount and input new amount
-            stake_input_box = self.browser.find_element(By.CSS_SELECTOR, '[data-testid="coupon-groupings-group-stake"]')
+            print('stake_input_box')
+            # stake_input_box = self.browser.find_element(By.CSS_SELECTOR, '[data-testid="coupon-groupings-group-stake"]')
+            stake_input_box = self.browser.find_element(By.CSS_SELECTOR, '[data-testid="coupon-totals-stake-amount-value"]')
             stake_input_box.clear()
-            time.sleep(1)
+            print("clear stake_input_box")
+            # time.sleep(1)
             stake_input_box.send_keys(amount)
             # scroll to the bottom of the page
             self.browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(2)
+            time.sleep(0.5)
 
             if test:
                 clear_bet_slip(self.browser)
@@ -211,7 +206,7 @@ class PlayGame:
                 # place_bet_button = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, '[text="Place Bet"]')))
                 place_bet_button=self.browser.find_element(By.CSS_SELECTOR, '[text="Place Bet"]')
                 place_bet_button.click()
-                time.sleep(2)
+                # time.sleep(2)
                 # identify and click the continue betting button
                 try:
                     # continue_betting_button = self.wait.until(
@@ -230,8 +225,9 @@ class PlayGame:
                 pass
         except:
             # close_betslip_button = self.wait.until(
-            #             EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="coupon-close-icon"]')))
+            #     EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="coupon-close-icon"]')))
             close_betslip_button=self.browser.find_element(By.CSS_SELECTOR, '[data-testid="coupon-close-icon"]')
+            close_betslip_button.click()
             close_betslip_button.click()
 
 
@@ -240,7 +236,6 @@ class CheckPattern:
     It takes a driver instance as first argument """
 
     def __init__(self, driver: object, market: str) -> None:
-        self.market = market
         self._VIRTUAL_BUTTON_LINK_TEXT = "VIRTUAL"
         self.browser = driver
         self.wait = WebDriverWait(driver=self.browser, timeout=10)
@@ -259,7 +254,7 @@ class CheckPattern:
         virtual_choice_button = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, css_selector)))
         virtual_choice_button.click()
 
-    def check_result(self, length: str, latest_week: str,acc_balance:str=None,to_play:int=None) -> dict:
+    def check_result(self, length: str, latest_week: str,acc_balance:str=None,to_play:int=None,market:str=None) -> dict:
         """ To check the result outcomes of an inputed length or number of weeks"""
         if length.lower()=="new season":
             try:
@@ -321,7 +316,7 @@ class CheckPattern:
             try:
                 game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")
                 game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks, week_to_check=f"Week {week_to_check}",
-                                                            time_delay=30)
+                                                            time_delay=10)
             except Exception as error:
                 print(f"Error occured using find_elements(By.CSS_SELECTOR, .week-number). This is the Error: {error}")
                 if week_to_check==34:
@@ -350,21 +345,15 @@ class CheckPattern:
                         standings_button=self.browser.find_element(By.CSS_SELECTOR, '[data-testid="results-and-standings-button"]')
                         standings_button.click()                
                     try:
-                        result_button = self.wait.until(EC.element_to_be_clickable((By.XPATH,
-                                                                                "/html/body/app-root/app-wrapper/div/virtuals"
-                                                                                "-league-wrapper/mobile-virtuals-soccer/mvs"
-                                                                                "-virtual-league-page/div["
-                                                                                "2]/mvs-results-page/div[2]/div[2]")))
+                        result_button = self.browser.find_elements(By.CSS_SELECTOR,'[data-testid="results-page-tab-standings"]')
                         result_button.click()
                     except (TimeoutException,ElementClickInterceptedException):
-                        result_button=self.browser.find_element(By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals"
-                                                                                "-league-wrapper/mobile-virtuals-soccer/mvs"
-                                                                                "-virtual-league-page/div["
-                                                                                "2]/mvs-results-page/div[2]/div[2]")
+                        result_button=self.browser.find_element(By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals-league-wrapper/div/mobile-virtuals-soccer/mvs-virtual-league-page/div[2]/mvs-results-page/div[2]/div[2]")
                         result_button.click()
                 except:
                     self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
                 time.sleep(7)
+
                 game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")
                 current_game_week=int(game_weeks[0].text.split(" ")[-1])  # To get the integer num of weeks
                 # To check if last result is 9th - 10th week or sleep till it is
@@ -398,7 +387,7 @@ class CheckPattern:
                 ht_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")[:week_to_save1*9]
                 ft_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ft")[:week_to_save1*9]
 
-                result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=self.market)
+                result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,length=length)
             except:
                 print(f"an error occured, so i assumed {self.market} came and skipped this season")
                 result={"outcome":True,"message":f"an error occured, so i assumed {self.market} came and skipped this season"}
@@ -428,26 +417,20 @@ class CheckPattern:
                         standings_button=self.browser.find_element(By.CSS_SELECTOR, '[data-testid="results-and-standings-button"]')
                         standings_button.click()                
                     try:
-                        result_button = self.wait.until(EC.element_to_be_clickable((By.XPATH,
-                                                                                "/html/body/app-root/app-wrapper/div/virtuals"
-                                                                                "-league-wrapper/mobile-virtuals-soccer/mvs"
-                                                                                "-virtual-league-page/div["
-                                                                                "2]/mvs-results-page/div[2]/div[2]")))
-                        result_button.click()
+                        result_button = self.browser.find_elements(By.CSS_SELECTOR,'[data-testid="results-page-tab-standings"]')
+                        result_button[1].click()
+
                     except (TimeoutException,ElementClickInterceptedException):
-                        result_button=self.browser.find_element(By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals"
-                                                                                "-league-wrapper/mobile-virtuals-soccer/mvs"
-                                                                                "-virtual-league-page/div["
-                                                                                "2]/mvs-results-page/div[2]/div[2]")
+                        result_button=self.browser.find_element(By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals-league-wrapper/div/mobile-virtuals-soccer/mvs-virtual-league-page/div[2]/mvs-results-page/div[2]/div[2]")
                         result_button.click()
                 except:
                     self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
-                time.sleep(7)
+                time.sleep(5)
 
                 game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")
                 # checking if the last week played is latest_week before going ahead to save the page
                 game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks,
-                                                            week_to_check=latest_week,time_delay=30)
+                                                            week_to_check=latest_week,time_delay=10)
                 
                 game_weeks = game_weeks[:1]
 
@@ -457,7 +440,7 @@ class CheckPattern:
                 ht_scores = ht_scores[:9]
                 ft_scores = ft_scores[:9]
 
-                result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=self.market)
+                result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=market,length=length)
             except Exception as error:
                 print(f"an error occured when checking last result i want to use acc balance to check.This is the error: {error}")
                 # if the result page fails, compare balances to tell the outcome
@@ -483,32 +466,22 @@ class CheckPattern:
                     save_page(self.browser, page_name=page_path1)
         
         
-        if result["outcome"] == True and length.lower() == "all result":
+        if length.lower() == "all result":
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
                        Password=os.environ.get("EMAIL_PASSWORD"),
-                       Subject=f"(1st-10th) {self.market} came in the last SEASON",
+                       Subject=f"PATTERN Score Dict",
                        Message=result["message"],
-                    #    File_path=[page_path1]
+                       File_path=[page_path1]
                        )
             cancel_result_page_button = self.browser.find_element(By.CSS_SELECTOR, "svg path")
             cancel_result_page_button.click()
-            return {"outcome": True, "driver": self.browser,"page_path":page_path1}
+            return {"outcome": result['outcome'], "driver": self.browser,"page_path":page_path1}
         
-        elif result["outcome"] == None and length.lower() == "all result":
-            send_email(Email=os.environ.get("EMAIL_USERNAME"),
-                       Password=os.environ.get("EMAIL_PASSWORD"),
-                       Subject=f"(1st-10th) {self.market} DID NOT come in the last SEASON",
-                       Message=result["message"],
-                    #    File_path=[page_path1]
-                       )
-            cancel_result_page_button = self.browser.find_element(By.CSS_SELECTOR, "svg path")
-            cancel_result_page_button.click()
-            return {"outcome": False, "driver": self.browser,"page_path":page_path1}
         
         elif result["outcome"] == True and length.lower() == "last result":
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
                        Password=os.environ.get("EMAIL_PASSWORD"),
-                       Subject=f"(1st-10th) {self.market} came in the last result" ,
+                       Subject=f"(1st-10th) {market} came in the last result" ,
                        Message=result["message"],
                        File_path=[page_path1]
                        )
@@ -566,5 +539,8 @@ class LoginUser:
         except (TimeoutException, NoSuchElementException):
             pass
 
-        acc_balance=self.browser.find_element(By.CSS_SELECTOR, '.user-balance-container .amount').text
+        try:
+            acc_balance=self.browser.find_element(By.CSS_SELECTOR, '.user-balance-container .amount').text
+        except NoSuchElementException:
+            acc_balance="210,000"
         return acc_balance

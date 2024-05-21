@@ -20,6 +20,9 @@ class BrainTest(unittest.TestCase):
         self.game_play=PlayGame(self.browser,market=market)
         self.log=LoginUser(self.browser,username=os.environ.get("BETKING_USERNAME"),password=os.environ.get("BETKING_PASSWORD"))
         self.browser.get("https://m.betking.com/virtual/league/kings-bundliga")
+        self.pattern_stake_options={'4 - 0':6,'4 - 1':7,}
+        self.AMOUNT_LIST=[50, 50, 50, 100, 150, 200, 275, 400, 550, 800, 1150, 1650, 2350, 3375, 4850, 6950, 9900,
+                        14200, 20250, 29000, 41500, 59250, 84750, 121250]
 
     
     def test_choose_market(self):
@@ -30,28 +33,35 @@ class BrainTest(unittest.TestCase):
 
 
     def test_select_stake_options_and_place_the_bet(self):
-        AMOUNT_LIST=(10,10,10,20,30,40,55,80,110,160,230,330,470,675,970)
+        market='4 - 0'
         
         # acc_bal=self.log.login()
         # acc_bal=float(acc_bal.replace(",","_"))
         # GAME_LEVEL=round((acc_bal-1000)/9450,2)
         # time.sleep(1)
         GAME_LEVEL=1
+        time.sleep(2)
         self.game_play.choose_market()
         # self.test_login()
+        acc_bal=2000.2
         # acc_bal=str(acc_bal)
+        self.pattern.check_result(length="last result",latest_week="Week 18",acc_balance=acc_bal,market=market)
         for n in range(3):
             # clear_bet_slip(self.browser)
-            week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000")
-            try:
-                acc_bal=self.game_play.place_the_bet(amount=AMOUNT_LIST[n]*GAME_LEVEL,test=eval(os.environ.get("TEST")))
-            except:
-                pass
+            result=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000",
+                                                                pattern_stake=self.pattern_stake_options[market],stake_amount=self.AMOUNT_LIST[n])
+            week_selected=result[0]
+            acc_bal=result[1]
+            # try:
+            #     acc_bal=self.game_play.place_the_bet(amount=AMOUNT_LIST[n]*GAME_LEVEL,test=eval(os.environ.get("TEST")))
+            # except:
+            #     pass
             # if n==1:                 # To test the try & except block if results are not available
             #     acc_bal="2,266"
             reduced_week_selected=reduce_week_selected(week_selected,by=0,league="bundliga")
             # self.pattern.check_result(length="last result",latest_week=reduced_week_selected)
-            self.pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal)
+            self.pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal,market=market)
+
 
     def test_checkout_virtual(self):
         for _ in range(3):

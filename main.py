@@ -52,92 +52,103 @@ while True:
         print(f"THIS is the Error: {error}")
         pass
     print("i am about to check result")
-    won=False
     
-    for n in range(1,MAX_SEASON+1):
-        if n>=MAX_SEASON-2:
-            # Note: the number if statements depends on the number of seasons to be played (i.e current_stake_num=20)
-            if n==MAX_SEASON-1:
-                current_stake_num=10
-            elif n==MAX_SEASON:
-                current_stake_num=20
-            else:
-                current_stake_num=0
-            pattern=CheckPattern(browser,market=SELECTED_MARKET)
-            print(current_stake_num)
-            try:
-                check_result=pattern.check_result(length="new season", latest_week="all")
-            except Exception as error:
-                print(f"An error occured, I skipped check_result(new season). This is the error {error}")
-                check_result={'outcome':False}
-            if check_result["outcome"]:
-                browser=check_result['driver']
-                log=LoginUser(browser,username=os.environ.get("BETKING_USERNAME"),password=os.environ.get("BETKING_PASSWORD"))
-                time.sleep(2)
-                acc_bal=log.login()
-                acc_bal=float(acc_bal.replace(",","_"))
-                if n<MAX_SEASON-1:
-                    GAME_LEVEL=round((acc_bal-1000)/TOTAL_AMOUNT,2)
-                time.sleep(1)
 
-                game_play=PlayGame(browser,market=SELECTED_MARKET)
-                game_play.choose_market()
-                time.sleep(1)
-
-
-                won=False
-                acc_bal=str(acc_bal)
-                for i in range(10):
-                    i+=current_stake_num
-                    # provision to stake 10 games afterwhich funds are exhausted and place bet begins to skip
-                    try:
-                        week_selected=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50")
-                    except:
-                        pass
-                    try:
-                        acc_bal=game_play.place_the_bet(amount=str(AMOUNT_LIST[i]*GAME_LEVEL),test=eval(os.environ.get("TEST")))
-                        print(str(AMOUNT_LIST[i]*GAME_LEVEL))
-                    except:
-                        pass
-                    # week_selected=game_play.select_stake_options(week="after_current_week",
-                    #                                             previous_week_selected=week_selected)
-                    reduced_week_selected=reduce_week_selected(week_selected,by=0,league=LEAGUE["name"])
-
-                    pattern=CheckPattern(browser,market=SELECTED_MARKET)
-                    if pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal)['outcome']:
-                        won=True
-                        # browser.quit()
-                        break
-
-
-        pattern=CheckPattern(browser,market=SELECTED_MARKET)
-        try:
-            check_result=pattern.check_result(length="all result", latest_week="all")
-            browser=check_result['driver']
-        except Exception as error:
-            print(f"An error occured, I skipped check_result(all result). This is the error {error}")
-            check_result={'outcome':True}
-        time.sleep(180)    # To delay till week 11
-        if check_result['outcome']:
-            won=True
-            break
-        if n<MAX_SEASON:
-            print(f"SEASON {n} result has been CHECKED, waiting for next SEASON ")
+    current_pattern_count={'4 - 0':0, '4 - 1':0}
+    won=False
+    for key,value in current_pattern_count.items():
+        if value>=3:
+            print(f"{key} PATTERN found waiting for NEW SEASON to start STAKING ")
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
                     Password=os.environ.get("EMAIL_PASSWORD"),
-                    Subject=f"(1st-10th) On To The NEXT 10 Stakes",
-                    Message=f"SEASON {n} result has been CHECKED, waiting for next SEASON ",
-                    File_path=[check_result["page_path"]]
+                    Subject=f"(1st-10th) {key} PATTERN found",
+                    Message=f"waiting for NEW SEASON to start STAKING ",
                     )
+            for n in range(4,MAX_SEASON+1):
+                if won:
+                    break
+                if n>=MAX_SEASON-2:
+                    # Note: the number if statements depends on the number of seasons to be played (i.e current_stake_num=20)
+                    if n==MAX_SEASON-1:
+                        current_stake_num=10
+                    elif n==MAX_SEASON:
+                        current_stake_num=20
+                    else:
+                        current_stake_num=0
+                    pattern=CheckPattern(browser,market=SELECTED_MARKET)
+                    print(current_stake_num)
+                    try:
+                        check_result_new_season=pattern.check_result(length="new season", latest_week="all")
+                    except Exception as error:
+                        print(f"An error occured, I skipped check_result(new season). This is the error {error}")
+                        check_result_new_season={'outcome':False}
+
+                    if check_result_new_season["outcome"]:
+                        browser=check_result['driver']
+                        log=LoginUser(browser,username=os.environ.get("BETKING_USERNAME"),password=os.environ.get("BETKING_PASSWORD"))
+                        time.sleep(2)
+                        acc_bal=log.login()
+                        acc_bal=float(acc_bal.replace(",","_"))
+                        if n<MAX_SEASON-1:
+                            GAME_LEVEL=round((acc_bal-1000)/TOTAL_AMOUNT,2)
+                        time.sleep(1)
+
+                        game_play=PlayGame(browser,market=SELECTED_MARKET)
+                        game_play.choose_market()
+                        time.sleep(1)
+
+
+                        acc_bal=str(acc_bal)
+                        pattern_stake_options={'4 - 0':6,'4 - 1':7,} 
+                        for i in range(10):
+                            i+=current_stake_num
+                            # provision to stake 10 games afterwhich funds are exhausted and place bet begins to skip
+                            try:
+                                result=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50",pattern_stake=pattern_stake_options[key],stake_amount=AMOUNT_LIST[i]*GAME_LEVEL)
+                                week_selected=result[0]
+                                acc_bal=result[1]
+                            except:
+                                pass
+                            # try:
+                            #     acc_bal=game_play.place_the_bet(amount=str(AMOUNT_LIST[i]*GAME_LEVEL),test=eval(os.environ.get("TEST")))
+                            #     print(str(AMOUNT_LIST[i]*GAME_LEVEL))
+                            # except:
+                            #     pass
+                            
+                            reduced_week_selected=reduce_week_selected(week_selected,by=0,league=LEAGUE["name"])
+
+                            pattern=CheckPattern(browser,market=SELECTED_MARKET)
+                            if pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal,market=key)['outcome']:
+                                won=True
+                                # browser.quit()
+                                break
+            
+            current_pattern_count[key]=0
+            if not won:        
+                print(f"{SELECTED_MARKET} did not come till SEASON {MAX_SEASON}")
+                send_email(Email=os.environ.get("EMAIL_USERNAME"),
+                            Password=os.environ.get("EMAIL_PASSWORD"),
+                            Subject="(1st-10th) YOU'VE LOST IT ALL",
+                            Message=f"{SELECTED_MARKET} did not come till SEASON {MAX_SEASON}"
+                            )
+            break
+
+    pattern=CheckPattern(browser,market=SELECTED_MARKET)
+    try:
+        check_result=pattern.check_result(length="all result", latest_week="all")
+        browser=check_result['driver']
+    except Exception as error:
+        print(f"An error occured, I skipped check_result(all result). This is the error {error}")
+        check_result={'outcome':{'4 - 0':1, '4 - 1':1}}
+    time.sleep(180)    # To delay till week 11
+    for k,v in check_result['outcome'].items():
+        if v==0:
+            current_pattern_count[k]+=1
+        else:
+            current_pattern_count[k]=0
+    
         
-        
-    if not won:        
-        print(f"{SELECTED_MARKET} did not come till SEASON {MAX_SEASON}")
-        send_email(Email=os.environ.get("EMAIL_USERNAME"),
-                    Password=os.environ.get("EMAIL_PASSWORD"),
-                    Subject="(1st-10th) YOU'VE LOST IT ALL",
-                    Message=f"{SELECTED_MARKET} did not come till SEASON {MAX_SEASON}"
-                    )
+    
     # browser.quit()
         
     

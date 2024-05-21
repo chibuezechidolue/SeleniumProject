@@ -21,7 +21,7 @@ def set_up_driver_instance():
     """ To create and return a webdriver object with disabled gpu and headless"""
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("--no-sandbox")
-    chrome_options.add_argument("--headless")
+    # chrome_options.add_argument("--headless")
     chrome_options.add_argument('--window-size=1920,1080')
     chrome_options.add_argument("--disable-gpu")
     return webdriver.Chrome(options=chrome_options)
@@ -155,19 +155,13 @@ def tabulate_result(score_dictionary,sheet_name,cell_list):
         n+=1
 
 
-def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str)->list:
+def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str,length:str)->list:
     """To check the result for the presence or possible presence of an intended or staked outcome"""
    
     message=""
     outcome=None
-    score_dict={'4 - 1':0, "1 - 4":0, "4 - 2":0, "2 - 4":0, "5 - 0":0, "0 - 5":0, "5 - 1":0, "1 - 5":0, 
-                "6 - 0":0, "0 - 6":0, "3 - 3":0, "2/1":0, "1/2":0}
+    score_dict={'4 - 0':0, '4 - 1':0}
     for n in range(len(ft_scores)):
-        ht_home_score=int(ht_scores[n].text[0])
-        ht_away_score=int(ht_scores[n].text[4])
-
-        ft_home_score=int(ft_scores[n].text[0])
-        ft_away_score=int(ft_scores[n].text[4])
         current_week=n//9                                                      # the number of the game by 9(total games/week), i.e 54//9 will be week 6
         week_number=game_weeks[current_week].text
         current_ft_score=ft_scores[n].text
@@ -175,27 +169,19 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str)->l
             score_dict[current_ft_score]+=1
             # message+=f"{current_ft_score}: {week_number}, "
 
-        if (ht_home_score>ht_away_score and ft_home_score<ft_away_score):     # 1/2
-            score_dict["1/2"]+=1
-            # message+=f"1/2: {week_number}, "
-        elif (ht_home_score<ht_away_score and ft_home_score>ft_away_score):     # 2/1
-            score_dict["2/1"]+=1
-            # message+=f"2/1: {week_number}, "
-    if score_dict["3 - 3"]>0:
-        outcome=True
-    message+=f"{score_dict}"
-    sheet_name='SeleniumProject spreadsheet'
-    CELL=['B','C','D','E','F','G','H','I','J','K','L','M','N']
-    # CELL=['P','Q','R','S','T','U','V','W','X','Y','Z','AA','AB']
-    # CELL=['AD','AE','AF','AG','AH','AI','AJ','AK','AL','AM','AN','AO','AP']
-    try:
-        tabulate_result(score_dictionary=score_dict,sheet_name=sheet_name,cell_list=CELL)
-    except:
-        pass
-    print(message)
-    # message+=f"({market} appeeared {three_three_count} time(s)) "
-    # print(message)
-    return {"outcome":outcome,"message":message}
+    if length.lower()=="all result":
+        message+=str(score_dict)
+        return {"outcome":score_dict,"message":message}
+    
+    elif length.lower()=="last result":
+        if score_dict[market]>0:
+            message+=f"({market} appeeared {score_dict[market]} time(s)) "
+            message+=str(score_dict)
+            print(message)
+            return {"outcome":True,"message":message}
+        else: 
+            return {"outcome":False,"message":f"{market} did not appear"}
+
             
 
 
@@ -290,3 +276,10 @@ def clear_bet_slip(browser):
     close_betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="coupon-close-icon"]')
     close_betslip_button.click()
     time.sleep(2)
+
+def calc_stake_amount(amount:float,odd:float,base:int=60)->float:
+    expected_sum=amount*base
+    possible_stake=expected_sum/odd
+    if possible_stake<50:
+        possible_stake=50
+    return possible_stake
