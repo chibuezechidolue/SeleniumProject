@@ -63,25 +63,25 @@ def reload_result_page(browser):
     try:
         betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')
         betslip_button.click()
-        time.sleep(1)
+        time.sleep(0.5)
         close_betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="coupon-close-icon"]')
         close_betslip_button.click()
-        time.sleep(1)
+        time.sleep(0.5)
 
     except:
 
         # cancel_result_page_button=browser.find_element(By.CSS_SELECTOR,"svg path")
         cancel_result_page_button=browser.find_element(By.CSS_SELECTOR,"svg path")
         cancel_result_page_button.click()
-        time.sleep(1)
+        time.sleep(0.5)
         # standings_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,"span.view-switch-icon")))
         standings_button=browser.find_element(By.CSS_SELECTOR,"span.view-switch-icon")
         standings_button.click()
-        time.sleep(1)
+        time.sleep(0.5)
         result_button = browser.find_elements(By.CSS_SELECTOR,'[data-testid="results-page-tab-standings"]')
         # result_button=browser.find_element(By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals-league-wrapper/mobile-virtuals-soccer/mvs-virtual-league-page/div[2]/mvs-results-page/div[2]/div[2]")
         result_button.click()
-        time.sleep(3)
+        time.sleep(1)
 
 
 def cancel_popup(browser):
@@ -139,7 +139,6 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str,len
     """To check the result for the presence or possible presence of an intended or staked outcome"""
     count=0
     message=""
-    outcome=None
     score_dict={"3 - 2":0, "2 - 3":0,'4 - 0':0, "0 - 4":0,'4 - 1':0, "1 - 4":0, "4 - 2":0, "2 - 4":0, "2/1":0, "1/2":0}
     for n in range(len(ht_scores)):
         try:
@@ -181,7 +180,8 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str,len
                     message+=f"({k} appeeared {v} time(s)) "
                     return {"outcome":k,"message":message}
             if v==0 and score_dict[k[::-1]]==0:
-                message+=f"({k} & {k[::-1]} appeeared {v} time(s)) "
+                message+=f"({k} & {k[::-1]} appeeared {v+score_dict[k[::-1]]} time(s)) "
+                message+=str(score_dict)
                 return {"outcome":k,"message":message}
         
         message+=f"(no pattern appeeared this season) "
@@ -192,6 +192,7 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str,len
         if market=="3 - 2" or market=="2 - 3":
             if score_dict[market]>0:
                 message+=f"({market} appeeared {score_dict[market]} time(s)) "
+                message+=str(score_dict)
                 print(message)
                 return {"outcome":True,"message":message}
             else: 
@@ -200,6 +201,7 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str,len
         else:
             if score_dict[market]>0 or score_dict[market[::-1]]>0:
                 message+=f"({market} or {market[::-1]} appeeared {score_dict[market]+score_dict[market[::-1]]} time(s)) "
+                message+=str(score_dict)
                 print(message)
                 return {"outcome":True,"message":message}
             else: 

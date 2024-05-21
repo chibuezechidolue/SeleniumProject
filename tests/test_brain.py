@@ -44,7 +44,7 @@ class BrainTest(unittest.TestCase):
         # self.test_login()
         acc_bal=2000.2
         # acc_bal=str(acc_bal)
-        self.pattern.check_result(length="last result",latest_week="Week 15",acc_balance=acc_bal,market=check_result['outcome'])
+        self.pattern.check_result(length="last result",latest_week="Week 8",acc_balance=acc_bal,market=check_result['outcome'])
 
         for n in range(3):
             # clear_bet_slip(self.browser)
