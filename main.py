@@ -104,11 +104,11 @@ while True:
             try:
                 result=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50",pattern_stake=pattern_stake_options[check_result['outcome']],stake_amount=AMOUNT_LIST[n]*GAME_LEVEL)
                 week_selected=result[0]
+                acc_bal=result[1]
             except:
                 pass
             reduced_week_selected=reduce_week_selected(week_selected,by=0,league=LEAGUE["name"])
             
-            acc_bal=result[1]
             pattern=CheckPattern(browser,market=SELECTED_MARKET)
             if pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal,market=check_result['outcome']):
                 # Calculate the number of weeks left before week 10 of the next season

@@ -51,8 +51,11 @@ class BrainTest(unittest.TestCase):
             if n==10:
                 os.environ["TEST"]="True"
             # for _ in range(stake_option_length):
-            week_selected=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000",
+            result=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000",
                                                                 pattern_stake=self.pattern_stake_options[check_result['outcome']],stake_amount=self.AMOUNT_LIST[n])
+            
+            week_selected=result[0]
+            acc_bal=result[1]
             # try:
             #     acc_bal=self.game_play.place_the_bet(amount=self.AMOUNT_LIST[n],test=os.environ.get("TEST"))
             # except:
