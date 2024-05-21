@@ -297,23 +297,23 @@ class CheckPattern:
 
             if current_game_week<week_to_check-1:
                 time_to_sleep=(week_to_check-1-current_game_week)*3
-                self.browser.quit()
+                # self.browser.quit()
                 print(f"i'm waiting for {(time_to_sleep)*60} secs ")
                 time.sleep((time_to_sleep)*60)
                 # self.browser=webdriver.Chrome()         # driver instance with User Interface (not headless)
-                self.browser = set_up_driver_instance()   # driver instance without User Interface (--headless)
-                time.sleep(1)
+                # self.browser = set_up_driver_instance()   # driver instance without User Interface (--headless)
+                # time.sleep(1)
                 self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
                 time.sleep(3)
 
             elif current_game_week>week_to_check:
                     time_to_sleep=(34-current_game_week)*3
-                    self.browser.quit()
+                    # self.browser.quit()
                     print(f"i'm waiting for {((week_to_check-1)*3+time_to_sleep)*60} secs ")
                     time.sleep(((week_to_check-1)*3+time_to_sleep)*60)
                     # self.browser=webdriver.Chrome()         # driver instance with User Interface (not headless)
-                    self.browser = set_up_driver_instance()   # driver instance without User Interface (--headless)
-                    time.sleep(1)
+                    # self.browser = set_up_driver_instance()   # driver instance without User Interface (--headless)
+                    # time.sleep(1)
                     self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
                     time.sleep(3)
 
@@ -370,22 +370,22 @@ class CheckPattern:
                 # To check if last result is 9th - 10th week or sleep till it is
                 if current_game_week<week_to_save1-1:
                     time_to_sleep=(week_to_save1-1-current_game_week)*3
-                    self.browser.quit()
+                    # self.browser.quit()
                     print(f"i'm waiting for {time_to_sleep*60} secs ")
                     time.sleep(time_to_sleep*60)
                     # self.browser=webdriver.Chrome()        # driver instance with User Interface (not headless)
-                    self.browser = set_up_driver_instance()  # driver instance without User Interface (--headless)
-                    time.sleep(1)
+                    # self.browser = set_up_driver_instance()  # driver instance without User Interface (--headless)
+                    # time.sleep(1)
                     self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
                     time.sleep(2)
                 elif current_game_week>week_to_save1:
                     time_to_sleep=(34-current_game_week)*3
-                    self.browser.quit()
+                    # self.browser.quit()
                     print(f"i'm waiting for {((week_to_save1-1)*3+time_to_sleep)*60} secs ")
                     time.sleep(((week_to_save1-1)*3+time_to_sleep)*60)
                     # self.browser=webdriver.Chrome()         # driver instance with User Interface (not headless)
-                    self.browser = set_up_driver_instance()   # driver instance without User Interface (--headless)
-                    time.sleep(1)
+                    # self.browser = set_up_driver_instance()   # driver instance without User Interface (--headless)
+                    # time.sleep(1)
                     self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
                     time.sleep(2)
 

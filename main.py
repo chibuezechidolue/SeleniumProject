@@ -36,10 +36,11 @@ LEAGUE={"name":"bundliga","num_of_weeks":34}
     
 MAX_SEASON=6
 
+# browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
+browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
 while True:
     try:
-        # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
-        browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
+        
         browser.get("https://m.betking.com/")
         print("i have lunched")
         pattern=CheckPattern(browser,market=SELECTED_MARKET)
@@ -137,7 +138,7 @@ while True:
                     Subject="(1st-10th) YOU'VE LOST IT ALL",
                     Message=f"{SELECTED_MARKET} did not come till SEASON {MAX_SEASON}"
                     )
-    browser.quit()
+    # browser.quit()
         
     
 
