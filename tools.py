@@ -21,7 +21,7 @@ def set_up_driver_instance():
     """ To create and return a webdriver object with disabled gpu and headless"""
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("--no-sandbox")
-    # chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--headless")
     chrome_options.add_argument('--window-size=1920,1080')
     chrome_options.add_argument("--disable-gpu")
     return webdriver.Chrome(options=chrome_options)
@@ -277,9 +277,10 @@ def clear_bet_slip(browser):
     close_betslip_button.click()
     time.sleep(2)
 
+import math
 def calc_stake_amount(amount:float,odd:float,base:int=60)->float:
     expected_sum=amount*base
-    possible_stake=expected_sum/odd
+    possible_stake=math.ceil(expected_sum/odd)
     if possible_stake<50:
         possible_stake=50
     return possible_stake

@@ -1,2 +1,0 @@
-cd ../../../Ifeanyi/Desktop/python*/Amazon/"Amazon EC2"/pem*
-ssh -i "ChinweChidolue_2013404327.pem" ec2-user@ec2-13-53-175-75.eu-north-1.compute.amazonaws.com

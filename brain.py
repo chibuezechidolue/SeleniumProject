@@ -44,7 +44,7 @@ class PlayGame:
 
         if self.market.lower() == "ht/ft":
             market_selector = "[data-testid='ht/ft-area']"
-        elif self.market == "3-3":
+        elif self.market == "correct_score":
             market_selector = '[data-testid="correct-score-area"]'
         time.sleep(0.5)
         try:
@@ -99,7 +99,7 @@ class PlayGame:
                 try:
                     available_games_1=available_games[:end][n]
                     available_games_1.click()
-                    time.sleep(0.5)
+                    # time.sleep(0.5)
                 except (ElementClickInterceptedException, StaleElementReferenceException, TimeoutException):
                     print("exception was thrown at available_games_1")
                     self.browser.execute_script(
@@ -267,21 +267,14 @@ class CheckPattern:
                     standings_button=self.browser.find_element(By.CSS_SELECTOR, '[data-testid="results-and-standings-button"]')
                     standings_button.click()                
                 try:
-                    result_button = self.wait.until(EC.element_to_be_clickable((By.XPATH,
-                                                                            "/html/body/app-root/app-wrapper/div/virtuals"
-                                                                            "-league-wrapper/mobile-virtuals-soccer/mvs"
-                                                                            "-virtual-league-page/div["
-                                                                            "2]/mvs-results-page/div[2]/div[2]")))
+                    result_button = self.browser.find_elements(By.CSS_SELECTOR,'[data-testid="results-page-tab-standings"]')
                     result_button.click()
                 except (TimeoutException,ElementClickInterceptedException):
-                    result_button=self.browser.find_element(By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals"
-                                                                            "-league-wrapper/mobile-virtuals-soccer/mvs"
-                                                                            "-virtual-league-page/div["
-                                                                            "2]/mvs-results-page/div[2]/div[2]")
+                    result_button=self.browser.find_element(By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals-league-wrapper/div/mobile-virtuals-soccer/mvs-virtual-league-page/div[2]/mvs-results-page/div[2]/div[2]")
                     result_button.click()
             except:
                 self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
-            time.sleep(7)
+            time.sleep(5)
 
             game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")
             if game_weeks==[]:
@@ -334,6 +327,7 @@ class CheckPattern:
         elif length.lower() == "all result":
 
             week_to_save1=10
+            # week_to_save1=23
             try:
                 try:
                     try:
@@ -387,10 +381,10 @@ class CheckPattern:
                 ht_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")[:week_to_save1*9]
                 ft_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ft")[:week_to_save1*9]
 
-                result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,length=length)
-            except:
-                print(f"an error occured, so i assumed {self.market} came and skipped this season")
-                result={"outcome":True,"message":f"an error occured, so i assumed {self.market} came and skipped this season"}
+                result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,length=length,market=market)
+            except Exception as error:
+                print(f"an error occured, so i assumed {market} came and skipped this season.This is the error: {error}")
+                result={"outcome":{'4 - 0':0,'4 - 1':0,},"message":f"an error occured, so i assumed {market} came and skipped this season.This is the error: {error}"}
                 # send_email(Email=os.environ.get("EMAIL_USERNAME"),
                 #        Password=os.environ.get("EMAIL_PASSWORD"),
                 #        Subject="An Error Occured",
@@ -507,7 +501,7 @@ class LoginUser:
         self.wait = WebDriverWait(driver=self.browser, timeout=10)
 
     def login(self):
-        """ Login the user with the credentials from initialization"""
+        """ Login the user with the credentials from initialization and return the account balance of the user"""
         # login = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.text")))
         login= self.browser.find_element(By.CSS_SELECTOR, "button.text")
         try:
@@ -521,12 +515,12 @@ class LoginUser:
         password = self.browser.find_element(By.CSS_SELECTOR, '[placeholder="Password"]')
         # fill the username and password form with the inputed variable
         for char in self.username:
-            time.sleep(0.5)
+            # time.sleep(0.5)
             username.send_keys(char)
         for char in self.password:
-            time.sleep(0.5)
+            # time.sleep(0.5)
             password.send_keys(char)
-        time.sleep(1)
+        # time.sleep(1)
         login_button = self.browser.find_element(By.CSS_SELECTOR, '[text="Login"]')
         login_button.click()
         time.sleep(2)
@@ -543,4 +537,5 @@ class LoginUser:
             acc_balance=self.browser.find_element(By.CSS_SELECTOR, '.user-balance-container .amount').text
         except NoSuchElementException:
             acc_balance="210,000"
+            
         return acc_balance

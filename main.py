@@ -4,6 +4,7 @@ from brain import LoginUser,CheckPattern,PlayGame
 from dotenv import load_dotenv
 from tools import reduce_week_selected, send_email, set_up_driver_instance
 
+
 load_dotenv()
 
 
@@ -14,36 +15,32 @@ load_dotenv()
 # TODO: test for time complexity
 # TODO: Reformat all modules and code 
 
-GAME_LEVEL=1
-SELECTED_MARKET="3-3"
 
-if SELECTED_MARKET=="ht/ft":
-    AMOUNT_LIST=(10,10,10,20,30,40,55,80,110,160,230,330,470,675,970,
-                1390,1980,2840,4050,5800,8300,11850,16950,24250)
-    MAX_AMOUNT_LENGTH=14
-    TOTAL_AMOUNT=9450
-elif SELECTED_MARKET=="3-3":
-    # AMOUNT_LIST=(10,10,10,10,10,10,20,20,30,30,40,40,55,55,80,80,110,
-    #              110,160,160,230,230,330,330,470,470,675,675,970,970,
-    #              1390,1390,1980,1980)
-    AMOUNT_LIST=(10,10,10,10,10,10,20,20,20,30,30,35,45,50,55,65,80,95,110,
-                 130,155,185,220,250,300,350,410,490,580,680,805,935,1100,
-                 1300,1530,1800,2115,2490,2930,3500)
-    MAX_AMOUNT_LENGTH=30
-    # TOTAL_AMOUNT=9450
-    TOTAL_AMOUNT=40183
+SELECTED_MARKET="correct_score"
+
+AMOUNT_LIST=(50, 50, 50, 50, 50, 50, 100, 100, 100, 150, 150, 175, 225, 250, 275, 325, 400, 
+             475, 550, 650, 775, 925, 1100, 1250, 1500, 1750, 2050, 2450, 2900, 3400, 4025, 
+             4675, 5500, 6500, 7650, 9000, 10575, 12450, 14650, 17500)
+
+TOTAL_AMOUNT=201000
+
 LEAGUE={"name":"bundliga","num_of_weeks":34}
     
 MAX_SEASON=6
 
 # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
 browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
+pattern=CheckPattern(browser,market=SELECTED_MARKET)
+log=LoginUser(browser,username=os.environ.get("BETKING_USERNAME"),password=os.environ.get("BETKING_PASSWORD"))
+game_play=PlayGame(browser,market=SELECTED_MARKET)
+
+current_pattern_count={'4 - 0':3, '4 - 1':0}
+
 while True:
     try:
         
         browser.get("https://m.betking.com/")
         print("i have lunched")
-        pattern=CheckPattern(browser,market=SELECTED_MARKET)
         try:
             pattern.checkout_virtual(league=LEAGUE["name"])
         except:
@@ -54,7 +51,6 @@ while True:
     print("i am about to check result")
     
 
-    current_pattern_count={'4 - 0':0, '4 - 1':0}
     won=False
     for key,value in current_pattern_count.items():
         if value>=3:
@@ -75,7 +71,6 @@ while True:
                         current_stake_num=20
                     else:
                         current_stake_num=0
-                    pattern=CheckPattern(browser,market=SELECTED_MARKET)
                     print(current_stake_num)
                     try:
                         check_result_new_season=pattern.check_result(length="new season", latest_week="all")
@@ -84,16 +79,15 @@ while True:
                         check_result_new_season={'outcome':False}
 
                     if check_result_new_season["outcome"]:
-                        browser=check_result['driver']
-                        log=LoginUser(browser,username=os.environ.get("BETKING_USERNAME"),password=os.environ.get("BETKING_PASSWORD"))
+                        browser=check_result_new_season['driver']
                         time.sleep(2)
                         acc_bal=log.login()
                         acc_bal=float(acc_bal.replace(",","_"))
                         if n<MAX_SEASON-1:
-                            GAME_LEVEL=round((acc_bal-1000)/TOTAL_AMOUNT,2)
+                            GAME_LEVEL=round((acc_bal-9000)/TOTAL_AMOUNT,2)
                         time.sleep(1)
 
-                        game_play=PlayGame(browser,market=SELECTED_MARKET)
+                        
                         game_play.choose_market()
                         time.sleep(1)
 
@@ -117,23 +111,36 @@ while True:
                             
                             reduced_week_selected=reduce_week_selected(week_selected,by=0,league=LEAGUE["name"])
 
-                            pattern=CheckPattern(browser,market=SELECTED_MARKET)
                             if pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal,market=key)['outcome']:
                                 won=True
                                 # browser.quit()
                                 break
+
+                        # check for patterns after each staked SEASON 
+                        try:
+                            check_result=pattern.check_result(length="all result", latest_week="all")
+                            browser=check_result['driver']
+                        except Exception as error:
+                            print(f"An error occured, I skipped check_result(all result). This is the error {error}")
+                            check_result={'outcome':{'4 - 0':1, '4 - 1':1}}
+                        time.sleep(180)    # To delay till week 11
+                        for k,v in check_result['outcome'].items():
+                            if v==0:
+                                current_pattern_count[k]+=1
+                            else:
+                                current_pattern_count[k]=0
+                        print(f'this is the current_pattern_count: {current_pattern_count}')
             
             current_pattern_count[key]=0
             if not won:        
-                print(f"{SELECTED_MARKET} did not come till SEASON {MAX_SEASON}")
+                print(f"{key} did not come till SEASON {MAX_SEASON}")
                 send_email(Email=os.environ.get("EMAIL_USERNAME"),
                             Password=os.environ.get("EMAIL_PASSWORD"),
                             Subject="(1st-10th) YOU'VE LOST IT ALL",
-                            Message=f"{SELECTED_MARKET} did not come till SEASON {MAX_SEASON}"
+                            Message=f"{key} did not come till SEASON {MAX_SEASON}"
                             )
             break
 
-    pattern=CheckPattern(browser,market=SELECTED_MARKET)
     try:
         check_result=pattern.check_result(length="all result", latest_week="all")
         browser=check_result['driver']
@@ -146,6 +153,7 @@ while True:
             current_pattern_count[k]+=1
         else:
             current_pattern_count[k]=0
+    print(f'this is the current_pattern_count: {current_pattern_count}')
     
         
     
