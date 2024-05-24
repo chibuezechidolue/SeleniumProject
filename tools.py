@@ -314,10 +314,10 @@ def clear_bet_slip(browser):
         continue_betting_button.click  
     time.sleep(1)
 
-
+import math
 def calc_stake_amount(amount:float,odd:float,base:int=60)->float:
     expected_sum=amount*base
-    possible_stake=expected_sum/odd
+    possible_stake=math.ceil(expected_sum/odd)
     if possible_stake<50:
         possible_stake=50
     return possible_stake
