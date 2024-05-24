@@ -34,12 +34,14 @@ class PlayGame:
                 EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="market-dropdown-more-markets"]')))
             more_markets_button.click()
         except (StaleElementReferenceException, ElementClickInterceptedException, TimeoutException):
-            self.browser.execute_script("window.scrollTo(0, 20);")
+            print('an exception occured')
+            more_markets_button=self.browser.find_element(By.CSS_SELECTOR,'[data-testid="market-dropdown-more-markets"]')
+            self.browser.execute_script(f"window.scrollTo(0, {more_markets_button.location['y']-100});")
+            time.sleep(0.5)
             if check_if_current_week_islive(self.browser):
                 time.sleep(40)
             # more_markets_button = self.wait.until(
             #     EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="market-dropdown-more-markets"]')))
-            more_markets_button=self.browser.find_element(By.CSS_SELECTOR,'[data-testid="market-dropdown-more-markets"]')
             more_markets_button.click()
 
         if self.market.lower() == "ht/ft":
@@ -55,8 +57,10 @@ class PlayGame:
         except (StaleElementReferenceException, ElementClickInterceptedException, TimeoutException):
             if check_if_current_week_islive(self.browser):
                 time.sleep(40)
-            # market_to_select = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, market_selector)))
             market_to_select=self.browser.find_element(By.CSS_SELECTOR, market_selector)
+            self.browser.execute_script(f"window.scrollTo(0, {market_to_select.location['y']-100});")
+            time.sleep(0.5)
+            # market_to_select = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, market_selector)))
             market_to_select.click()
 
         time.sleep(0.5)

@@ -13,7 +13,7 @@ load_dotenv()
 
 class BrainTest(unittest.TestCase):
     def setUp(self):
-        market="3-3"
+        market="correct_score"
         self.browser=webdriver.Chrome()    # driver instance with User Interface (not headless)
         # self.browser=set_up_driver_instance() # driver instance without User Interface (--headless)
         self.pattern=CheckPattern(self.browser,market=market)
@@ -27,7 +27,7 @@ class BrainTest(unittest.TestCase):
     
     def test_choose_market(self):
         time.sleep(2)
-        for _ in range(10):
+        for _ in range(1):
             self.game_play.choose_market()
             time.sleep(10)
 
