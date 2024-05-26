@@ -27,7 +27,7 @@ class BrainTest(unittest.TestCase):
     
     def test_choose_market(self):
         time.sleep(2)
-        for _ in range(1):
+        for _ in range(3):
             self.game_play.choose_market()
             time.sleep(10)
 
@@ -45,7 +45,7 @@ class BrainTest(unittest.TestCase):
         # self.test_login()
         acc_bal=2000.2
         # acc_bal=str(acc_bal)
-        self.pattern.check_result(length="last result",latest_week="Week 18",acc_balance=acc_bal,market=market)
+        self.pattern.check_result(length="last result",latest_week="Week 16",acc_balance=acc_bal,market=market)
         for n in range(3):
             # clear_bet_slip(self.browser)
             result=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000",

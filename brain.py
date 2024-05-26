@@ -27,6 +27,7 @@ class PlayGame:
 
     def choose_market(self):
         """ To select the market which was passed as a variable during initializing """
+        self.browser.execute_script(f"window.scrollTo(0, 0);")
         try:
             if check_if_current_week_islive(self.browser):
                 time.sleep(40)
@@ -35,14 +36,19 @@ class PlayGame:
             more_markets_button.click()
         except (StaleElementReferenceException, ElementClickInterceptedException, TimeoutException):
             print('an exception occured')
-            more_markets_button=self.browser.find_element(By.CSS_SELECTOR,'[data-testid="market-dropdown-more-markets"]')
-            self.browser.execute_script(f"window.scrollTo(0, {more_markets_button.location['y']-100});")
-            time.sleep(0.5)
-            if check_if_current_week_islive(self.browser):
-                time.sleep(40)
-            # more_markets_button = self.wait.until(
-            #     EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="market-dropdown-more-markets"]')))
-            more_markets_button.click()
+            try:
+                close_more_markets_button = self.wait.until(
+                EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid=market-dropdown-close-markets]')))
+                close_more_markets_button.click()
+            except:
+                more_markets_button=self.browser.find_element(By.CSS_SELECTOR,'[data-testid="market-dropdown-more-markets"]')
+                self.browser.execute_script(f"window.scrollTo(0, {more_markets_button.location['y']-100});")
+                time.sleep(0.5)
+                if check_if_current_week_islive(self.browser):
+                    time.sleep(40)
+                # more_markets_button = self.wait.until(
+                #     EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="market-dropdown-more-markets"]')))
+                more_markets_button.click()
 
         if self.market.lower() == "ht/ft":
             market_selector = "[data-testid='ht/ft-area']"
@@ -68,8 +74,14 @@ class PlayGame:
             close_more_markets_button = self.wait.until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid=market-dropdown-close-markets]')))
             close_more_markets_button.click()
-        except:
-            pass
+        except ElementClickInterceptedException:
+            try:
+                self.browser.execute_script(f"window.scrollTo(0, 0);")
+                time.sleep(1)
+                # self.browser.execute_script(f"window.scrollTo(0, {close_more_markets_button.location['y']-100});")
+                close_more_markets_button.click()
+            except:
+                pass
 
     def select_stake_options(self, week: str, previous_week_selected: str,pattern_stake:int,stake_amount:float) -> str:
         """ To select the stake option from the selected market, you wish to stake funds on """

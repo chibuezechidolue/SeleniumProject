@@ -123,13 +123,13 @@ while True:
                         except Exception as error:
                             print(f"An error occured, I skipped check_result(all result). This is the error {error}")
                             check_result={'outcome':{'4 - 0':1, '4 - 1':1}}
-                        time.sleep(180)    # To delay till week 11
                         for k,v in check_result['outcome'].items():
                             if v==0:
                                 current_pattern_count[k]+=1
                             else:
                                 current_pattern_count[k]=0
                         print(f'this is the current_pattern_count: {current_pattern_count}')
+                        time.sleep(180)    # To delay till week 11
             
             current_pattern_count[key]=0
             if not won:        
