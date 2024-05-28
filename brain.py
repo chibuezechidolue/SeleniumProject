@@ -479,7 +479,7 @@ class CheckPattern:
         if length.lower() == "all result":
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
                        Password=os.environ.get("EMAIL_PASSWORD"),
-                       Subject=f"PATTERN Score Dict",
+                       Subject=f"(1st-10th) PATTERN Score Dict",
                        Message=result["message"],
                        File_path=[page_path1]
                        )
