@@ -139,7 +139,7 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str,len
     """To check the result for the presence or possible presence of an intended or staked outcome"""
     count=0
     message=""
-    score_dict={"3 - 2":0, "2 - 3":0,'4 - 0':0, "0 - 4":0,'4 - 1':0, "1 - 4":0, "4 - 2":0, "2 - 4":0, "2/1":0, "1/2":0}
+    score_dict={"3 - 2":0, "2 - 3":0,'4 - 0':0, "0 - 4":0,'4 - 1':0, "1 - 4":0, "2/1":0, "1/2":0}
     for n in range(len(ht_scores)):
         try:
             ht_home_score=int(ht_scores[n].text[0])

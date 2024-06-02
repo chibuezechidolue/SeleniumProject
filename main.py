@@ -91,7 +91,7 @@ while True:
 
         GAME_LEVEL=round((acc_bal-4000)/TOTAL_AMOUNT,2)
         acc_bal=str(acc_bal)
-        pattern_stake_options={"3 - 2":[5], "2 - 3":[21],'4 - 0':[6,22], "0 - 4":[6,22],'4 - 1':[7,23], "1 - 4":[7,23], "4 - 2":[8,24], "2 - 4":[8,24], "2/1":[2,6], "1/2":[2,6]} 
+        pattern_stake_options={"3 - 2":[5], "2 - 3":[21],'4 - 0':[6,22], "0 - 4":[6,22],'4 - 1':[7,23], "1 - 4":[7,23], "2/1":[2,6], "1/2":[2,6]} 
         for n in range(len(AMOUNT_LIST[:MAX_AMOUNT_LENGTH])):
             # provision to stake 10 games afterwhich funds are exhausted and place bet begins to skip
             # if n==10:
