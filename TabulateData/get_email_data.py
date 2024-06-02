@@ -7,9 +7,9 @@ load_dotenv()
  
     
 
-SINCE_DATE="10-May-2024"
+SINCE_DATE="29-May-2024"
 # EXCLUDE_DATE="DATE" 
-EXCLUDE_DATE="09 May 2024"
+EXCLUDE_DATE="28 May 2024"
 imap_url = 'imap.gmail.com'
  
 # Function to get email content part i.e its body part
@@ -119,10 +119,11 @@ for msg in msgs:
                 except Exception as e:
                     print(f"this is the exec() error: {e} ")
 
-                email_date=my_msg['date'][5:16]
-                
-
-                dictionaries=[FullSeason,FullSeason,Halftime_Fulltime,CS_1_10,CS_11_20,CS_21_30]
+                try:
+                    email_date=my_msg['date'][5:16]
+                    dictionaries=[FullSeason,FullSeason,Halftime_Fulltime,CS_1_10,CS_11_20,CS_21_30]
+                except Exception as e:
+                    print(f"this is the dictionary error: {e} ")
                 
                 for n in range(6):
                     try:
