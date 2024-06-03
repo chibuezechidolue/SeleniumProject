@@ -305,25 +305,20 @@ class CheckPattern:
 
                 if current_game_week<week_to_save[0]-1:
                     time_to_sleep=(week_to_save[0]-1-current_game_week)*3
-                    self.browser.quit()
                     print(f"i'm waiting for {time_to_sleep*60} secs ")
                     time.sleep(time_to_sleep*60)
 
                 elif current_game_week>week_to_save[0]:
                     time_to_sleep=(34-current_game_week)*3
-                    self.browser.quit()
                     print(f"i'm waiting for {((week_to_save[0]-1)*3+time_to_sleep)*60} secs ")
                     time.sleep(((week_to_save[0]-1)*3+time_to_sleep)*60)
-                    # self.browser=webdriver.Chrome()         # driver instance with User Interface (not headless)
-                else:
-                    self.browser.quit()
+                
                     
                 # checking if the last week played is Week 10 before going ahead to save the page
                 ht_scores=[]
                 ft_scores=[]
                 game_weeks=[]
                 for n in range(4):
-                    self.browser = set_up_driver_instance()   # driver instance without User Interface (--headless)
                     time.sleep(1)
                     self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
                     time.sleep(5)   
@@ -357,7 +352,6 @@ class CheckPattern:
                         save_page(self.browser, page_name=f"SeleniumProject/{page_to_save[n]}")
 
                     if n<3:
-                        self.browser.quit()
                         weeks_left=week_to_save[n+1]-week_to_save[n]
 
                         time.sleep((weeks_left-1)*3*60)  # To wait untill start_week2

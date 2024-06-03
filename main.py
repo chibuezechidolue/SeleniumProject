@@ -22,10 +22,9 @@ SELECTED_MARKET="ht/ft"
 
 LEAGUE={"name":"bundliga","num_of_weeks":34}
 client = pygsheets.authorize(service_account_file=os.environ.get("GDRIVE_API_CREDENTIALS"))
+# browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
+browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
 while True:
-    # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
-    browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
-
     try:
         browser.get("https://m.betking.com/")
         print("i have lunched")
@@ -46,5 +45,5 @@ while True:
         print("An error occured i skipped check_result(all result)")
         check_result={'outcome':True}
 
-    browser.quit()
+    # browser.quit()
 
