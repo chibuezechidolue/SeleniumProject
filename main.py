@@ -47,7 +47,7 @@ while True:
             browser.get("https://m.betking.com/virtual/league/kings-bundliga")  
     except Exception as error:
         print(f"THIS is the Error: {error}")
-        pass
+        
     print("i am about to check result")
     
 
