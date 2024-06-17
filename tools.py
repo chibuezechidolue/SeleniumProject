@@ -17,11 +17,25 @@ load_dotenv()
 
 def set_up_driver_instance():
     """ To create and return a webdriver object with disabled gpu and headless"""
+    # user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36'
+    user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.53 Safari/537.36'
+
     chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument(f'user-agent={user_agent}')
+    chrome_options.add_argument('--ignore-certificate-errors')
+    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    chrome_options.add_experimental_option('useAutomationExtension', False)
+
     chrome_options.add_argument("--no-sandbox")
-    # chrome_options.add_argument("--headless")
-    chrome_options.add_argument('--window-size=1920,1080')
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("start-maximized") # chrome_options.add_argument('--window-size=1920,1080')
     chrome_options.add_argument("--disable-gpu")
+    # To rotate the user agent in order to avoid detection
+
+    # driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
+    # driver.execute_cdp_cmd('Network.setUserAgentOverride', {"userAgent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.53 Safari/537.36'})
+    # print(driver.execute_script("return navigator.userAgent;"))
+
     return webdriver.Chrome(options=chrome_options)
 
 def check_if_last_result_equal_input(browser:object,game_weeks:list,week_to_check:str,time_delay:float)->list:   #updated game weeks
@@ -257,23 +271,26 @@ def check_if_current_week_has_played(browser,previous_week_selected:str)->bool:
 def clear_bet_slip(browser):
     wait=WebDriverWait(driver=browser,timeout=10)
     try:
-       clear_all_button= browser.find_element(By.CSS_SELECTOR,'.clear-all')
-    except (TimeoutException,NoSuchElementException):
-        # betslip_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')))
-        betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')
-        betslip_button.click()
-        time.sleep(3)
-    try:
-        # clear_all_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'.clear-all')))
-        clear_all_button=browser.find_element(By.CSS_SELECTOR,'.clear-all')
-        clear_all_button.click()
-    except (TimeoutException,NoSuchElementException):
+        try:
+            clear_all_button= browser.find_element(By.CSS_SELECTOR,'.clear-all')
+        except (TimeoutException,NoSuchElementException):
+            # betslip_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')))
+            betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')
+            betslip_button.click()
+            time.sleep(3)
+        try:
+            # clear_all_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'.clear-all')))
+            clear_all_button=browser.find_element(By.CSS_SELECTOR,'.clear-all')
+            clear_all_button.click()
+        except (TimeoutException,NoSuchElementException):
+            pass
+        time.sleep(1)
+        # close_betslip_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'[data-testid="coupon-close-icon"]')))
+        close_betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="coupon-close-icon"]')
+        close_betslip_button.click()
+        time.sleep(2)
+    except:
         pass
-    time.sleep(1)
-    # close_betslip_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'[data-testid="coupon-close-icon"]')))
-    close_betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="coupon-close-icon"]')
-    close_betslip_button.click()
-    time.sleep(2)
 
 import math
 def calc_stake_amount(amount:float,odd:float,base:int=60)->float:

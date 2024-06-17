@@ -42,7 +42,7 @@ class PlayGame:
                 close_more_markets_button.click()
             except:
                 more_markets_button=self.browser.find_element(By.CSS_SELECTOR,'[data-testid="market-dropdown-more-markets"]')
-                self.browser.execute_script(f"window.scrollTo(0, {more_markets_button.location['y']-100});")
+                self.browser.execute_script(f"window.scrollTo({more_markets_button.location['x']}, {more_markets_button.location['y']-200});")
                 time.sleep(0.5)
                 if check_if_current_week_islive(self.browser):
                     time.sleep(40)
@@ -64,7 +64,7 @@ class PlayGame:
             if check_if_current_week_islive(self.browser):
                 time.sleep(40)
             market_to_select=self.browser.find_element(By.CSS_SELECTOR, market_selector)
-            self.browser.execute_script(f"window.scrollTo(0, {market_to_select.location['y']-100});")
+            self.browser.execute_script(f"window.scrollTo({market_to_select.location['x']}, {market_to_select.location['y']-200});")
             time.sleep(0.5)
             # market_to_select = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, market_selector)))
             market_to_select.click()
@@ -78,7 +78,7 @@ class PlayGame:
             try:
                 self.browser.execute_script(f"window.scrollTo(0, 0);")
                 time.sleep(1)
-                # self.browser.execute_script(f"window.scrollTo(0, {close_more_markets_button.location['y']-100});")
+                # self.browser.execute_script(f"window.scrollTo(0, {close_more_markets_button.location['y']-200});")
                 close_more_markets_button.click()
             except:
                 pass
@@ -119,7 +119,7 @@ class PlayGame:
                 except (ElementClickInterceptedException, StaleElementReferenceException, TimeoutException):
                     print("exception was thrown at available_games_1")
                     self.browser.execute_script(
-                        f"window.scrollTo(0, {available_games_1.location['y']-100});")  # To Scroll to where the element can be clicked()
+                        f"window.scrollTo(0, {available_games_1.location['y']-200});")  # To Scroll to where the element can be clicked()
 
                     time.sleep(0.5)
                     available_games_1=available_games[:end][n]
@@ -142,7 +142,7 @@ class PlayGame:
                 except (ElementClickInterceptedException, TimeoutException):
                     print("exception was thrown at stake_option_1")
                     self.browser.execute_script(
-                        f"window.scrollTo(0, {option_btn.location['y']-100});")  # To Scroll to where the element can be clicked()
+                        f"window.scrollTo(0, {option_btn.location['y']-200});")  # To Scroll to where the element can be clicked()
                     time.sleep(0.5)
                     option_btn.click()
                     # time.sleep(0.5)
@@ -159,7 +159,7 @@ class PlayGame:
                 #     available_games_1=available_games[:end][n]
                 #     try:
                 #         self.browser.execute_script(
-                #             f"window.scrollTo(0, {available_games_1.location['y']-100});")  # To Scroll to where the element can be clicked()
+                #             f"window.scrollTo(0, {available_games_1.location['y']-200});")  # To Scroll to where the element can be clicked()
                 #         time.sleep(0.5)
                 #         available_games_1.click()
                 #         # time.sleep(0.5)
@@ -175,20 +175,20 @@ class PlayGame:
             print(f"select_stake_option End: {datetime.datetime.now().time()}")
         
             return [week_to_select_text,acc_bal]
-        except Exception as error:
-                # To clear all stake options selected if an error occurs while selecting stake options
-                print(f"An error occured during select_stake_options. This is the error: {error}")
+        except Exception as error:   
+            # To clear all stake options selected if an error occurs while selecting stake options
+            print(f"An error occured during select_stake_options. This is the error: {error}")
 
-                betslip_button=self.browser.find_element(By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')
-                betslip_button.click()
-                time.sleep(1)
-                clear_bet_slip(self.browser)
-                send_email(Email=os.environ.get("EMAIL_USERNAME"),
-                        Password=os.environ.get("EMAIL_PASSWORD"),
-                        Subject="(1st-10th) ERROR during select_stake_options",
-                        Message=f"An error occured during select_stake_options. This is the error: {error}"
-                        )
-                return week_to_select_text
+            betslip_button=self.browser.find_element(By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')
+            betslip_button.click()
+            time.sleep(1)
+            clear_bet_slip(self.browser)
+            send_email(Email=os.environ.get("EMAIL_USERNAME"),
+                    Password=os.environ.get("EMAIL_PASSWORD"),
+                    Subject="(1st-10th) ERROR during select_stake_options",
+                    Message=f"An error occured during select_stake_options. This is the error: {error}"
+                    )
+            return [week_to_select_text,]
     def place_the_bet(self, amount: int, test: bool)->str:
         """ To bet the selected stake options each with the inputed amount"""
         # identify and click the betslip botton
