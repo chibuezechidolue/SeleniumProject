@@ -271,7 +271,7 @@ class CheckPattern:
     It takes a driver instance as first argument """
 
     def __init__(self, driver: object, market: str) -> None:
-        self._VIRTUAL_BUTTON_LINK_TEXT = "VIRTUAL"
+        self._VIRTUAL_BUTTON_LINK_TEXT = "VIRTUALS"
         self.browser = driver
         self.wait = WebDriverWait(driver=self.browser, timeout=10)
 

@@ -105,7 +105,7 @@ def cancel_popup(browser):
     wait=WebDriverWait(driver=browser,timeout=10)
     body=wait.until(EC.element_to_be_clickable((By.XPATH,"/html/body")))
     body.click()
-    cancel_body=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'[title="Close"]')))
+    cancel_body=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'[data-testid="btn-close-header"]')))
     cancel_body.click()
 
 

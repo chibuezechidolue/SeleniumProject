@@ -64,6 +64,7 @@ while True:
         print("An error occured i skipped check_result(all result)")
         check_result={'outcome':""}
 
+    # check_result['outcome']="4 - 1"
     if check_result['outcome'] != "":
         if check_result['outcome']=='2/1' or check_result['outcome']=='1/2':
             SELECTED_MARKET="ht/ft"
