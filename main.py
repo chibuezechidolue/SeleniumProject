@@ -1,6 +1,7 @@
 import time
 import os
 from brain import LoginUser,CheckPattern,PlayGame
+from selenium.webdriver.common.by import By
 from dotenv import load_dotenv
 from tools import reduce_week_selected, send_email, set_up_driver_instance
 
@@ -35,7 +36,7 @@ log=LoginUser(browser,username=os.environ.get("BETKING_USERNAME"),password=os.en
 game_play=PlayGame(browser,market=SELECTED_MARKET)
 
 current_pattern_count={'4 - 0':0, '4 - 1':0}
-
+count=0          #
 while True:
     try:
         
@@ -50,7 +51,6 @@ while True:
         
     print("i am about to check result")
     
-
     won=False
     for key,value in current_pattern_count.items():
         if value>=3:
@@ -81,7 +81,11 @@ while True:
                     if check_result_new_season["outcome"]:
                         browser=check_result_new_season['driver']
                         time.sleep(2)
-                        acc_bal=log.login()
+                        login=browser.find_element(By.CSS_SELECTOR, '.guest-header-content .text')
+                        if login.is_displayed():
+                            acc_bal=log.login()
+                        else:
+                            acc_balance=browser.find_element(By.CSS_SELECTOR, '.user-balance-container .amount').text
                         acc_bal=float(acc_bal.replace(",","_"))
                         if n<MAX_SEASON-1:
                             GAME_LEVEL=round((acc_bal-9000)/TOTAL_AMOUNT,2)
@@ -155,7 +159,11 @@ while True:
     print(f'last this is the current_pattern_count: {current_pattern_count}')
     time.sleep(180)    # To delay till week 11
 
-    
+    count+=1                                   #
+    if count==2:
+        current_pattern_count["4 - 1"]=3
+        count=0                                #
+
         
     
     # browser.quit()
