@@ -35,6 +35,7 @@ LEAGUE={"name":"bundliga","num_of_weeks":34}
     
 # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
 browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
+# count=0               #
 while True:
     try:
         # # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
@@ -64,7 +65,13 @@ while True:
         print("An error occured i skipped check_result(all result)")
         check_result={'outcome':""}
 
-    # check_result['outcome']="4 - 1"
+    # if count==1 or count>=3:                          #
+    #     check_result['outcome']="4 - 1"               #
+    #     if count==3:
+    #         count=0
+    #     else:
+    #         count+=1                                   #
+
     if check_result['outcome'] != "":
         if check_result['outcome']=='2/1' or check_result['outcome']=='1/2':
             SELECTED_MARKET="ht/ft"
@@ -109,7 +116,8 @@ while True:
                     acc_bal=result[1]
                 except:
                     pass
-            except:
+            except Exception as e:
+                print(f'an error ocured i didnt stake option.   {e}')
                 pass
             reduced_week_selected=reduce_week_selected(week_selected,by=0,league=LEAGUE["name"])
             

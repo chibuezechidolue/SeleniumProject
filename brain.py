@@ -518,14 +518,19 @@ class LoginUser:
     def login(self):
         """ Login the user with the credentials from initialization and return the account balance of the user"""
         # login = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.text")))
-        login= self.browser.find_element(By.CSS_SELECTOR, "button.text")
+        # login= self.browser.find_element(By.CSS_SELECTOR, "button.text")
+        login= self.browser.find_element(By.CSS_SELECTOR, '.guest-header-content .text')
         try:
             login.click()
-        except ElementClickInterceptedException:
-            cancel_popup(self.browser)
-            login = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.text")))
-            login.click()
-
+        except:
+            try:
+                cancel_popup(self.browser)
+                login = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "button.text")))
+                login.click()
+            except:
+                login= self.browser.find_element(By.CSS_SELECTOR, '.guest-header-content .text')
+                login.click()
+                
         username = self.browser.find_element(By.CSS_SELECTOR, '[placeholder="Username or Verified Mobile"]')
         password = self.browser.find_element(By.CSS_SELECTOR, '[placeholder="Password"]')
         # fill the username and password form with the inputed variable
