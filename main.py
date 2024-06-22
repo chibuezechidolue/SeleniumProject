@@ -2,6 +2,7 @@ import time
 import os
 from brain import LoginUser,CheckPattern,PlayGame
 from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
 from dotenv import load_dotenv
 from tools import reduce_week_selected, send_email, set_up_driver_instance
 
@@ -81,10 +82,10 @@ while True:
                     if check_result_new_season["outcome"]:
                         browser=check_result_new_season['driver']
                         time.sleep(2)
-                        login=browser.find_element(By.CSS_SELECTOR, '.guest-header-content .text')
-                        if login.is_displayed():
+                        try:
+                            login=browser.find_element(By.CSS_SELECTOR, '.guest-header-content .text')
                             acc_bal=log.login()
-                        else:
+                        except NoSuchElementException:
                             acc_balance=browser.find_element(By.CSS_SELECTOR, '.user-balance-container .amount').text
                         acc_bal=float(acc_bal.replace(",","_"))
                         if n<MAX_SEASON-1:
