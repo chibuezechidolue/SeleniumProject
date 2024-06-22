@@ -1,6 +1,8 @@
 import time
 import os
 from brain import LoginUser,CheckPattern,PlayGame
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import NoSuchElementException
 from dotenv import load_dotenv
 from tools import reduce_week_selected, send_email, set_up_driver_instance
 from selenium import webdriver
@@ -69,8 +71,8 @@ while True:
     #     check_result['outcome']="4 - 1"               #
     #     if count==3:
     #         count=0
-    #     else:
-    #         count+=1                                   #
+    # else:
+    #     count+=1                                   #
 
     if check_result['outcome'] != "":
         if check_result['outcome']=='2/1' or check_result['outcome']=='1/2':
@@ -78,7 +80,11 @@ while True:
         else:
             SELECTED_MARKET="correct_score"
         log=LoginUser(browser,username=os.environ.get("BETKING_USERNAME"),password=os.environ.get("BETKING_PASSWORD"))
-        acc_bal=log.login()
+        try:
+            login=browser.find_element(By.CSS_SELECTOR, '.guest-header-content .text')
+            acc_bal=log.login()
+        except NoSuchElementException:
+            acc_balance=browser.find_element(By.CSS_SELECTOR, '.user-balance-container .amount').text
         acc_bal=float(acc_bal.replace(",","_"))
         time.sleep(0.5)
 
