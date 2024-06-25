@@ -5,7 +5,7 @@ import time
 import os
 from selenium import webdriver
 from brain import (PlayGame,CheckPattern,LoginUser)
-from tools import reduce_week_selected,clear_bet_slip, set_up_driver_instance
+from tools import reduce_week_selected,clear_bet_slip, set_up_driver_instance,delete_cache
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -16,8 +16,8 @@ class BrainTest(unittest.TestCase):
     def setUp(self):
         # test_market="correct_score"
         test_market="ht/ft"
-        self.browser=webdriver.Chrome()    # driver instance with User Interface (not headless)
-        # self.browser=set_up_driver_instance() # driver instance without User Interface (--headless)
+        # self.browser=webdriver.Chrome()    # driver instance with User Interface (not headless)
+        self.browser=set_up_driver_instance() # driver instance without User Interface (--headless)
         self.pattern=CheckPattern(self.browser,market=test_market)
         self.game_play=PlayGame(self.browser,market=test_market)
         self.log=LoginUser(self.browser,username=os.environ.get("BETKING_USERNAME"),password=os.environ.get("BETKING_PASSWORD"))
@@ -32,6 +32,10 @@ class BrainTest(unittest.TestCase):
         for _ in range(2):
             self.game_play.choose_market()
             time.sleep(10)
+        # time.sleep(10)
+        # delete_cache(self.browser)
+        # print('i have cleared the cache')
+        # time.sleep(100)
 
 
     def test_select_stake_options_and_place_the_bet(self):

@@ -10,7 +10,7 @@ from selenium.common.exceptions import (ElementClickInterceptedException,
 from dotenv import load_dotenv
 from tools import (calc_stake_amount, cancel_popup, check_if_current_week_has_played,
                    check_if_current_week_islive, check_if_last_result_equal_input,
-                   clear_bet_slip, save_page, confirm_outcome, send_email, set_up_driver_instance,check_if_last_stake_has_played)
+                   clear_bet_slip, delete_cache, save_page, confirm_outcome, send_email, set_up_driver_instance,check_if_last_stake_has_played)
 import datetime
 
 load_dotenv()
@@ -333,6 +333,8 @@ class CheckPattern:
 
                 if current_game_week<week_to_save1-1:
                     time_to_sleep=(week_to_save1-1-current_game_week)*3
+                    delete_cache(self.browser)
+                    time.sleep(2)
                     self.browser.quit()
                     time.sleep(time_to_sleep*60)
                     # self.browser=webdriver.Chrome()        # driver instance with User Interface (not headless)
@@ -342,6 +344,8 @@ class CheckPattern:
                     time.sleep(5)
                 elif current_game_week>week_to_save1:
                     time_to_sleep=(34-current_game_week)*3
+                    delete_cache(self.browser)
+                    time.sleep(2)
                     self.browser.quit()
                     time.sleep(((week_to_save1-1)*3+time_to_sleep)*60)
                     # self.browser=webdriver.Chrome()         # driver instance with User Interface (not headless)
@@ -371,7 +375,8 @@ class CheckPattern:
                 except FileNotFoundError:
                     page_path1 = "SeleniumProject/saved_pages/one_to_ten_page.html"
                     save_page(self.browser, page_name=page_path1)
-
+                delete_cache(self.browser)
+                time.sleep(2)
                 self.browser.quit()
                 weeks_left=week_to_save2-week_to_save1
                 if weeks_left<0:

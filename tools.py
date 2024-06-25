@@ -334,8 +334,21 @@ def clear_bet_slip(browser):
         pass
 import math
 def calc_stake_amount(amount:float,odd:float,base:int=60)->float:
+    if odd<18:
+        return 50
     expected_sum=amount*base
     possible_stake=math.ceil(expected_sum/odd)
     if possible_stake<50:
         possible_stake=50
     return possible_stake
+
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
+
+def delete_cache(driver):
+    driver.delete_all_cookies()
+    driver.get('chrome://settings/clearBrowserData')  # Open your chrome settings.
+    time.sleep(2)
+    actions = ActionChains(driver) 
+    actions.send_keys(Keys.TAB * 2 + Keys.DOWN * 4 + Keys.TAB * 7 + Keys.ENTER) # confirm    
+    actions.perform()

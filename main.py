@@ -4,8 +4,13 @@ from brain import LoginUser,CheckPattern,PlayGame
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from dotenv import load_dotenv
-from tools import reduce_week_selected, send_email, set_up_driver_instance
+from tools import reduce_week_selected, send_email, set_up_driver_instance,delete_cache
 from selenium import webdriver
+import signal
+
+# signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+signal.signal(signal.SIGTERM, signal.SIG_IGN)
+
 
 load_dotenv()
 
@@ -37,8 +42,15 @@ LEAGUE={"name":"bundliga","num_of_weeks":34}
     
 # # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
 # browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
+
 count=0               #
+import multiprocessing as mp
 while True:
+    # get all active child processes
+    active = mp.active_children()
+    print(active)
+    for child in active:
+        child.terminate()
     try:
         # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
         browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
@@ -147,6 +159,8 @@ while True:
     else:
         # Calculate the number of weeks left before week 10 of the next season
         time_to_sleep = (LEAGUE["num_of_weeks"]-games_to_check+(week_to_save1-1))*3
+        delete_cache(browser)
+        time.sleep(2)
         browser.quit()
         print(f'waiting for {time_to_sleep*60} secs')
         time.sleep(time_to_sleep*60)
