@@ -333,20 +333,20 @@ class CheckPattern:
 
                 if current_game_week<week_to_save1-1:
                     time_to_sleep=(week_to_save1-1-current_game_week)*3
-                    # self.browser.quit()
+                    self.browser.quit()
                     time.sleep(time_to_sleep*60)
                     # self.browser=webdriver.Chrome()        # driver instance with User Interface (not headless)
-                    # self.browser = set_up_driver_instance()  # driver instance without User Interface (--headless)
-                    # time.sleep(1)
+                    self.browser = set_up_driver_instance()  # driver instance without User Interface (--headless)
+                    time.sleep(1)
                     self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
                     time.sleep(5)
                 elif current_game_week>week_to_save1:
                     time_to_sleep=(34-current_game_week)*3
-                    # self.browser.quit()
+                    self.browser.quit()
                     time.sleep(((week_to_save1-1)*3+time_to_sleep)*60)
                     # self.browser=webdriver.Chrome()         # driver instance with User Interface (not headless)
-                    # self.browser = set_up_driver_instance()   # driver instance without User Interface (--headless)
-                    # time.sleep(1)
+                    self.browser = set_up_driver_instance()   # driver instance without User Interface (--headless)
+                    time.sleep(1)
                     self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
                     time.sleep(5)
 
@@ -372,7 +372,7 @@ class CheckPattern:
                     page_path1 = "SeleniumProject/saved_pages/one_to_ten_page.html"
                     save_page(self.browser, page_name=page_path1)
 
-                # self.browser.quit()
+                self.browser.quit()
                 weeks_left=week_to_save2-week_to_save1
                 if weeks_left<0:
                     weeks_left=0
@@ -381,7 +381,7 @@ class CheckPattern:
                     time.sleep((weeks_left-1)*3*60)  # To wait untill start_week2
                 
                 # self.browser=webdriver.Chrome()          # driver instance with User Interface (not headless)
-                # self.browser = set_up_driver_instance()    # driver instance without User Interface (--headless)
+                self.browser = set_up_driver_instance()    # driver instance without User Interface (--headless)
                 self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
                 time.sleep(5)
                 second_game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")[:weeks_left]

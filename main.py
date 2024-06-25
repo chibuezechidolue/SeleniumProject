@@ -35,13 +35,13 @@ elif SELECTED_MARKET=="3-3":
     TOTAL_AMOUNT=40140
 LEAGUE={"name":"bundliga","num_of_weeks":34}
     
-# browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
-browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
-# count=0               #
+# # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
+# browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
+count=0               #
 while True:
     try:
-        # # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
-        # browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
+        # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
+        browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
         browser.get("https://m.betking.com/")
     except:
         pass
@@ -67,12 +67,12 @@ while True:
         print("An error occured i skipped check_result(all result)")
         check_result={'outcome':""}
 
-    # if count==1 or count>=3:                          #
-    #     check_result['outcome']="4 - 1"               #
-    #     if count==3:
-    #         count=0
-    # else:
-    #     count+=1                                   #
+    if count==1 or count>=3:                          #
+        check_result['outcome']="4 - 1"               #
+        if count==3:
+            count=0
+    else:
+        count+=1                                   #
 
     if check_result['outcome'] != "":
         if check_result['outcome']=='2/1' or check_result['outcome']=='1/2':
@@ -147,7 +147,7 @@ while True:
     else:
         # Calculate the number of weeks left before week 10 of the next season
         time_to_sleep = (LEAGUE["num_of_weeks"]-games_to_check+(week_to_save1-1))*3
-        # browser.quit()
+        browser.quit()
         print(f'waiting for {time_to_sleep*60} secs')
         time.sleep(time_to_sleep*60)
 
