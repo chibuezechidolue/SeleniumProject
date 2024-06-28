@@ -16,8 +16,8 @@ class BrainTest(unittest.TestCase):
     def setUp(self):
         # test_market="correct_score"
         test_market="ht/ft"
-        # self.browser=webdriver.Chrome()    # driver instance with User Interface (not headless)
-        self.browser=set_up_driver_instance() # driver instance without User Interface (--headless)
+        self.browser=webdriver.Chrome()    # driver instance with User Interface (not headless)
+        # self.browser=set_up_driver_instance() # driver instance without User Interface (--headless)
         self.pattern=CheckPattern(self.browser,market=test_market)
         self.game_play=PlayGame(self.browser,market=test_market)
         self.log=LoginUser(self.browser,username=os.environ.get("BETKING_USERNAME"),password=os.environ.get("BETKING_PASSWORD"))

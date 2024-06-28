@@ -346,7 +346,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 
 def delete_cache(driver):
-    driver.execute_cdp_command('Storage.clearDataForOrigin', {
+    driver.execute_cdp_cmd('Storage.clearDataForOrigin', {
     "origin": '*',
     "storageTypes": 'all',
     })
