@@ -346,7 +346,13 @@ from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
 
 def delete_cache(driver):
+    driver.execute_cdp_command('Storage.clearDataForOrigin', {
+    "origin": '*',
+    "storageTypes": 'all',
+    })
+    time.sleep(2)
     driver.delete_all_cookies()
+    time.sleep(2)
     driver.get('chrome://settings/clearBrowserData')  # Open your chrome settings.
     time.sleep(2)
     actions = ActionChains(driver) 

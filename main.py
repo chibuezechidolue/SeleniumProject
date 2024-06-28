@@ -5,11 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from dotenv import load_dotenv
 from tools import reduce_week_selected, send_email, set_up_driver_instance,delete_cache
-from selenium import webdriver
-import signal
 
-# signal.signal(signal.SIGCHLD, signal.SIG_IGN)
-signal.signal(signal.SIGTERM, signal.SIG_IGN)
 
 
 load_dotenv()
@@ -46,11 +42,6 @@ LEAGUE={"name":"bundliga","num_of_weeks":34}
 count=0               #
 import multiprocessing as mp
 while True:
-    # get all active child processes
-    active = mp.active_children()
-    print(active)
-    for child in active:
-        child.terminate()
     try:
         # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
         browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
@@ -62,7 +53,12 @@ while True:
     try:
         pattern.checkout_virtual(league=LEAGUE["name"])
     except:
-        browser.get("https://m.betking.com/virtual/league/kings-bundliga")  
+        try:
+            browser.get("https://m.betking.com/virtual/league/kings-bundliga")  
+        except:
+            browser.quit()
+            browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
+            browser.get("https://m.betking.com/virtual/league/kings-bundliga")
     
     print("i am about to check result")
     games_to_check=LEAGUE["num_of_weeks"] - MAX_AMOUNT_LENGTH
