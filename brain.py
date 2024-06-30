@@ -343,9 +343,9 @@ class CheckPattern:
                         print(f"this is the len of ft_scores BEFORE adding 36 scores: {len(ft_scores)}")
                     else:
                         start=0
-                    ht_scores.extend(current_ht_scores[start*9:])
-                    ft_scores.extend(current_ft_scores[start*9:])
-                    game_weeks.extend(current_game_weeks[start:])
+                    ht_scores.extend(current_ht_scores[::-1][start*9:])
+                    ft_scores.extend(current_ft_scores[::-1][start*9:])
+                    game_weeks.extend(current_game_weeks[::-1][start:])
                     try:
                         save_page(self.browser, page_name=page_to_save[n])  # save the games(1-10) page
                     except FileNotFoundError:

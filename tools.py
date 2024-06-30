@@ -20,7 +20,7 @@ def set_up_driver_instance():
     """ To create and return a webdriver object with disabled gpu and headless"""
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("--no-sandbox")
-    # chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--headless")
     chrome_options.add_argument('--window-size=1920,1080')
     chrome_options.add_argument("--disable-gpu")
     return webdriver.Chrome(options=chrome_options)
@@ -200,8 +200,8 @@ def confirm_outcome(ht_scores:list,ft_scores:list,game_weeks:list,market:str,cli
             score_dict["2/1"]+=1
             if n<9*hf_ft_range:
                 hf_ft_score_dict["2/1"]+=1
-    today=datetime.datetime.now().date().strftime("%d/%m")    
-    message+=f"email_date={today}\nFullSeason = {score_dict}\nHalftime_Fulltime = {hf_ft_score_dict}\nCS_1_10 = {cs_1_10_dict}\nCS_11_20 = {cs_11_20_dict}\nCS_21_30 = {cs_21_30_dict}"
+    today=datetime.datetime.now().date().strftime("%d %b %Y")    
+    message+=f"email_date = '{today}'\nFullSeason = {score_dict}\nHalftime_Fulltime = {hf_ft_score_dict}\nCS_1_10 = {cs_1_10_dict}\nCS_11_20 = {cs_11_20_dict}\nCS_21_30 = {cs_21_30_dict}"
     sheet_name=['FullSeason_SeleniumProject_Spreadsheet','FullSeason_SeleniumProject_Spreadsheet',
                 'FullSeason_SeleniumProject_Spreadsheet','SeleniumProject spreadsheet',
                 'SeleniumProject spreadsheet','SeleniumProject spreadsheet']
