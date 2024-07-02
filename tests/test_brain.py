@@ -18,7 +18,7 @@ class BrainTest(unittest.TestCase):
         test_market="ht/ft"
         self.browser=webdriver.Chrome()    # driver instance with User Interface (not headless)
         # self.browser=set_up_driver_instance() # driver instance without User Interface (--headless)
-        self.pattern=CheckPattern(self.browser,market=test_market)
+        self.pattern=CheckPattern(self.browser)
         self.game_play=PlayGame(self.browser,market=test_market)
         self.log=LoginUser(self.browser,username=os.environ.get("BETKING_USERNAME"),password=os.environ.get("BETKING_PASSWORD"))
         self.browser.get("https://m.betking.com/virtual/league/kings-bundliga")
@@ -48,7 +48,7 @@ class BrainTest(unittest.TestCase):
         # self.test_login()
         acc_bal=2000.2
         # acc_bal=str(acc_bal)
-        self.pattern.check_result(length="last result",latest_week="Week 8",acc_balance=acc_bal,market=check_result['outcome'])
+        self.pattern.check_result(length="last result",latest_week="Week 2",acc_balance=acc_bal,market=check_result['outcome'])
 
         for n in range(3):
             # clear_bet_slip(self.browser)

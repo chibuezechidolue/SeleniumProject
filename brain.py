@@ -116,7 +116,7 @@ class PlayGame:
                 try:
                     available_games_1=available_games[:end][n]
                     available_games_1.click()
-                    time.sleep(0.5)
+                    # time.sleep(0.5)
                 except (ElementClickInterceptedException, StaleElementReferenceException, TimeoutException):
                     print("exception was thrown at available_games_1")
                     self.browser.execute_script(

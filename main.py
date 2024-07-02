@@ -155,6 +155,7 @@ def start_bot():
                 won=True
                 weeks_left_to_finish_season = LEAGUE["num_of_weeks"] - int(reduced_week_selected.split()[1])
                 sleep_time_before_next_check=(weeks_left_to_finish_season + week_to_save1-1)*3
+                delete_cache(browser)
                 # browser.quit()
                 print(f'waiting for {sleep_time_before_next_check*60} secs')
                 time.sleep(sleep_time_before_next_check*60) 
