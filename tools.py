@@ -35,11 +35,20 @@ def set_up_driver_instance():
     # chrome_options.add_argument("--disable-blink-features")
     # chrome_options.add_argument("--disable-blink-features=AutomationControlled")
 
+
+    #emulate a mobile device
+    # mobile_emulation = { "deviceName": "Nexus 5" }
+#     mobile_emulation = {
+#    "deviceMetrics": { "width": 360, "height": 640, "pixelRatio": 3.0 },
+#    "userAgent": "Mozilla/5.0 (Linux; Android 4.2.1; en-us; Nexus 5 Build/JOP40D) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.166 Mobile Safari/535.19",
+#    "clientHints": {"platform": "Android", "mobile": True} }
+#     chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
+
                     # To rotate the user agent in order to avoid detection
     # driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
     # driver.execute_cdp_cmd('Network.setUserAgentOverride', {"userAgent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.53 Safari/537.36'})
     # print(driver.execute_script("return navigator.userAgent;"))
-
+    
     return webdriver.Chrome(options=chrome_options)
 def check_if_last_result_equal_input(browser:object,game_weeks:list,week_to_check:str,time_delay:float)->list:   #updated game weeks
     """ To check if the current last result is the same with the week_to_check 

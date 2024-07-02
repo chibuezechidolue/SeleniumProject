@@ -1,10 +1,11 @@
-import time
-import os
 from brain import LoginUser,CheckPattern,PlayGame
+from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from dotenv import load_dotenv
 from tools import reduce_week_selected, send_email, set_up_driver_instance,delete_cache
+import time
+import os
 import multiprocessing as mp
 import threading
 import psutil
@@ -45,17 +46,19 @@ LEAGUE={"name":"bundliga","num_of_weeks":34}
 # browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
 
 # count=0               #
+ # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
+# browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
 def start_bot():
     MAX_AMOUNT_LENGTH=14
     LEAGUE={"name":"bundliga","num_of_weeks":34}
     global count
+    global browser
 
     try:
-        # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
-        browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
         browser.get("https://m.betking.com/")
     except:
-        browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
+        pass
+        # browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
         # browser.get("https://m.betking.com/")
 
     print("i have lunched")
@@ -66,7 +69,7 @@ def start_bot():
         try:
             browser.get("https://m.betking.com/virtual/league/kings-bundliga")  
         except:
-            # browser.quit()
+            browser.quit()
             browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
             browser.get("https://m.betking.com/virtual/league/kings-bundliga")
     
@@ -167,7 +170,7 @@ def start_bot():
         time_to_sleep = (LEAGUE["num_of_weeks"]-games_to_check+(week_to_save1-1))*3
         delete_cache(browser)
         time.sleep(2)
-        browser.quit()
+        # browser.quit()
         print(f'waiting for {time_to_sleep*60} secs')
         time.sleep(time_to_sleep*60)
 # count=0 
@@ -187,6 +190,8 @@ def get_mem_usage():
 if __name__=='__main__':
 
     count=0               #
+    # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
+    browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
     print(f"start: {get_mem_usage()}")
     while True:
         # bot=mp.Process(target=start_bot,args=(count,),daemon=True)
