@@ -270,7 +270,7 @@ class CheckPattern:
     """ To check if the the desired pattern of the desired market has occured. 
     It takes a driver instance as first argument """
 
-    def __init__(self, driver: object, market: str) -> None:
+    def __init__(self, driver: object,) -> None:
         self._VIRTUAL_BUTTON_LINK_TEXT = "VIRTUALS"
         self.browser = driver
         self.wait = WebDriverWait(driver=self.browser, timeout=10)
@@ -492,7 +492,7 @@ class CheckPattern:
             return {"outcome": True, "driver": self.browser}
 
         elif result["outcome"] != "" and length.lower() == "all result":
-            print('PATTERN found')
+            print(f'PATTERN found: {result["message"]}')
             print('Did not send mail')
             # send_email(Email=os.environ.get("EMAIL_USERNAME"),
             #            Password=os.environ.get("EMAIL_PASSWORD"),

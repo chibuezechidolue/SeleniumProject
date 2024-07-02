@@ -5,6 +5,11 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from dotenv import load_dotenv
 from tools import reduce_week_selected, send_email, set_up_driver_instance,delete_cache
+import multiprocessing as mp
+import threading
+import psutil
+
+
 
 
 
@@ -29,8 +34,8 @@ if SELECTED_MARKET=="ht/ft":
     TOTAL_AMOUNT=40140
 elif SELECTED_MARKET=="3-3":
     AMOUNT_LIST=(10,10,10,10,10,10,20,20,30,30,40,40,55,55,80,80,110,
-                 110,160,160,230,230,330,330,470,470,675,675,970,970,
-                 1390,1390,1980,1980)
+                110,160,160,230,230,330,330,470,470,675,675,970,970,
+                1390,1390,1980,1980)
     MAX_AMOUNT_LENGTH=14
     # TOTAL_AMOUNT=9450
     TOTAL_AMOUNT=40140
@@ -39,24 +44,29 @@ LEAGUE={"name":"bundliga","num_of_weeks":34}
 # # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
 # browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
 
-count=0               #
-import multiprocessing as mp
-while True:
+# count=0               #
+def start_bot():
+    MAX_AMOUNT_LENGTH=14
+    LEAGUE={"name":"bundliga","num_of_weeks":34}
+    global count
+
     try:
         # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
         browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
         browser.get("https://m.betking.com/")
     except:
-        pass
+        browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
+        # browser.get("https://m.betking.com/")
+
     print("i have lunched")
-    pattern=CheckPattern(browser,market=SELECTED_MARKET)
     try:
+        pattern=CheckPattern(browser)
         pattern.checkout_virtual(league=LEAGUE["name"])
     except:
         try:
             browser.get("https://m.betking.com/virtual/league/kings-bundliga")  
         except:
-            browser.quit()
+            # browser.quit()
             browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
             browser.get("https://m.betking.com/virtual/league/kings-bundliga")
     
@@ -135,7 +145,7 @@ while True:
                 pass
             reduced_week_selected=reduce_week_selected(week_selected,by=0,league=LEAGUE["name"])
             
-            pattern=CheckPattern(browser,market=SELECTED_MARKET)
+            pattern=CheckPattern(browser)
             last_result=pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal,market=check_result['outcome'])
             if last_result['outcome']:
                 # Calculate the number of weeks left before week 10 of the next season
@@ -148,10 +158,10 @@ while True:
                 break
         if not won:
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
-                       Password=os.environ.get("EMAIL_PASSWORD"),
-                       Subject="YOU'VE LOST IT ALL",
-                       Message=f"{SELECTED_MARKET} did not come till week {LEAGUE['num_of_weeks']}"
-                       )
+                    Password=os.environ.get("EMAIL_PASSWORD"),
+                    Subject="YOU'VE LOST IT ALL",
+                    Message=f"{SELECTED_MARKET} did not come till week {LEAGUE['num_of_weeks']}"
+                    )
     else:
         # Calculate the number of weeks left before week 10 of the next season
         time_to_sleep = (LEAGUE["num_of_weeks"]-games_to_check+(week_to_save1-1))*3
@@ -160,4 +170,34 @@ while True:
         browser.quit()
         print(f'waiting for {time_to_sleep*60} secs')
         time.sleep(time_to_sleep*60)
+# count=0 
+def test():
+    global count
+    print(f"testing ....{count}")
+    count+=1
+    time.sleep(5)
 
+
+
+def get_mem_usage():
+    return psutil.Process().memory_info().rss // 1024
+
+
+
+if __name__=='__main__':
+
+    count=0               #
+    print(f"start: {get_mem_usage()}")
+    while True:
+        # bot=mp.Process(target=start_bot,args=(count,),daemon=True)
+        bot=threading.Thread(target=start_bot,daemon=True)
+        # bot=mp.Process(target=test,daemon=True)
+        # bot=threading.Thread(target=test,daemon=True)
+        bot.start()
+        print(f"after thread creation: {get_mem_usage()}")
+        bot.join()
+        # bot.terminate()
+        print('bot terminated')
+        print(threading.active_count())
+        print(f"end of thread: {get_mem_usage()}")
+        # print(f"THREADS: {len(threading.enumerate())}")
