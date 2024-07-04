@@ -14,10 +14,17 @@ import os
 load_dotenv()
 
 
+from selenium.webdriver.common.selenium_manager import SeleniumManager
+from selenium.webdriver.chrome.options import Options
+
 
 
 def set_up_driver_instance():
     """ To create and return a webdriver object with disabled gpu and headless"""
+    
+    options = Options()
+    SeleniumManager().driver_location(options)
+
     user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36'
     # user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.53 Safari/537.36'
 
@@ -31,6 +38,9 @@ def set_up_driver_instance():
     # chrome_options.add_argument("--headless")
     chrome_options.add_argument("start-maximized") # chrome_options.add_argument('--window-size=1920,1080')
     chrome_options.add_argument("--disable-gpu")
+
+    # chrome_options.add_argument('--disable-extensions')
+    
 
     # chrome_options.add_argument("--disable-blink-features")
     # chrome_options.add_argument("--disable-blink-features=AutomationControlled")

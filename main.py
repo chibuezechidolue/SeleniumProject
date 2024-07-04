@@ -69,9 +69,10 @@ def start_bot():
         try:
             browser.get("https://m.betking.com/virtual/league/kings-bundliga")  
         except:
+            delete_cache(browser)
             browser.quit()
             browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
-            browser.get("https://m.betking.com/virtual/league/kings-bundliga")
+            browser.get("http://m.betking.com/virtual/league/kings-bundliga")
     
     print("i am about to check result")
     games_to_check=LEAGUE["num_of_weeks"] - MAX_AMOUNT_LENGTH
@@ -105,7 +106,7 @@ def start_bot():
             login=browser.find_element(By.CSS_SELECTOR, '.guest-header-content .text')
             acc_bal=log.login()
         except NoSuchElementException:
-            acc_balance=browser.find_element(By.CSS_SELECTOR, '.user-balance-container .amount').text
+            acc_bal=browser.find_element(By.CSS_SELECTOR, '.user-balance-container .amount').text
         acc_bal=float(acc_bal.replace(",","_"))
         time.sleep(0.5)
 
@@ -174,13 +175,6 @@ def start_bot():
         # browser.quit()
         print(f'waiting for {time_to_sleep*60} secs')
         time.sleep(time_to_sleep*60)
-# count=0 
-def test():
-    global count
-    print(f"testing ....{count}")
-    count+=1
-    time.sleep(5)
-
 
 
 def get_mem_usage():
@@ -191,14 +185,11 @@ def get_mem_usage():
 if __name__=='__main__':
 
     count=0               #
-    # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
     browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
     print(f"start: {get_mem_usage()}")
     while True:
         # bot=mp.Process(target=start_bot,args=(count,),daemon=True)
         bot=threading.Thread(target=start_bot,daemon=True)
-        # bot=mp.Process(target=test,daemon=True)
-        # bot=threading.Thread(target=test,daemon=True)
         bot.start()
         print(f"after thread creation: {get_mem_usage()}")
         bot.join()
