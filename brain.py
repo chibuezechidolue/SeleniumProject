@@ -10,7 +10,7 @@ from selenium.common.exceptions import (ElementClickInterceptedException,
 from dotenv import load_dotenv
 from tools import (cancel_popup, check_if_current_week_has_played,
                    check_if_current_week_islive, check_if_last_result_equal_input,
-                   clear_bet_slip, save_page, confirm_outcome, send_email, set_up_driver_instance,check_if_last_stake_has_played)
+                   clear_bet_slip, delete_cache, save_page, confirm_outcome, send_email, set_up_driver_instance,check_if_last_stake_has_played)
 import datetime
 
 load_dotenv()
@@ -306,11 +306,15 @@ class CheckPattern:
                 if current_game_week<week_to_save[0]-1:
                     time_to_sleep=(week_to_save[0]-1-current_game_week)*3
                     print(f"i'm waiting for {time_to_sleep*60} secs ")
+                    delete_cache(self.browser)
+                    time.sleep(2)
                     time.sleep(time_to_sleep*60)
 
                 elif current_game_week>week_to_save[0]:
                     time_to_sleep=(34-current_game_week)*3
                     print(f"i'm waiting for {((week_to_save[0]-1)*3+time_to_sleep)*60} secs ")
+                    delete_cache(self.browser)
+                    time.sleep(2)
                     time.sleep(((week_to_save[0]-1)*3+time_to_sleep)*60)
                 
                     
@@ -331,13 +335,11 @@ class CheckPattern:
                     current_ht_scores=self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")[:week_to_save[n]*9]
                     current_ft_scores=self.browser.find_elements(By.CSS_SELECTOR, ".score.ft")[:week_to_save[n]*9]
                     current_game_weeks=game_weeks[:week_to_save[n]]
-
                     for i in range(len(current_ft_scores)):
                         current_ht_scores[i]=current_ht_scores[i].text
                         current_ft_scores[i]=current_ft_scores[i].text
                         if i<len(current_game_weeks):
                             current_game_weeks[i]=current_game_weeks[i].text
-
                     if n==3:
                         start=6
                         print(f"this is the len of ft_scores BEFORE adding 36 scores: {len(ft_scores)}")
@@ -350,10 +352,9 @@ class CheckPattern:
                         save_page(self.browser, page_name=page_to_save[n])  # save the games(1-10) page
                     except FileNotFoundError:
                         save_page(self.browser, page_name=f"SeleniumProject/{page_to_save[n]}")
-
+                    delete_cache(self.browser)
                     if n<3:
                         weeks_left=week_to_save[n+1]-week_to_save[n]
-
                         time.sleep((weeks_left-1)*3*60)  # To wait untill start_week2
                 print("I am about to confirm outcome")
                 print(f"this is the len of ft_scores AFTER adding the 36 scores: {len(ft_scores)}")

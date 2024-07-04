@@ -1,10 +1,11 @@
 import time
 import os
-from brain import LoginUser,CheckPattern,PlayGame
+from brain import CheckPattern
 from dotenv import load_dotenv
-from tools import reduce_week_selected, send_email, set_up_driver_instance
-from selenium import webdriver
+from tools import set_up_driver_instance,delete_cache
 import pygsheets 
+import threading
+import psutil
 
 
 load_dotenv()
@@ -20,11 +21,14 @@ load_dotenv()
 
 SELECTED_MARKET="ht/ft"
 
-LEAGUE={"name":"bundliga","num_of_weeks":34}
-client = pygsheets.authorize(service_account_file=os.environ.get("GDRIVE_API_CREDENTIALS"))
+
+
 # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
-browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
-while True:
+# browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
+def start_bot():
+    global browser
+    LEAGUE={"name":"bundliga","num_of_weeks":34}
+    client = pygsheets.authorize(service_account_file=os.environ.get("GDRIVE_API_CREDENTIALS"))
     try:
         browser.get("https://m.betking.com/")
         print("i have lunched")
@@ -34,7 +38,13 @@ while True:
         pattern=CheckPattern(browser,market=SELECTED_MARKET)
         pattern.checkout_virtual(league=LEAGUE["name"])
     except:
-        browser.get("https://m.betking.com/virtual/league/kings-bundliga")  
+        try:
+            browser.get("https://m.betking.com/virtual/league/kings-bundliga")  
+        except:
+            browser.quit()
+            browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
+            browser.get("https://m.betking.com/virtual/league/kings-bundliga")
+
     
     print("i am about to check result")
    
@@ -45,5 +55,24 @@ while True:
         print("An error occured i skipped check_result(all result)")
         check_result={'outcome':True}
 
+    delete_cache(browser)
+    time.sleep(2)
     # browser.quit()
 
+def get_mem_usage():
+    return psutil.Process().memory_info().rss // 1024
+
+if __name__=='__main__':
+
+    count=0               #
+    browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
+    print(f"start: {get_mem_usage()}")
+    while True:
+        # bot=mp.Process(target=start_bot,args=(count,),daemon=True)
+        bot=threading.Thread(target=start_bot,daemon=True)
+        bot.start()
+        print(f"after thread creation: {get_mem_usage()}")
+        bot.join()
+        # bot.terminate()
+        print('bot terminated')
+        print(f"end of thread: {get_mem_usage()}")

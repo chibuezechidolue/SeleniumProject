@@ -23,6 +23,7 @@ def set_up_driver_instance():
     chrome_options.add_argument("--headless")
     chrome_options.add_argument('--window-size=1920,1080')
     chrome_options.add_argument("--disable-gpu")
+    chrome_options.add_argument("--dns-prefetch-disable")
     return webdriver.Chrome(options=chrome_options)
 
 def check_if_last_result_equal_input(browser:object,game_weeks:list,week_to_check:str,time_delay:float)->list:   #updated game weeks
@@ -319,3 +320,19 @@ def clear_bet_slip(browser):
     close_betslip_button.click()
     time.sleep(2)
 
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
+
+def delete_cache(driver):
+    driver.execute_cdp_cmd('Storage.clearDataForOrigin', {
+    "origin": '*',
+    "storageTypes": 'all',
+    })
+    time.sleep(2)
+    driver.delete_all_cookies()
+    time.sleep(2)
+    driver.get('chrome://settings/clearBrowserData')  # Open your chrome settings.
+    time.sleep(2)
+    actions = ActionChains(driver) 
+    actions.send_keys(Keys.TAB * 2 + Keys.DOWN * 4 + Keys.TAB * 7 + Keys.ENTER) # confirm    
+    actions.perform()
