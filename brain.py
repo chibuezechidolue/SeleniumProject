@@ -116,7 +116,6 @@ class PlayGame:
                 try:
                     available_games_1=available_games[:end][n]
                     available_games_1.click()
-                    # time.sleep(0.5)
                 except (ElementClickInterceptedException, StaleElementReferenceException, TimeoutException):
                     print("exception was thrown at available_games_1")
                     self.browser.execute_script(
@@ -160,7 +159,6 @@ class PlayGame:
                             f"window.scrollTo(0, {option_btn.location['y']-200});")  # To Scroll to where the element can be clicked()
                         time.sleep(0.5)
                         option_btn.click()
-                        # time.sleep(0.5)
                     if len(pattern_stake)==1:
                         amount=calc_stake_amount(amount=stake_amount,odd=float(option_btn.text.replace(" ",'')),base=20)
                     else:
@@ -177,11 +175,10 @@ class PlayGame:
                         try:
                             self.browser.execute_script(
                                 f"window.scrollTo(0, {available_games_1.location['y']-200});")  # To Scroll to where the element can be clicked()
-                            time.sleep(0.5)
-                            available_games_1.click()
                             # time.sleep(0.5)
+                            available_games_1.click()
                         except (ElementClickInterceptedException, StaleElementReferenceException, TimeoutException):
-                            print("exception was thrown at available_games_1")
+                            print("exception was thrown at available_games_2")
                             self.browser.execute_script(
                                 f"window.scrollTo(0, {available_games_1.location['y']-150});")  # To Scroll to where the element can be clicked()
 
@@ -201,13 +198,17 @@ class PlayGame:
                 betslip_button=self.browser.find_element(By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')
                 betslip_button.click()
                 time.sleep(1)
+                refresh_bal_button=self.browser.find_element(By.CSS_SELECTOR, '.user-balance-container .refresh-icon')
+                refresh_bal_button.click()
+                time.sleep(2)
+                acc_bal=self.browser.find_element(By.CSS_SELECTOR, '.user-balance-container .amount').text
                 clear_bet_slip(self.browser)
                 send_email(Email=os.environ.get("EMAIL_USERNAME"),
                         Password=os.environ.get("EMAIL_PASSWORD"),
                         Subject="(FullSeason) ERROR during select_stake_options",
                         Message=f"An error occured during select_stake_options. This is the error: {error}"
                         )
-                return [week_to_select_text,]
+                return [week_to_select_text,acc_bal]
 
     def place_the_bet(self, amount: int, test: bool)->str:
         """ To bet the selected stake options each with the inputed amount"""
