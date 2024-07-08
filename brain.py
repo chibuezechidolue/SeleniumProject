@@ -117,7 +117,7 @@ class PlayGame:
                     available_games_1=available_games[:end][n]
                     available_games_1.click()
                 except (ElementClickInterceptedException, StaleElementReferenceException, TimeoutException):
-                    print("exception was thrown at available_games_1")
+                    # print("exception was thrown at available_games_1")
                     self.browser.execute_script(
                         f"window.scrollTo(0, {available_games_1.location['y']-200});")  # To Scroll to where the element can be clicked()
 
@@ -154,7 +154,7 @@ class PlayGame:
                         option_btn.click()
                         # time.sleep(0.5)
                     except (ElementClickInterceptedException, TimeoutException):
-                        print("exception was thrown at stake_option_1")
+                        # print("exception was thrown at stake_option_1")
                         self.browser.execute_script(
                             f"window.scrollTo(0, {option_btn.location['y']-200});")  # To Scroll to where the element can be clicked()
                         time.sleep(0.5)
@@ -178,7 +178,7 @@ class PlayGame:
                             # time.sleep(0.5)
                             available_games_1.click()
                         except (ElementClickInterceptedException, StaleElementReferenceException, TimeoutException):
-                            print("exception was thrown at available_games_2")
+                            # print("exception was thrown at available_games_2")
                             self.browser.execute_script(
                                 f"window.scrollTo(0, {available_games_1.location['y']-150});")  # To Scroll to where the element can be clicked()
 
@@ -190,7 +190,7 @@ class PlayGame:
                     else:
                         stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[current_open_stake_options * 28:end * 28]  # Temp
                     
-            print(f"select_stake_option End: {datetime.datetime.now().time()}")
+            # print(f"select_stake_option End: {datetime.datetime.now().time()}")
             return [week_to_select_text,acc_bal]
         except Exception as error:
                 # To clear all stake options selected if an error occurs while selecting stake options
@@ -225,11 +225,9 @@ class PlayGame:
             # singles_button=self.browser.find_element(By.CSS_SELECTOR,'[data-testid="groupings-tab-singles"]')
             # singles_button.click()
             # identify, clear existing amount and input new amount
-            print('stake_input_box')
             # stake_input_box = self.browser.find_element(By.CSS_SELECTOR, '[data-testid="coupon-groupings-group-stake"]')
             stake_input_box = self.browser.find_element(By.CSS_SELECTOR, '[data-testid="coupon-totals-stake-amount-value"]')
             stake_input_box.clear()
-            print("clear stake_input_box")
             # time.sleep(1)
             stake_input_box.send_keys(amount)
             # scroll to the bottom of the page
@@ -479,7 +477,7 @@ class CheckPattern:
                 page_path = "saved_pages/one_to_ten_page.html"
                 save_page(self.browser, page_name=page_path)
             except FileNotFoundError:
-                page_path = "SeleniumProject/saved_pages/one_to_ten_page.html"
+                page_path = f"{os.environ.get('PROJECT_PATH')}/saved_pages/one_to_ten_page.html"
                 save_page(self.browser, page_name=page_path)  # save the games(1-10) page
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
                        Password=os.environ.get("EMAIL_PASSWORD"),

@@ -24,30 +24,28 @@ load_dotenv()
 # TODO: test for time complexity
 # TODO: Reformat all modules and code 
 
+last_result=None
+reduced_week_selected=None
+def stake_next_game(game_play,pattern_stake_options,check_result,GAME_LEVEL,browser,AMOUNT_LIST,LEAGUE,n):
+    global last_result
+    global reduced_week_selected
+    # print(f"start func: {last_result,reduced_week_selected}")
+    try:
+        result=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50",pattern_stake=pattern_stake_options[check_result['outcome']],stake_amount=AMOUNT_LIST[n]*GAME_LEVEL)
+        week_selected=result[0]
+        try:
+            acc_bal=result[1]
+        except:
+            pass
+    except Exception as e:
+        print(f'an error ocured i didnt stake option.   {e}')
+    reduced_week_selected=reduce_week_selected(week_selected,by=0,league=LEAGUE["name"])        
+    pattern=CheckPattern(browser)
+    last_result=pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal,market=check_result['outcome'])
+    # return [last_result,reduced_week_selected]
+    # print(f"end func: {last_result,reduced_week_selected}")
 
-SELECTED_MARKET="ht/ft"
 
-if SELECTED_MARKET=="ht/ft":
-    AMOUNT_LIST=(10,10,10,20,30,40,55,80,110,160,230,330,470,675,970,
-                1390,1980,2840,4050,5800,8300,11850,16950,24250)
-    MAX_AMOUNT_LENGTH=14
-    # TOTAL_AMOUNT=9450
-    TOTAL_AMOUNT=40140
-elif SELECTED_MARKET=="3-3":
-    AMOUNT_LIST=(10,10,10,10,10,10,20,20,30,30,40,40,55,55,80,80,110,
-                110,160,160,230,230,330,330,470,470,675,675,970,970,
-                1390,1390,1980,1980)
-    MAX_AMOUNT_LENGTH=14
-    # TOTAL_AMOUNT=9450
-    TOTAL_AMOUNT=40140
-LEAGUE={"name":"bundliga","num_of_weeks":34}
-    
-# # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
-# browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
-
-# count=0               #
- # browser=webdriver.Chrome()           # driver instance with User Interface (not headless)
-# browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
 def start_bot():
     MAX_AMOUNT_LENGTH=14
     LEAGUE={"name":"bundliga","num_of_weeks":34}
@@ -128,6 +126,8 @@ def start_bot():
         GAME_LEVEL=round((acc_bal-4000)/TOTAL_AMOUNT,2)
         acc_bal=str(acc_bal)
         pattern_stake_options={"3 - 2":[5], "2 - 3":[21],'4 - 0':[6,22], "0 - 4":[6,22],'4 - 1':[7,23], "1 - 4":[7,23], "2/1":[2,6], "1/2":[2,6]} 
+        last_result=None
+        reduced_week_selected=None
         for n in range(len(AMOUNT_LIST[:MAX_AMOUNT_LENGTH])):
             # provision to stake 10 games afterwhich funds are exhausted and place bet begins to skip
             # if n==10:
@@ -137,20 +137,30 @@ def start_bot():
             #            Subject="YOU'VE LOST IT ALL",
             #            Message=f"{SELECTED_MARKET} did not come till week {n}. I have changed to TEST MODE"
             #            )
-            try:
-                result=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50",pattern_stake=pattern_stake_options[check_result['outcome']],stake_amount=AMOUNT_LIST[n]*GAME_LEVEL)
-                week_selected=result[0]
-                try:
-                    acc_bal=result[1]
-                except:
-                    pass
-            except Exception as e:
-                print(f'an error ocured i didnt stake option.   {e}')
-                pass
-            reduced_week_selected=reduce_week_selected(week_selected,by=0,league=LEAGUE["name"])
+
+
+            # try:
+            #     result=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50",pattern_stake=pattern_stake_options[check_result['outcome']],stake_amount=AMOUNT_LIST[n]*GAME_LEVEL)
+            #     week_selected=result[0]
+            #     try:
+            #         acc_bal=result[1]
+            #     except:
+            #         pass
+            # except Exception as e:
+            #     print(f'an error ocured i didnt stake option.   {e}')
+            #     pass
+            # reduced_week_selected=reduce_week_selected(week_selected,by=0,league=LEAGUE["name"])
             
-            pattern=CheckPattern(browser)
-            last_result=pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal,market=check_result['outcome'])
+            # pattern=CheckPattern(browser)
+            # last_result=pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal,market=check_result['outcome'])
+            
+            stake_next_game=threading.Thread(target=stake_next_game,args=(game_play,pattern_stake_options,check_result,GAME_LEVEL,AMOUNT_LIST,LEAGUE,n),daemon=True)
+            stake_next_game.start()
+            stake_next_game.join()
+            print('this is it')
+            # last_result=output[0]
+            # reduced_week_selected=output[1]
+            print(last_result,reduced_week_selected)
             if last_result['outcome']:
                 # Calculate the number of weeks left before week 10 of the next season
                 won=True
@@ -195,6 +205,9 @@ if __name__=='__main__':
         bot.join()
         # bot.terminate()
         print('bot terminated')
-        print(threading.active_count())
         print(f"end of thread: {get_mem_usage()}")
+
+        # print(threading.active_count())
         # print(f"THREADS: {len(threading.enumerate())}")
+
+

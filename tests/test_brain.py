@@ -1,15 +1,40 @@
 import sys
-sys.path.append('c:\\Users\\Stanley Chidolue\\PersonalProject\\SeleniumProject')
-import unittest
-import time
 import os
-from selenium import webdriver
-from brain import (PlayGame,CheckPattern,LoginUser)
-from tools import reduce_week_selected,clear_bet_slip, set_up_driver_instance,delete_cache
 from dotenv import load_dotenv
-from selenium.webdriver.common.by import By
+
 
 load_dotenv()
+sys.path.append(os.environ.get('PROJECT_PATH'))
+import unittest
+import time
+from selenium import webdriver
+from brain import (PlayGame,CheckPattern,LoginUser)
+from tools import reduce_week_selected,clear_bet_slip, set_up_driver_instance,delete_cache,save_page,send_email
+from selenium.webdriver.common.by import By
+
+import threading
+# from main import stake_next_game
+
+last_result=None
+reduced_week_selected=None
+def stake_next_game(game_play,pattern_stake_options,check_result,GAME_LEVEL,browser,AMOUNT_LIST,LEAGUE,n):
+    global last_result
+    global reduced_week_selected
+    # print(f"start func: {last_result,reduced_week_selected}")
+    try:
+        result=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50",pattern_stake=pattern_stake_options[check_result['outcome']],stake_amount=AMOUNT_LIST[n]*GAME_LEVEL)
+        week_selected=result[0]
+        try:
+            acc_bal=result[1]
+        except:
+            pass
+    except Exception as e:
+        print(f'an error ocured i didnt stake option.   {e}')
+    reduced_week_selected=reduce_week_selected(week_selected,by=0,league=LEAGUE["name"])        
+    pattern=CheckPattern(browser)
+    last_result=pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal,market=check_result['outcome'])
+    # return [last_result,reduced_week_selected]
+    # print(f"end func: {last_result,reduced_week_selected}")
 
 
 class BrainTest(unittest.TestCase):
@@ -26,6 +51,7 @@ class BrainTest(unittest.TestCase):
         self.pattern_stake_options={"3 - 2":[5], "2 - 3":[21],'4 - 0':[6,22], "0 - 4":[6,22],'4 - 1':[7,23], "1 - 4":[7,23], "4 - 2":[8,24], "2 - 4":[8,24], "2/1":[2,6], "1/2":[2,6]}
         self.AMOUNT_LIST=[50, 50, 50, 100, 150, 200, 275, 400, 550, 800, 1150, 1650, 2350, 3375, 4850, 6950, 9900,
                         14200, 20250, 29000, 41500, 59250, 84750, 121250]
+        self.LEAGUE={"name":"bundliga","num_of_weeks":34}
 
     
     # def test_choose_market(self):
@@ -47,26 +73,37 @@ class BrainTest(unittest.TestCase):
         self.game_play.choose_market()
         time.sleep(2)
         acc_bal=self.log.login()
-        acc_bal=2000.2
+        # acc_bal=2000.2
         # acc_bal=str(acc_bal)
         week_to_play = self.browser.find_elements(By.CSS_SELECTOR, '.week')[0].text
         print(week_to_play)
-        check_week=f"{week_to_play[:4]}{week_to_play[4:7]}"
+        if week_to_play[5]=="0":
+            week_no=week_to_play[6]
+        else:
+            week_no=week_to_play[5:7]
+        check_week=f"{week_to_play[:4]} {week_no}"
         print(check_week)
         self.pattern.check_result(length="last result",latest_week=check_week,acc_balance=acc_bal,market=check_result['outcome'])
         for n in range(3):
             # clear_bet_slip(self.browser)
             if n==10:
                 os.environ["TEST"]="True"
-            # for _ in range(stake_option_length):
-            result=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000",
-                                                                pattern_stake=self.pattern_stake_options[check_result['outcome']],stake_amount=self.AMOUNT_LIST[n])
-            
-            week_selected=result[0]
-            acc_bal=result[1]
-            reduced_week_selected=reduce_week_selected(week_selected,by=0,league="bundliga")
-            self.pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal,market=check_result['outcome'])
 
+            # result=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000",
+            #                                                     pattern_stake=self.pattern_stake_options[check_result['outcome']],stake_amount=self.AMOUNT_LIST[n])
+            
+            # week_selected=result[0]
+            # acc_bal=result[1]
+            # reduced_week_selected=reduce_week_selected(week_selected,by=0,league="bundliga")
+            # self.pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal,market=check_result['outcome'])
+
+            stake_next=threading.Thread(target=stake_next_game,args=(self.game_play,self.pattern_stake_options,check_result,1,self.browser,self.AMOUNT_LIST,self.LEAGUE,n),daemon=True)
+            stake_next.start()
+            stake_next.join()
+            print('this is it')
+            # last_result=output[0]
+            # reduced_week_selected=output[1]
+            print(f"last: {last_result,reduced_week_selected}")
     # def test_checkout_virtual(self):
     #     for _ in range(3):
     #         self.browser.get("https://m.betking.com")

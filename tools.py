@@ -67,8 +67,9 @@ def check_if_last_result_equal_input(browser:object,game_weeks:list,week_to_chec
     if week_to_check=="Week 0":
         return game_weeks
     last_result_week=game_weeks[0].text
+    print(last_result_week,week_to_check)
     while last_result_week!=week_to_check:
-        print(last_result_week,week_to_check)
+        #print(last_result_week,week_to_check)
         time.sleep(time_delay)
         reload_result_page(browser)
         time.sleep(2)
@@ -79,15 +80,16 @@ def check_if_last_result_equal_input(browser:object,game_weeks:list,week_to_chec
             reload_result_page(browser)
             time.sleep(2)
         last_result_week=game_weeks[0].text
+    print(last_result_week,week_to_check)
     return game_weeks
 
 def check_if_last_stake_has_played(browser:object,week_to_check:str,time_delay:float):
     week_to_select = browser.find_elements(By.CSS_SELECTOR, '.week')
     print(week_to_select[0].text,week_to_check)
     while week_to_select[0].text==week_to_check:
-        print(week_to_select[0].text,week_to_check)
         time.sleep(time_delay)
         week_to_select = browser.find_elements(By.CSS_SELECTOR, '.week')
+    print(week_to_select[0].text,week_to_check)    
     return True
 
 
