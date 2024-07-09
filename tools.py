@@ -9,6 +9,7 @@ from selenium import webdriver
 import pygsheets 
 import datetime
 from dotenv import load_dotenv
+import threading
 import os
 
 load_dotenv()
@@ -35,7 +36,7 @@ def set_up_driver_instance():
     chrome_options.add_experimental_option('useAutomationExtension', False)
 
     chrome_options.add_argument("--no-sandbox")
-    # chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--headless")
     chrome_options.add_argument("start-maximized") # chrome_options.add_argument('--window-size=1920,1080')
     chrome_options.add_argument("--disable-gpu")
 
@@ -60,6 +61,7 @@ def set_up_driver_instance():
     # print(driver.execute_script("return navigator.userAgent;"))
     
     return webdriver.Chrome(options=chrome_options)
+
 def check_if_last_result_equal_input(browser:object,game_weeks:list,week_to_check:str,time_delay:float)->list:   #updated game weeks
     """ To check if the current last result is the same with the week_to_check 
     input variable, then return an updated game_weeks """
@@ -379,3 +381,21 @@ def delete_cache(driver):
     actions = ActionChains(driver) 
     actions.send_keys(Keys.TAB * 2 + Keys.DOWN * 4 + Keys.TAB * 7 + Keys.ENTER) # confirm    
     actions.perform()
+
+
+
+class MyCustomThread(threading.Thread):
+    # def __init__(self, group: None = None, target: Callable[..., object] | None = None, name: str | None = None, args: codecs.Iterable[codecs.Any] = ..., kwargs: threading.Mapping[str, codecs.Any] | None = None, *, daemon: bool | None = None) -> None:
+    #     super().__init__(group, target, name, args, kwargs, daemon=daemon)
+    def __init__(self, group=None, target=None, name=None,
+                 args=(), kwargs={}, Verbose=None,daemon=bool):
+        threading.Thread.__init__(self, group, target, name, args, kwargs,daemon=daemon)
+        self._return = None
+
+    def run(self):
+        if self._target is not None:
+            self._return = self._target(*self._args,
+                                                **self._kwargs)
+    def join(self, *args):
+        threading.Thread.join(self, *args)
+        return self._return

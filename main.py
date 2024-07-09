@@ -3,11 +3,9 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from dotenv import load_dotenv
-from tools import reduce_week_selected, send_email, set_up_driver_instance,delete_cache
+from tools import MyCustomThread, reduce_week_selected, send_email, set_up_driver_instance,delete_cache
 import time
 import os
-import multiprocessing as mp
-import threading
 import psutil
 
 
@@ -24,12 +22,7 @@ load_dotenv()
 # TODO: test for time complexity
 # TODO: Reformat all modules and code 
 
-last_result=None
-reduced_week_selected=None
 def stake_next_game(game_play,pattern_stake_options,check_result,GAME_LEVEL,browser,AMOUNT_LIST,LEAGUE,n):
-    global last_result
-    global reduced_week_selected
-    # print(f"start func: {last_result,reduced_week_selected}")
     try:
         result=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50",pattern_stake=pattern_stake_options[check_result['outcome']],stake_amount=AMOUNT_LIST[n]*GAME_LEVEL)
         week_selected=result[0]
@@ -42,8 +35,7 @@ def stake_next_game(game_play,pattern_stake_options,check_result,GAME_LEVEL,brow
     reduced_week_selected=reduce_week_selected(week_selected,by=0,league=LEAGUE["name"])        
     pattern=CheckPattern(browser)
     last_result=pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal,market=check_result['outcome'])
-    # return [last_result,reduced_week_selected]
-    # print(f"end func: {last_result,reduced_week_selected}")
+    return [last_result,reduced_week_selected]
 
 
 def start_bot():
@@ -87,12 +79,13 @@ def start_bot():
         print("An error occured i skipped check_result(all result)")
         check_result={'outcome':""}
 
-    if count==1 or count>=3:                          #
+    if count<3:                          #
         check_result['outcome']="4 - 1"               #
-        if count==3:
-            count=0
     else:
         count+=1                                   #
+
+    if count==3:
+            count=0                                 #
 
     if check_result['outcome'] != "":
         if check_result['outcome']=='2/1' or check_result['outcome']=='1/2':
@@ -154,12 +147,12 @@ def start_bot():
             # pattern=CheckPattern(browser)
             # last_result=pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal,market=check_result['outcome'])
             
-            stake_next_game=threading.Thread(target=stake_next_game,args=(game_play,pattern_stake_options,check_result,GAME_LEVEL,AMOUNT_LIST,LEAGUE,n),daemon=True)
+            stake_next_game=MyCustomThread(target=stake_next_game,args=(game_play,pattern_stake_options,check_result,GAME_LEVEL,browser,AMOUNT_LIST,LEAGUE,n),daemon=True)
             stake_next_game.start()
-            stake_next_game.join()
+            output=stake_next_game.join()
+            last_result=output[0]
+            reduced_week_selected=output[1]
             print('this is it')
-            # last_result=output[0]
-            # reduced_week_selected=output[1]
             print(last_result,reduced_week_selected)
             if last_result['outcome']:
                 # Calculate the number of weeks left before week 10 of the next season
@@ -199,7 +192,7 @@ if __name__=='__main__':
     print(f"start: {get_mem_usage()}")
     while True:
         # bot=mp.Process(target=start_bot,args=(count,),daemon=True)
-        bot=threading.Thread(target=start_bot,daemon=True)
+        bot=MyCustomThread(target=start_bot,daemon=True)
         bot.start()
         print(f"after thread creation: {get_mem_usage()}")
         bot.join()

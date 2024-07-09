@@ -9,32 +9,19 @@ import unittest
 import time
 from selenium import webdriver
 from brain import (PlayGame,CheckPattern,LoginUser)
-from tools import reduce_week_selected,clear_bet_slip, set_up_driver_instance,delete_cache,save_page,send_email
+from tools import (reduce_week_selected,clear_bet_slip, set_up_driver_instance,delete_cache,
+                   save_page,send_email,MyCustomThread)
 from selenium.webdriver.common.by import By
 
-import threading
-# from main import stake_next_game
+from main import stake_next_game
 
-last_result=None
-reduced_week_selected=None
-def stake_next_game(game_play,pattern_stake_options,check_result,GAME_LEVEL,browser,AMOUNT_LIST,LEAGUE,n):
-    global last_result
-    global reduced_week_selected
-    # print(f"start func: {last_result,reduced_week_selected}")
-    try:
-        result=game_play.select_stake_options(week="current_week",previous_week_selected="Week 50",pattern_stake=pattern_stake_options[check_result['outcome']],stake_amount=AMOUNT_LIST[n]*GAME_LEVEL)
-        week_selected=result[0]
-        try:
-            acc_bal=result[1]
-        except:
-            pass
-    except Exception as e:
-        print(f'an error ocured i didnt stake option.   {e}')
-    reduced_week_selected=reduce_week_selected(week_selected,by=0,league=LEAGUE["name"])        
-    pattern=CheckPattern(browser)
-    last_result=pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal,market=check_result['outcome'])
-    # return [last_result,reduced_week_selected]
-    # print(f"end func: {last_result,reduced_week_selected}")
+import psutil
+def get_mem_usage():
+    return psutil.Process().memory_info().rss // 1024
+
+
+
+
 
 
 class BrainTest(unittest.TestCase):
@@ -84,26 +71,32 @@ class BrainTest(unittest.TestCase):
         check_week=f"{week_to_play[:4]} {week_no}"
         print(check_week)
         self.pattern.check_result(length="last result",latest_week=check_week,acc_balance=acc_bal,market=check_result['outcome'])
-        for n in range(3):
+        print(f"start: {get_mem_usage()}")
+        for n in range(10):
             # clear_bet_slip(self.browser)
             if n==10:
                 os.environ["TEST"]="True"
 
+            # print(f"after thread creation: {get_mem_usage()}")
             # result=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000",
             #                                                     pattern_stake=self.pattern_stake_options[check_result['outcome']],stake_amount=self.AMOUNT_LIST[n])
             
             # week_selected=result[0]
             # acc_bal=result[1]
             # reduced_week_selected=reduce_week_selected(week_selected,by=0,league="bundliga")
-            # self.pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal,market=check_result['outcome'])
+            # output=self.pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal,market=check_result['outcome'])
+            # last_result=output["outcome"]
 
-            stake_next=threading.Thread(target=stake_next_game,args=(self.game_play,self.pattern_stake_options,check_result,1,self.browser,self.AMOUNT_LIST,self.LEAGUE,n),daemon=True)
+            # stake_next=threading.Thread(target=stake_next_game,args=(self.game_play,self.pattern_stake_options,check_result,1,self.browser,self.AMOUNT_LIST,self.LEAGUE,n),daemon=True)
+            stake_next=MyCustomThread(target=stake_next_game,args=(self.game_play,self.pattern_stake_options,check_result,1,self.browser,self.AMOUNT_LIST,self.LEAGUE,n),daemon=True)
             stake_next.start()
-            stake_next.join()
+            print(f"after thread creation: {get_mem_usage()}")
+            output=stake_next.join()
+            last_result=output[0]
+            reduced_week_selected=output[1]
             print('this is it')
-            # last_result=output[0]
-            # reduced_week_selected=output[1]
             print(f"last: {last_result,reduced_week_selected}")
+            print(f"end of thread: {get_mem_usage()}")
     # def test_checkout_virtual(self):
     #     for _ in range(3):
     #         self.browser.get("https://m.betking.com")

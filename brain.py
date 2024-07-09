@@ -8,7 +8,7 @@ from selenium.common.exceptions import (ElementClickInterceptedException,
                                         StaleElementReferenceException, TimeoutException,
                                         NoSuchElementException)
 from dotenv import load_dotenv
-from tools import (calc_stake_amount, cancel_popup, check_if_current_week_has_played,
+from tools import (MyCustomThread, calc_stake_amount, cancel_popup, check_if_current_week_has_played,
                    check_if_current_week_islive, check_if_last_result_equal_input,
                    clear_bet_slip, delete_cache, save_page, confirm_outcome, send_email, set_up_driver_instance,check_if_last_stake_has_played)
 import datetime
@@ -355,8 +355,11 @@ class CheckPattern:
 
                 # checking if the last week played is Week 10 before going ahead to save the page
                 game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")[:week_to_save1]
-                game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks, week_to_check=f"Week {week_to_save1}",
-                                                            time_delay=30)
+                # game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks, week_to_check=f"Week {week_to_save1}",time_delay=30)
+                
+                last_week_equal_input=MyCustomThread(target=check_if_last_result_equal_input,kwargs={"browser":self.browser,"game_weeks":game_weeks, "week_to_check":f"Week {week_to_save1}", "time_delay":30},daemon=True)
+                last_week_equal_input.start()
+                game_weeks=last_week_equal_input.join()
 
                 game_weeks=game_weeks[:week_to_save1]
                 print(f"Woow its week {week_to_save1}, lets wait for week {week_to_save2}")
@@ -390,8 +393,13 @@ class CheckPattern:
                 time.sleep(5)
                 second_game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")[:weeks_left]
                 # checking if the last week played is Week 20 before going ahead to save the page
-                second_game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=second_game_weeks,
-                                                                    week_to_check=f"Week {week_to_save2}", time_delay=10)
+                # second_game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=second_game_weeks,
+                #                                                     week_to_check=f"Week {week_to_save2}", time_delay=5)
+                
+                last_week_equal_input=MyCustomThread(target=check_if_last_result_equal_input,kwargs={"browser":self.browser,
+                "game_weeks":second_game_weeks, "week_to_check":f"Week {week_to_save2}", "time_delay":5},daemon=True)
+                last_week_equal_input.start()
+                second_game_weeks=last_week_equal_input.join()
                 second_game_weeks=second_game_weeks[:weeks_left]
                 
                 # Add the 11-20 weeks matches to the 1-10 weeks matchesx
@@ -405,8 +413,10 @@ class CheckPattern:
                 except FileNotFoundError:
                     page_path2 = "SeleniumProject/saved_pages/eleven_to_twenty_page.html"
                     save_page(self.browser, page_name=page_path2)
-                result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=market,length=length)
-            
+                # result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=market,length=length)
+                outcome_confirmation=MyCustomThread(target=confirm_outcome,kwargs={'ht_scores':ht_scores, 'ft_scores':ft_scores, "game_weeks":game_weeks,"market":market,"length":length},daemon=True)
+                outcome_confirmation.start()
+                result=outcome_confirmation.join()
             except Exception as error:
                 print("an error occured i skipped this session")
                 print(f"this is the error: {error}")
@@ -436,15 +446,25 @@ class CheckPattern:
             
                 game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")
                 # checking if the last week played is latest_week before going ahead to save the page
-                game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks,
-                                                            week_to_check=latest_week,time_delay=5)
+                # game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks,
+                #                                             week_to_check=latest_week,time_delay=5)
+                
+                last_week_equal_input=MyCustomThread(target=check_if_last_result_equal_input,kwargs={"browser":self.browser,
+                "game_weeks":game_weeks, "week_to_check":latest_week, "time_delay":5},daemon=True)
+                last_week_equal_input.start()
+                game_weeks=last_week_equal_input.join()
+                
                 game_weeks = game_weeks[:1]
 
                 # Re-fill the ht and ft_scores list by the reloaded/current score result of the last week played   
                 ht_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")[:9]
                 ft_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ft")[:9]
 
-                result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=market,length=length)
+                # result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=market,length=length)
+                outcome_confirmation=MyCustomThread(target=confirm_outcome,kwargs={'ht_scores':ht_scores, 'ft_scores':ft_scores, "game_weeks":game_weeks,"market":market,"length":length},daemon=True)
+                outcome_confirmation.start()
+                result=outcome_confirmation.join()
+            
             except Exception as error:
                 print(f"an error occured when checking last result i want to use acc balance to check.This is the error: {error}")
                 # if the result page fails, compare balances to tell the outcome
