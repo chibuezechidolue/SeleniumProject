@@ -72,7 +72,7 @@ class BrainTest(unittest.TestCase):
         print(check_week)
         self.pattern.check_result(length="last result",latest_week=check_week,acc_balance=acc_bal,market=check_result['outcome'])
         print(f"start: {get_mem_usage()}")
-        for n in range(10):
+        for n in range(14):
             # clear_bet_slip(self.browser)
             if n==10:
                 os.environ["TEST"]="True"

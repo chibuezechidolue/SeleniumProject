@@ -83,15 +83,80 @@ class PlayGame:
             except:
                 pass
 
+    
+    def stake_games(self,available_games,pattern_stake,stake_amount,n):
+        end=9
+        try:
+            available_games_1=available_games[:end][n]
+            available_games_1.click()
+        except (ElementClickInterceptedException, StaleElementReferenceException, TimeoutException):
+            # print("exception was thrown at available_games_1")
+            self.browser.execute_script(
+                f"window.scrollTo(0, {available_games_1.location['y']-200});")  # To Scroll to where the element can be clicked()
+            time.sleep(0.5)
+            available_games_1=available_games[:end][n]
+            available_games_1.click()
+
+        if n==0:
+            current_open_stake_options=0
+        else:
+            current_open_stake_options=1
+        
+        if pattern_stake==[2,6]:
+            stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[current_open_stake_options * 9:end * 9]  # Temp
+        else:
+            stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[current_open_stake_options * 28:end * 28]  # Temp
+            # one_slash_two_option = self.wait.until(EC.element_to_be_clickable(stake_options[2]))
+        
+        for i in range(len(pattern_stake)):
+            option_btn=stake_options[pattern_stake[i]]
+            try:
+                # option_btn=option_btns[i]
+                option_btn.click()
+                # time.sleep(0.5)
+            except (ElementClickInterceptedException, TimeoutException):
+                # print("exception was thrown at stake_option_1")
+                self.browser.execute_script(
+                    f"window.scrollTo(0, {option_btn.location['y']-200});")  # To Scroll to where the element can be clicked()
+                time.sleep(0.5)
+                option_btn.click()
+            if len(pattern_stake)==1:
+                amount=calc_stake_amount(amount=stake_amount,odd=float(option_btn.text.replace(" ",'')),base=20)
+            else:
+                amount=calc_stake_amount(amount=stake_amount,odd=float(option_btn.text.replace(" ",'')))
+            acc_bal=self.place_the_bet(amount=amount,test=eval(os.environ.get("TEST")))
+            # renew Stale Elements
+            available_games = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-content"]')
+            if i==0 and len(pattern_stake)>1:
+                # re-click the current available_games
+                available_games_1=available_games[:end][n]
+                try:
+                    self.browser.execute_script(
+                        f"window.scrollTo(0, {available_games_1.location['y']-200});")  # To Scroll to where the element can be clicked()
+                    # time.sleep(0.5)
+                    available_games_1.click()
+                except (ElementClickInterceptedException, StaleElementReferenceException, TimeoutException):
+                    # print("exception was thrown at available_games_2")
+                    self.browser.execute_script(
+                        f"window.scrollTo(0, {available_games_1.location['y']-150});")  # To Scroll to where the element can be clicked()
+                    time.sleep(0.5)
+                    available_games_1=available_games[:end][n]
+                    available_games_1.click()
+            if pattern_stake==[2,6]:
+                stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[current_open_stake_options * 9:end * 9]  # Temp
+            else:
+                stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[current_open_stake_options * 28:end * 28]  # Temp
+        
+        return acc_bal
+
+
+
 
     def select_stake_options(self, week: str, previous_week_selected: str,pattern_stake:list,stake_amount:float) -> str:
         """ To select the stake option from the selected market, you wish to stake funds on """
         print(f"select_stake_option Start: {datetime.datetime.now().time()}")
 
         week_to_select = self.browser.find_elements(By.CSS_SELECTOR, '.week')
-
-        attempt1 = 11
-        # attempt2=attempt1*2
         if week == "current_week":
             start = 0  # Where to start selecting the option from (current week to start play)
             end = 9  # Where to end selecting the option from (current week to start play)
@@ -106,90 +171,12 @@ class PlayGame:
         week_to_select = week_to_select[week_to_select_num]
         week_to_select.click()
         week_to_select_text = week_to_select.text
-        const = 0
         try:
             available_games = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-content"]')
             for n in range(start, len(available_games[:end])):
-                window_height = n - start  # The current iteration level minus the starting week to be selected
-                n -= const
-
-                try:
-                    available_games_1=available_games[:end][n]
-                    available_games_1.click()
-                except (ElementClickInterceptedException, StaleElementReferenceException, TimeoutException):
-                    # print("exception was thrown at available_games_1")
-                    self.browser.execute_script(
-                        f"window.scrollTo(0, {available_games_1.location['y']-200});")  # To Scroll to where the element can be clicked()
-
-                    time.sleep(0.5)
-                    available_games_1=available_games[:end][n]
-                    available_games_1.click()
-
-                if week == "after_current_week" and const != 9:
-                    n -= 8
-
-                if n==0:
-                    current_open_stake_options=0
-                else:
-                    current_open_stake_options=1
-                
-                if pattern_stake==[2,6]:
-                    stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[current_open_stake_options * 9:end * 9]  # Temp
-                else:
-                    stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[current_open_stake_options * 28:end * 28]  # Temp
-                    # one_slash_two_option = self.wait.until(EC.element_to_be_clickable(stake_options[2]))
-                
-                for i in range(len(pattern_stake)):
-                    # first_stake_option=float(stake_options[pattern_stake[0]].text.replace(" ",''))
-                    # last_stake_option=float(stake_options[pattern_stake[-1]].text.replace(" ",''))
-                    # max_odd=max(first_stake_option,last_stake_option)
-                    # if max_odd==first_stake_option:
-                    #     option_btns=[stake_options[pattern_stake[0]],stake_options[pattern_stake[-1]]]
-                    # else:
-                    #     option_btns=[stake_options[pattern_stake[-1]],stake_options[pattern_stake[0]]]
-                    option_btn=stake_options[pattern_stake[i]]
-                    
-                    try:
-                        # option_btn=option_btns[i]
-                        option_btn.click()
-                        # time.sleep(0.5)
-                    except (ElementClickInterceptedException, TimeoutException):
-                        # print("exception was thrown at stake_option_1")
-                        self.browser.execute_script(
-                            f"window.scrollTo(0, {option_btn.location['y']-200});")  # To Scroll to where the element can be clicked()
-                        time.sleep(0.5)
-                        option_btn.click()
-                    if len(pattern_stake)==1:
-                        amount=calc_stake_amount(amount=stake_amount,odd=float(option_btn.text.replace(" ",'')),base=20)
-                    else:
-                        amount=calc_stake_amount(amount=stake_amount,odd=float(option_btn.text.replace(" ",'')))
-                    acc_bal=self.place_the_bet(amount=amount,test=eval(os.environ.get("TEST")))
-                    
-                    # renew Stale Elements
-                    
-                    available_games = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-content"]')
-                    
-                    if i==0 and len(pattern_stake)>1:
-                        # re-click the current available_games
-                        available_games_1=available_games[:end][n]
-                        try:
-                            self.browser.execute_script(
-                                f"window.scrollTo(0, {available_games_1.location['y']-200});")  # To Scroll to where the element can be clicked()
-                            # time.sleep(0.5)
-                            available_games_1.click()
-                        except (ElementClickInterceptedException, StaleElementReferenceException, TimeoutException):
-                            # print("exception was thrown at available_games_2")
-                            self.browser.execute_script(
-                                f"window.scrollTo(0, {available_games_1.location['y']-150});")  # To Scroll to where the element can be clicked()
-
-                            time.sleep(0.5)
-                            available_games_1=available_games[:end][n]
-                            available_games_1.click()
-                    if pattern_stake==[2,6]:
-                        stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[current_open_stake_options * 9:end * 9]  # Temp
-                    else:
-                        stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[current_open_stake_options * 28:end * 28]  # Temp
-                    
+                stake_game=MyCustomThread(target=self.stake_games,args=(available_games,pattern_stake,stake_amount,n),daemon=True)
+                stake_game.start()
+                acc_bal=stake_game.join()        
             # print(f"select_stake_option End: {datetime.datetime.now().time()}")
             return [week_to_select_text,acc_bal]
         except Exception as error:
