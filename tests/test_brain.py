@@ -22,8 +22,6 @@ def get_mem_usage():
 
 
 
-
-
 class BrainTest(unittest.TestCase):
 
     def setUp(self):
@@ -94,9 +92,10 @@ class BrainTest(unittest.TestCase):
             output=stake_next.join()
             last_result=output[0]
             reduced_week_selected=output[1]
-            print('this is it')
             print(f"last: {last_result,reduced_week_selected}")
             print(f"end of thread: {get_mem_usage()}")
+            time.sleep(2)
+
     # def test_checkout_virtual(self):
     #     for _ in range(3):
     #         self.browser.get("https://m.betking.com")

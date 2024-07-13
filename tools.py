@@ -37,10 +37,13 @@ def set_up_driver_instance():
 
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--headless")
+    chrome_options.add_argument('--log-level=3') # to stop printing error messages to the console 
     chrome_options.add_argument("start-maximized") # chrome_options.add_argument('--window-size=1920,1080')
     chrome_options.add_argument("--disable-gpu")
-
-    # chrome_options.add_argument('--disable-extensions')
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument('--disable-application-cache')
+    chrome_options.add_argument('--disable-extensions')
+    chrome_options.add_argument("--enable-automation")
     
 
     # chrome_options.add_argument("--disable-blink-features")
@@ -383,7 +386,6 @@ def delete_cache(driver):
     actions.perform()
 
 
-
 class MyCustomThread(threading.Thread):
     # def __init__(self, group: None = None, target: Callable[..., object] | None = None, name: str | None = None, args: codecs.Iterable[codecs.Any] = ..., kwargs: threading.Mapping[str, codecs.Any] | None = None, *, daemon: bool | None = None) -> None:
     #     super().__init__(group, target, name, args, kwargs, daemon=daemon)
@@ -393,9 +395,18 @@ class MyCustomThread(threading.Thread):
         self._return = None
 
     def run(self):
+        self.error = None
         if self._target is not None:
-            self._return = self._target(*self._args,
-                                                **self._kwargs)
+            try:
+                self._return = self._target(*self._args, **self._kwargs)
+            except BaseException as e:
+                self.error=e
+
+    # def check_error(self):
+    #     if self.exc:
+    #         raise self.exc
+        
     def join(self, *args):
         threading.Thread.join(self, *args)
         return self._return
+    

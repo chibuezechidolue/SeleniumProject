@@ -147,7 +147,7 @@ class PlayGame:
             else:
                 stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[current_open_stake_options * 28:end * 28]  # Temp
         
-        return acc_bal
+        return [available_games,acc_bal]
 
 
 
@@ -176,7 +176,19 @@ class PlayGame:
             for n in range(start, len(available_games[:end])):
                 stake_game=MyCustomThread(target=self.stake_games,args=(available_games,pattern_stake,stake_amount,n),daemon=True)
                 stake_game.start()
-                acc_bal=stake_game.join()        
+                output=stake_game.join()
+                # #check for thread error
+                # try:
+                #     stake_game.check_error()
+                # except Exception as e:
+                #     current_error=e.__class__.__name__
+                #     print(current_error)
+                #     raise current_error
+                #            OR
+                if stake_game.error:
+                    raise stake_game.error
+                available_games=output[0]
+                acc_bal=output[1] 
             # print(f"select_stake_option End: {datetime.datetime.now().time()}")
             return [week_to_select_text,acc_bal]
         except Exception as error:
@@ -480,18 +492,18 @@ class CheckPattern:
             return {"outcome": result["outcome"], "driver": self.browser}
 
         elif result["outcome"] == True and length.lower() == "last result":
-            try:
-                page_path = "saved_pages/one_to_ten_page.html"
-                save_page(self.browser, page_name=page_path)
-            except FileNotFoundError:
-                page_path = f"{os.environ.get('PROJECT_PATH')}/saved_pages/one_to_ten_page.html"
-                save_page(self.browser, page_name=page_path)  # save the games(1-10) page
-            send_email(Email=os.environ.get("EMAIL_USERNAME"),
-                       Password=os.environ.get("EMAIL_PASSWORD"),
-                       Subject=f"{market} came in the last result" ,
-                       Message=result["message"],
-                       File_path=[page_path]
-                       )
+            # try:
+            #     page_path = "saved_pages/one_to_ten_page.html"
+            #     save_page(self.browser, page_name=page_path)
+            # except FileNotFoundError:
+            #     page_path = f"{os.environ.get('PROJECT_PATH')}/saved_pages/one_to_ten_page.html"
+            #     save_page(self.browser, page_name=page_path)  # save the games(1-10) page
+            # send_email(Email=os.environ.get("EMAIL_USERNAME"),
+            #            Password=os.environ.get("EMAIL_PASSWORD"),
+            #            Subject=f"{market} came in the last result" ,
+            #            Message=result["message"],
+            #            File_path=[page_path]
+            #            )
 
             cancel_result_page_button = self.browser.find_element(By.CSS_SELECTOR, "svg path")
             cancel_result_page_button.click()
