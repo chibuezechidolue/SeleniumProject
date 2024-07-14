@@ -78,14 +78,14 @@ def start_bot():
     except:
         print("An error occured i skipped check_result(all result)")
         check_result={'outcome':""}
-
     if count<3:                          #
         check_result['outcome']="4 - 1"               #
-    else:
-        count+=1                                   #
 
-    if count==3:
-            count=0                                 #
+    elif count==3:
+        count=0                                 #
+    
+    count+=1                                   #
+    
 
     if check_result['outcome'] != "":
         if check_result['outcome']=='2/1' or check_result['outcome']=='1/2':
@@ -146,13 +146,11 @@ def start_bot():
             
             # pattern=CheckPattern(browser)
             # last_result=pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal,market=check_result['outcome'])
-            
-            stake_next_game=MyCustomThread(target=stake_next_game,args=(game_play,pattern_stake_options,check_result,GAME_LEVEL,browser,AMOUNT_LIST,LEAGUE,n),daemon=True)
-            stake_next_game.start()
-            output=stake_next_game.join()
+            stake_the_next_game=MyCustomThread(target=stake_next_game,args=(game_play,pattern_stake_options,check_result,GAME_LEVEL,browser,AMOUNT_LIST,LEAGUE,n),daemon=True)
+            stake_the_next_game.start()
+            output=stake_the_next_game.join()
             last_result=output[0]
             reduced_week_selected=output[1]
-            print('this is it')
             print(last_result,reduced_week_selected)
             if last_result['outcome']:
                 # Calculate the number of weeks left before week 10 of the next season

@@ -87,15 +87,15 @@ class PlayGame:
     def stake_games(self,available_games,pattern_stake,stake_amount,n):
         end=9
         try:
-            available_games_1=available_games[:end][n]
-            available_games_1.click()
+            # available_games_1=available_games[n]
+            available_games[n].click()
         except (ElementClickInterceptedException, StaleElementReferenceException, TimeoutException):
             # print("exception was thrown at available_games_1")
             self.browser.execute_script(
-                f"window.scrollTo(0, {available_games_1.location['y']-200});")  # To Scroll to where the element can be clicked()
+                f"window.scrollTo(0, {available_games[n].location['y']-200});")  # To Scroll to where the element can be clicked()
             time.sleep(0.5)
-            available_games_1=available_games[:end][n]
-            available_games_1.click()
+            # available_games_1=available_games[n]
+            available_games[n].click()
 
         if n==0:
             current_open_stake_options=0
@@ -109,43 +109,43 @@ class PlayGame:
             # one_slash_two_option = self.wait.until(EC.element_to_be_clickable(stake_options[2]))
         
         for i in range(len(pattern_stake)):
-            option_btn=stake_options[pattern_stake[i]]
+            # option_btn=stake_options[pattern_stake[i]]
             try:
                 # option_btn=option_btns[i]
-                option_btn.click()
+                stake_options[pattern_stake[i]].click()
                 # time.sleep(0.5)
             except (ElementClickInterceptedException, TimeoutException):
                 # print("exception was thrown at stake_option_1")
                 self.browser.execute_script(
-                    f"window.scrollTo(0, {option_btn.location['y']-200});")  # To Scroll to where the element can be clicked()
+                    f"window.scrollTo(0, {stake_options[pattern_stake[i]].location['y']-200});")  # To Scroll to where the element can be clicked()
                 time.sleep(0.5)
-                option_btn.click()
+                stake_options[pattern_stake[i]].click()
             if len(pattern_stake)==1:
-                amount=calc_stake_amount(amount=stake_amount,odd=float(option_btn.text.replace(" ",'')),base=20)
+                amount=calc_stake_amount(amount=stake_amount,odd=float(stake_options[pattern_stake[i]].text.replace(" ",'')),base=20)
             else:
-                amount=calc_stake_amount(amount=stake_amount,odd=float(option_btn.text.replace(" ",'')))
+                amount=calc_stake_amount(amount=stake_amount,odd=float(stake_options[pattern_stake[i]].text.replace(" ",'')))
             acc_bal=self.place_the_bet(amount=amount,test=eval(os.environ.get("TEST")))
             # renew Stale Elements
-            available_games = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-content"]')
+            available_games[:] = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-content"]')[:end]
             if i==0 and len(pattern_stake)>1:
                 # re-click the current available_games
-                available_games_1=available_games[:end][n]
+                # available_games_1=available_games[n]
                 try:
                     self.browser.execute_script(
-                        f"window.scrollTo(0, {available_games_1.location['y']-200});")  # To Scroll to where the element can be clicked()
+                        f"window.scrollTo(0, {available_games[n].location['y']-200});")  # To Scroll to where the element can be clicked()
                     # time.sleep(0.5)
-                    available_games_1.click()
+                    available_games[n].click()
                 except (ElementClickInterceptedException, StaleElementReferenceException, TimeoutException):
                     # print("exception was thrown at available_games_2")
                     self.browser.execute_script(
-                        f"window.scrollTo(0, {available_games_1.location['y']-150});")  # To Scroll to where the element can be clicked()
+                        f"window.scrollTo(0, {available_games[n].location['y']-150});")  # To Scroll to where the element can be clicked()
                     time.sleep(0.5)
-                    available_games_1=available_games[:end][n]
-                    available_games_1.click()
+                    # available_games_1=available_games[n]
+                    available_games[n].click()
             if pattern_stake==[2,6]:
-                stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[current_open_stake_options * 9:end * 9]  # Temp
+                stake_options[:] = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[current_open_stake_options * 9:end * 9]  # Temp
             else:
-                stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[current_open_stake_options * 28:end * 28]  # Temp
+                stake_options[:] = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[current_open_stake_options * 28:end * 28]  # Temp
         
         return [available_games,acc_bal]
 
@@ -168,12 +168,12 @@ class PlayGame:
             week_to_select_num = 1  # The week where the options is to be selected (week after current week to start play)
 
         # select the week you wish to pick options from, for easy scrolling
-        week_to_select = week_to_select[week_to_select_num]
-        week_to_select.click()
-        week_to_select_text = week_to_select.text
+        # week_to_select = week_to_select[week_to_select_num]
+        week_to_select[week_to_select_num].click()
+        week_to_select_text = week_to_select[week_to_select_num].text
         try:
-            available_games = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-content"]')
-            for n in range(start, len(available_games[:end])):
+            available_games = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-content"]')[:end]
+            for n in range(start, len(available_games)):
                 stake_game=MyCustomThread(target=self.stake_games,args=(available_games,pattern_stake,stake_amount,n),daemon=True)
                 stake_game.start()
                 output=stake_game.join()
@@ -187,7 +187,7 @@ class PlayGame:
                 #            OR
                 if stake_game.error:
                     raise stake_game.error
-                available_games=output[0]
+                available_games[:]=output[0]
                 acc_bal=output[1] 
             # print(f"select_stake_option End: {datetime.datetime.now().time()}")
             return [week_to_select_text,acc_bal]
@@ -304,7 +304,7 @@ class CheckPattern:
                         standings_button.click()                
                     try:
                         result_button = self.browser.find_elements(By.CSS_SELECTOR,'[data-testid="results-page-tab-standings"]')
-                        result_button.click()
+                        result_button[1].click()
                     except (TimeoutException,ElementClickInterceptedException):
                         result_button=self.browser.find_element(By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals-league-wrapper/div/mobile-virtuals-soccer/mvs-virtual-league-page/div[2]/mvs-results-page/div[2]/div[2]")
                         result_button.click()
@@ -353,14 +353,14 @@ class CheckPattern:
                     time.sleep(5)
 
                 # checking if the last week played is Week 10 before going ahead to save the page
-                game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")[:week_to_save1]
+                game_weeks[:] = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")[:week_to_save1]
                 # game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks, week_to_check=f"Week {week_to_save1}",time_delay=30)
                 
                 last_week_equal_input=MyCustomThread(target=check_if_last_result_equal_input,kwargs={"browser":self.browser,"game_weeks":game_weeks, "week_to_check":f"Week {week_to_save1}", "time_delay":30},daemon=True)
                 last_week_equal_input.start()
-                game_weeks=last_week_equal_input.join()
+                game_weeks[:]=last_week_equal_input.join()
 
-                game_weeks=game_weeks[:week_to_save1]
+                game_weeks[:]=game_weeks[:week_to_save1]
                 print(f"Woow its week {week_to_save1}, lets wait for week {week_to_save2}")
                 ht_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")[:week_to_save1*9]
                 ft_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ft")[:week_to_save1*9]
@@ -398,8 +398,8 @@ class CheckPattern:
                 last_week_equal_input=MyCustomThread(target=check_if_last_result_equal_input,kwargs={"browser":self.browser,
                 "game_weeks":second_game_weeks, "week_to_check":f"Week {week_to_save2}", "time_delay":5},daemon=True)
                 last_week_equal_input.start()
-                second_game_weeks=last_week_equal_input.join()
-                second_game_weeks=second_game_weeks[:weeks_left]
+                second_game_weeks[:]=last_week_equal_input.join()
+                second_game_weeks[:]=second_game_weeks[:weeks_left]
                 
                 # Add the 11-20 weeks matches to the 1-10 weeks matchesx
                 ht_scores.extend(self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")[:weeks_left*9])
@@ -451,9 +451,9 @@ class CheckPattern:
                 last_week_equal_input=MyCustomThread(target=check_if_last_result_equal_input,kwargs={"browser":self.browser,
                 "game_weeks":game_weeks, "week_to_check":latest_week, "time_delay":5},daemon=True)
                 last_week_equal_input.start()
-                game_weeks=last_week_equal_input.join()
+                game_weeks[:]=last_week_equal_input.join()
                 
-                game_weeks = game_weeks[:1]
+                game_weeks[:] = game_weeks[:1]
 
                 # Re-fill the ht and ft_scores list by the reloaded/current score result of the last week played   
                 ht_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")[:9]

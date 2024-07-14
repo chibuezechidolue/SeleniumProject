@@ -79,7 +79,7 @@ def check_if_last_result_equal_input(browser:object,game_weeks:list,week_to_chec
         reload_result_page(browser)
         time.sleep(2)
         for _ in range(3):
-            game_weeks=browser.find_elements(By.CSS_SELECTOR,".week-number")
+            game_weeks[:]=browser.find_elements(By.CSS_SELECTOR,".week-number")
             if game_weeks!=[]:
                 break
             reload_result_page(browser)
@@ -93,7 +93,7 @@ def check_if_last_stake_has_played(browser:object,week_to_check:str,time_delay:f
     print(week_to_select[0].text,week_to_check)
     while week_to_select[0].text==week_to_check:
         time.sleep(time_delay)
-        week_to_select = browser.find_elements(By.CSS_SELECTOR, '.week')
+        week_to_select[:] = browser.find_elements(By.CSS_SELECTOR, '.week')
     print(week_to_select[0].text,week_to_check)    
     return True
 
@@ -122,7 +122,7 @@ def reload_result_page(browser):
         time.sleep(0.5)
         result_button = browser.find_elements(By.CSS_SELECTOR,'[data-testid="results-page-tab-standings"]')
         # result_button=browser.find_element(By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals-league-wrapper/mobile-virtuals-soccer/mvs-virtual-league-page/div[2]/mvs-results-page/div[2]/div[2]")
-        result_button.click()
+        result_button[1].click()
         time.sleep(1)
 
 
@@ -360,7 +360,7 @@ def clear_bet_slip(browser):
         pass
 import math
 def calc_stake_amount(amount:float,odd:float,base:int=60)->float:
-    if odd<18:
+    if odd<10:
         return 50
     expected_sum=amount*base
     possible_stake=math.ceil(expected_sum/odd)
