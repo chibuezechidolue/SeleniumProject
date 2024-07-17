@@ -7,10 +7,10 @@ load_dotenv()
  
     
 
-SINCE_DATE="14-Jun-2024"
+SINCE_DATE="12-Jul-2024"
 # SINCE_DATE="14-Jun-2024
 # EXCLUDE_DATE="13 Jun 2024"" 
-EXCLUDE_DATE="13 Jun 2024"
+EXCLUDE_DATE="11 Jul 2024"
 imap_url = 'imap.gmail.com'
  
 # Function to get email content part i.e its body part
@@ -119,16 +119,21 @@ for msg in msgs:
         if my_msg['date'][5:16]!=EXCLUDE_DATE:
             if part.get_content_type()=="text/plain":
                 content=part.get_payload()
-                # new_content=content.replace(" ","")[17:]
-                new_content=content
+
+                # new_content=content
                 # print(new_content)
                 try:
+                    new_content=content.replace(" ","")[17:]
                     exec(new_content)
-                except Exception as e:
-                    print(f"this is the exec() error: {e} ")
+                except SyntaxError:
+                    try:
+                        new_content=content.replace(" ","")[22:]
+                        exec(new_content)
+                    except Exception as e:
+                        print(f"this is the exec() error: {e} ")
 
                 try:
-                    # email_date=my_msg['date'][5:16]
+                    email_date=my_msg['date'][5:16]
                     dictionaries=[FullSeason,FullSeason,Halftime_Fulltime,CS_1_10,CS_11_20,CS_21_30]
                 except Exception as e:
                     print(f"this is the dictionary error: {e} ")
@@ -138,6 +143,7 @@ for msg in msgs:
                         tabulate_result(score_dictionary=dictionaries[n],sheet_name=sheet_name[n],cell_list=CELLS[n],type=TYPES[n],client=client,date=email_date)
                     except Exception as e:
                         print(f"this is the tabulate_result error: {e} ")
+
 
             
 
