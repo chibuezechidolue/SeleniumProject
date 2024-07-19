@@ -177,14 +177,6 @@ class PlayGame:
                 stake_game=MyCustomThread(target=self.stake_games,args=(available_games,pattern_stake,stake_amount,n),daemon=True)
                 stake_game.start()
                 output=stake_game.join()
-                # #check for thread error
-                # try:
-                #     stake_game.check_error()
-                # except Exception as e:
-                #     current_error=e.__class__.__name__
-                #     print(current_error)
-                #     raise current_error
-                #            OR
                 if stake_game.error:
                     raise stake_game.error
                 available_games[:]=output[0]
@@ -359,6 +351,8 @@ class CheckPattern:
                 last_week_equal_input=MyCustomThread(target=check_if_last_result_equal_input,kwargs={"browser":self.browser,"game_weeks":game_weeks, "week_to_check":f"Week {week_to_save1}", "time_delay":30},daemon=True)
                 last_week_equal_input.start()
                 game_weeks[:]=last_week_equal_input.join()
+                if last_week_equal_input.error:
+                    raise last_week_equal_input.error
 
                 game_weeks[:]=game_weeks[:week_to_save1]
                 print(f"Woow its week {week_to_save1}, lets wait for week {week_to_save2}")
@@ -399,6 +393,8 @@ class CheckPattern:
                 "game_weeks":second_game_weeks, "week_to_check":f"Week {week_to_save2}", "time_delay":5},daemon=True)
                 last_week_equal_input.start()
                 second_game_weeks[:]=last_week_equal_input.join()
+                if last_week_equal_input.error:
+                    raise last_week_equal_input.error
                 second_game_weeks[:]=second_game_weeks[:weeks_left]
                 
                 # Add the 11-20 weeks matches to the 1-10 weeks matchesx
@@ -416,6 +412,8 @@ class CheckPattern:
                 outcome_confirmation=MyCustomThread(target=confirm_outcome,kwargs={'ht_scores':ht_scores, 'ft_scores':ft_scores, "game_weeks":game_weeks,"market":market,"length":length},daemon=True)
                 outcome_confirmation.start()
                 result=outcome_confirmation.join()
+                if outcome_confirmation.error:
+                    raise outcome_confirmation.error
             except Exception as error:
                 print("an error occured i skipped this session")
                 print(f"this is the error: {error}")
@@ -452,7 +450,8 @@ class CheckPattern:
                 "game_weeks":game_weeks, "week_to_check":latest_week, "time_delay":5},daemon=True)
                 last_week_equal_input.start()
                 game_weeks[:]=last_week_equal_input.join()
-                
+                if last_week_equal_input.error:
+                    raise last_week_equal_input.error
                 game_weeks[:] = game_weeks[:1]
 
                 # Re-fill the ht and ft_scores list by the reloaded/current score result of the last week played   
@@ -463,6 +462,8 @@ class CheckPattern:
                 outcome_confirmation=MyCustomThread(target=confirm_outcome,kwargs={'ht_scores':ht_scores, 'ft_scores':ft_scores, "game_weeks":game_weeks,"market":market,"length":length},daemon=True)
                 outcome_confirmation.start()
                 result=outcome_confirmation.join()
+                if outcome_confirmation.error:
+                    raise outcome_confirmation.error
             
             except Exception as error:
                 print(f"an error occured when checking last result i want to use acc balance to check.This is the error: {error}")
@@ -492,18 +493,18 @@ class CheckPattern:
             return {"outcome": result["outcome"], "driver": self.browser}
 
         elif result["outcome"] == True and length.lower() == "last result":
-            # try:
-            #     page_path = "saved_pages/one_to_ten_page.html"
-            #     save_page(self.browser, page_name=page_path)
-            # except FileNotFoundError:
-            #     page_path = f"{os.environ.get('PROJECT_PATH')}/saved_pages/one_to_ten_page.html"
-            #     save_page(self.browser, page_name=page_path)  # save the games(1-10) page
-            # send_email(Email=os.environ.get("EMAIL_USERNAME"),
-            #            Password=os.environ.get("EMAIL_PASSWORD"),
-            #            Subject=f"{market} came in the last result" ,
-            #            Message=result["message"],
-            #            File_path=[page_path]
-            #            )
+            try:
+                page_path = "saved_pages/one_to_ten_page.html"
+                save_page(self.browser, page_name=page_path)
+            except FileNotFoundError:
+                page_path = f"{os.environ.get('PROJECT_PATH')}/saved_pages/one_to_ten_page.html"
+                save_page(self.browser, page_name=page_path)  # save the games(1-10) page
+            send_email(Email=os.environ.get("EMAIL_USERNAME"),
+                       Password=os.environ.get("EMAIL_PASSWORD"),
+                       Subject=f"{market} came in the last result" ,
+                       Message=result["message"],
+                       File_path=[page_path]
+                       )
 
             cancel_result_page_button = self.browser.find_element(By.CSS_SELECTOR, "svg path")
             cancel_result_page_button.click()

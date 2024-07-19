@@ -94,7 +94,9 @@ class BrainTest(unittest.TestCase):
             reduced_week_selected=output[1]
             print(f"last: {last_result,reduced_week_selected}")
             print(f"end of thread: {get_mem_usage()}")
-            time.sleep(2)
+            
+        delete_cache(self.browser)
+        time.sleep(2)
 
     # def test_checkout_virtual(self):
     #     for _ in range(3):
