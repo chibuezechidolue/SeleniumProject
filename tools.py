@@ -29,7 +29,8 @@ def set_up_driver_instance():
     user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36'
     # user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.53 Safari/537.36'
 
-    chrome_options = webdriver.ChromeOptions()
+    # chrome_options = webdriver.ChromeOptions()
+    chrome_options = webdriver.EdgeOptions()
     chrome_options.add_argument(f'user-agent={user_agent}')
     chrome_options.add_argument('--ignore-certificate-errors')
     chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
@@ -63,7 +64,8 @@ def set_up_driver_instance():
     # driver.execute_cdp_cmd('Network.setUserAgentOverride', {"userAgent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.53 Safari/537.36'})
     # print(driver.execute_script("return navigator.userAgent;"))
     
-    return webdriver.Chrome(options=chrome_options)
+    # return webdriver.Chrome(options=chrome_options)
+    return webdriver.Edge(options=chrome_options)
 
 def check_if_last_result_equal_input(browser:object,game_weeks:list,week_to_check:str,time_delay:float)->list:   #updated game weeks
     """ To check if the current last result is the same with the week_to_check 
@@ -382,7 +384,8 @@ def delete_cache(driver):
     driver.get('chrome://settings/clearBrowserData')  # Open your chrome settings.
     time.sleep(2)
     actions = ActionChains(driver) 
-    actions.send_keys(Keys.TAB * 2 + Keys.DOWN * 4 + Keys.TAB * 7 + Keys.ENTER) # confirm    
+    # actions.send_keys(Keys.TAB * 2 + Keys.DOWN * 4 + Keys.TAB * 7 + Keys.ENTER) # Google Chrome 
+    actions.send_keys(Keys.TAB * 2 + Keys.DOWN * 4 + Keys.TAB * 9 + Keys.ENTER) # Microsoft Edge  
     actions.perform()
 
 
