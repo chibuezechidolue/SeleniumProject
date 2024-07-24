@@ -10,27 +10,20 @@ import pygsheets
 import datetime
 from dotenv import load_dotenv
 import threading
-import os
+import os,psutil
 
 load_dotenv()
-
-
-from selenium.webdriver.common.selenium_manager import SeleniumManager
-from selenium.webdriver.chrome.options import Options
 
 
 
 def set_up_driver_instance():
     """ To create and return a webdriver object with disabled gpu and headless"""
-    
-    options = Options()
-    SeleniumManager().driver_location(options)
 
     user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36'
     # user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.53 Safari/537.36'
 
-    # chrome_options = webdriver.ChromeOptions()
-    chrome_options = webdriver.EdgeOptions()
+    chrome_options = webdriver.ChromeOptions()  # Google Chrome 
+    # chrome_options = webdriver.EdgeOptions()      # Microsoft Edge 
     chrome_options.add_argument(f'user-agent={user_agent}')
     chrome_options.add_argument('--ignore-certificate-errors')
     chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
@@ -44,11 +37,23 @@ def set_up_driver_instance():
     chrome_options.add_argument("--disable-dev-shm-usage")
     chrome_options.add_argument('--disable-application-cache')
     chrome_options.add_argument('--disable-extensions')
-    chrome_options.add_argument("--enable-automation")
     
+    # prefs={'profile.default_content_setting_values': {'images': 2, 'javascript': 2}}
+    # prefs = {"profile.managed_default_content_settings.images": 2, "profile.default_content_setting_values.javascript": 2}
+    prefs = {'profile.default_content_setting_values': {'images': 2, "stylesheet":2,
+                            'plugins': 2, 'popups': 2, 'geolocation': 2, 
+                            'notifications': 2, 'auto_select_certificate': 2, 'fullscreen': 2, 
+                            'mouselock': 2, 'mixed_script': 2, 'media_stream': 2, 
+                            'media_stream_mic': 2, 'media_stream_camera': 2, 'protocol_handlers': 2, 
+                            'ppapi_broker': 2, 'automatic_downloads': 2, 'midi_sysex': 2, 
+                            'push_messaging': 2, 'ssl_cert_decisions': 2, 'metro_switch_to_desktop': 2, 
+                            'protected_media_identifier': 2, 'app_banner': 2, 'site_engagement': 2, 
+                            'durable_storage': 2}}
+    # chrome_options.add_experimental_option('prefs', prefs)
 
     # chrome_options.add_argument("--disable-blink-features")
     # chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+    # chrome_options.add_argument('disable-infobars')
 
 
     #emulate a mobile device
@@ -64,8 +69,8 @@ def set_up_driver_instance():
     # driver.execute_cdp_cmd('Network.setUserAgentOverride', {"userAgent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.53 Safari/537.36'})
     # print(driver.execute_script("return navigator.userAgent;"))
     
-    # return webdriver.Chrome(options=chrome_options)
-    return webdriver.Edge(options=chrome_options)
+    return webdriver.Chrome(options=chrome_options)   # Google Chrome
+    # return webdriver.Edge(options=chrome_options)       # Microsoft Edge
 
 def check_if_last_result_equal_input(browser:object,game_weeks:list,week_to_check:str,time_delay:float)->list:   #updated game weeks
     """ To check if the current last result is the same with the week_to_check 
@@ -305,7 +310,8 @@ def reduce_week_selected(week_selected:str,by:int,league:str)->str:
 def check_if_current_week_islive(browser)->bool:
     """ To check if next week to play has started play"""
     try:
-        live_match=browser.find_element(By.CSS_SELECTOR,'[data-testid="in-play-match-index"]')
+        # live_match=browser.find_element(By.CSS_SELECTOR,'[data-testid="in-play-match"]')
+        live_match=browser.find_element(By.CSS_SELECTOR,'[data-testid="in-play-results"]')
         live_match=True
     except (StaleElementReferenceException, NoSuchElementException):
         live_match=False
@@ -384,8 +390,8 @@ def delete_cache(driver):
     driver.get('chrome://settings/clearBrowserData')  # Open your chrome settings.
     time.sleep(2)
     actions = ActionChains(driver) 
-    # actions.send_keys(Keys.TAB * 2 + Keys.DOWN * 4 + Keys.TAB * 7 + Keys.ENTER) # Google Chrome 
-    actions.send_keys(Keys.TAB * 2 + Keys.DOWN * 4 + Keys.TAB * 9 + Keys.ENTER) # Microsoft Edge  
+    actions.send_keys(Keys.TAB * 2 + Keys.DOWN * 4 + Keys.TAB * 7 + Keys.ENTER) # Google Chrome 
+    # actions.send_keys(Keys.TAB * 2 + Keys.DOWN * 4 + Keys.TAB * 9 + Keys.ENTER) # Microsoft Edge  
     actions.perform()
 
 
@@ -413,3 +419,20 @@ class MyCustomThread(threading.Thread):
         threading.Thread.join(self, *args)
         return self._return
     
+
+def terminate_driver_process():
+    process_name="chrome.exe"
+    # process_name="msedge.exe"
+    try:
+        os.system(f"taskkill /f /t /im {process_name}")   # Windows OS
+        # os.system(f"kilall {process_name}")   # Linux OS
+
+                            # OR
+
+        # for process in psutil.process_iter():
+        #     if process.name().lower() == process_name.lower():
+        #         print(process.name())
+        #         process.kill()
+
+    except:
+        pass

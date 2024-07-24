@@ -9,7 +9,7 @@ from selenium.common.exceptions import (ElementClickInterceptedException,
                                         NoSuchElementException)
 from dotenv import load_dotenv
 from tools import (MyCustomThread, calc_stake_amount, cancel_popup, check_if_current_week_has_played,
-                   check_if_current_week_islive, check_if_last_result_equal_input,
+                   check_if_current_week_islive, check_if_last_result_equal_input,terminate_driver_process,
                    clear_bet_slip, delete_cache, save_page, confirm_outcome, send_email, set_up_driver_instance,check_if_last_stake_has_played)
 import datetime
 
@@ -29,8 +29,8 @@ class PlayGame:
         """ To select the market which was passed as a variable during initializing """
         self.browser.execute_script(f"window.scrollTo(0, 0);")
         try:
-            if check_if_current_week_islive(self.browser):
-                time.sleep(40)
+            # if check_if_current_week_islive(self.browser):
+            #     time.sleep(40)
             more_markets_button = self.wait.until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="market-dropdown-more-markets"]')))
             more_markets_button.click()
@@ -121,12 +121,14 @@ class PlayGame:
                 time.sleep(0.5)
                 stake_options[pattern_stake[i]].click()
             if len(pattern_stake)==1:
-                amount=calc_stake_amount(amount=stake_amount,odd=float(stake_options[pattern_stake[i]].text.replace(" ",'')),base=20)
+                amount=calc_stake_amount(amount=stake_amount,odd=float(stake_options[pattern_stake[i]].text.replace(" ",'')),base=25)
             else:
                 amount=calc_stake_amount(amount=stake_amount,odd=float(stake_options[pattern_stake[i]].text.replace(" ",'')))
             acc_bal=self.place_the_bet(amount=amount,test=eval(os.environ.get("TEST")))
             # renew Stale Elements
-            available_games[:] = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-content"]')[:end]
+            if not check_if_current_week_islive(self.browser):
+                available_games[:] = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-content"]')[:end]
+            
             if i==0 and len(pattern_stake)>1:
                 # re-click the current available_games
                 # available_games_1=available_games[n]
@@ -190,7 +192,13 @@ class PlayGame:
                 betslip_button.click()
                 time.sleep(1)
                 refresh_bal_button=self.browser.find_element(By.CSS_SELECTOR, '.user-balance-container .refresh-icon')
-                refresh_bal_button.click()
+                try:
+                    refresh_bal_button.click()
+                except ElementClickInterceptedException:
+                    self.browser.execute_script(
+                    f"window.scrollTo(0, {refresh_bal_button.location['y']-200});")  # To Scroll to where the element can be clicked()
+                    time.sleep(0.5)
+                    refresh_bal_button.click()
                 time.sleep(2)
                 acc_bal=self.browser.find_element(By.CSS_SELECTOR, '.user-balance-container .amount').text
                 clear_bet_slip(self.browser)
@@ -324,22 +332,24 @@ class CheckPattern:
                 if current_game_week<week_to_save1-1:
                     time_to_sleep=(week_to_save1-1-current_game_week)*3
                     delete_cache(self.browser)
-                    time.sleep(2)
-                    # self.browser.quit()
+                    time.sleep(5)
+                    self.browser.quit()
+                    terminate_driver_process()
                     time.sleep(time_to_sleep*60)
                     # self.browser=webdriver.Chrome()        # driver instance with User Interface (not headless)
-                    # self.browser = set_up_driver_instance()  # driver instance without User Interface (--headless)
+                    self.browser = set_up_driver_instance()  # driver instance without User Interface (--headless)
                     time.sleep(1)
                     self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
                     time.sleep(5)
                 elif current_game_week>week_to_save1:
                     time_to_sleep=(34-current_game_week)*3
                     delete_cache(self.browser)
-                    time.sleep(2)
-                    # self.browser.quit()
+                    time.sleep(5)
+                    self.browser.quit()
+                    terminate_driver_process()
                     time.sleep(((week_to_save1-1)*3+time_to_sleep)*60)
                     # self.browser=webdriver.Chrome()         # driver instance with User Interface (not headless)
-                    # self.browser = set_up_driver_instance()   # driver instance without User Interface (--headless)
+                    self.browser = set_up_driver_instance()   # driver instance without User Interface (--headless)
                     time.sleep(1)
                     self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
                     time.sleep(5)
@@ -371,8 +381,9 @@ class CheckPattern:
                     page_path1 = "SeleniumProject/saved_pages/one_to_ten_page.html"
                     save_page(self.browser, page_name=page_path1)
                 delete_cache(self.browser)
-                time.sleep(2)
-                # self.browser.quit()
+                time.sleep(5)
+                self.browser.quit()
+                terminate_driver_process()
                 weeks_left=week_to_save2-week_to_save1
                 if weeks_left<0:
                     weeks_left=0
@@ -381,7 +392,7 @@ class CheckPattern:
                     time.sleep((weeks_left-1)*3*60)  # To wait untill start_week2
                 
                 # self.browser=webdriver.Chrome()          # driver instance with User Interface (not headless)
-                # self.browser = set_up_driver_instance()    # driver instance without User Interface (--headless)
+                self.browser = set_up_driver_instance()    # driver instance without User Interface (--headless)
                 self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
                 time.sleep(5)
                 second_game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")[:weeks_left]
@@ -482,29 +493,29 @@ class CheckPattern:
                         result={"outcome":False,"message":f"I used the acc bal to confirm ticket won. this is the error: {error}"}
 
         if result["outcome"] == "" and length.lower() == "all result":
-            send_email(Email=os.environ.get("EMAIL_USERNAME"),
-                       Password=os.environ.get("EMAIL_PASSWORD"),
-                       Subject=f"No PATTERN found yet",
-                       Message=result["message"],
-                       File_path=[page_path1, page_path2]
-                       )
+            # send_email(Email=os.environ.get("EMAIL_USERNAME"),
+            #            Password=os.environ.get("EMAIL_PASSWORD"),
+            #            Subject=f"No PATTERN found yet",
+            #            Message=result["message"],
+            #            File_path=[page_path1, page_path2]
+            #            )
             cancel_result_page_button = self.browser.find_element(By.CSS_SELECTOR, "svg path")
             cancel_result_page_button.click()
             return {"outcome": result["outcome"], "driver": self.browser}
 
         elif result["outcome"] == True and length.lower() == "last result":
-            try:
-                page_path = "saved_pages/one_to_ten_page.html"
-                save_page(self.browser, page_name=page_path)
-            except FileNotFoundError:
-                page_path = f"{os.environ.get('PROJECT_PATH')}/saved_pages/one_to_ten_page.html"
-                save_page(self.browser, page_name=page_path)  # save the games(1-10) page
-            send_email(Email=os.environ.get("EMAIL_USERNAME"),
-                       Password=os.environ.get("EMAIL_PASSWORD"),
-                       Subject=f"{market} came in the last result" ,
-                       Message=result["message"],
-                       File_path=[page_path]
-                       )
+            # try:
+            #     page_path = "saved_pages/one_to_ten_page.html"
+            #     save_page(self.browser, page_name=page_path)
+            # except FileNotFoundError:
+            #     page_path = f"{os.environ.get('PROJECT_PATH')}/saved_pages/one_to_ten_page.html"
+            #     save_page(self.browser, page_name=page_path)  # save the games(1-10) page
+            # send_email(Email=os.environ.get("EMAIL_USERNAME"),
+            #            Password=os.environ.get("EMAIL_PASSWORD"),
+            #            Subject=f"{market} came in the last result" ,
+            #            Message=result["message"],
+            #            File_path=[page_path]
+            #            )
 
             cancel_result_page_button = self.browser.find_element(By.CSS_SELECTOR, "svg path")
             cancel_result_page_button.click()

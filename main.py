@@ -3,7 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
 from dotenv import load_dotenv
-from tools import MyCustomThread, reduce_week_selected, send_email, set_up_driver_instance,delete_cache
+from tools import MyCustomThread, reduce_week_selected, send_email, set_up_driver_instance,delete_cache, terminate_driver_process
 import time
 import os
 import psutil
@@ -42,8 +42,8 @@ def start_bot():
     MAX_AMOUNT_LENGTH=14
     LEAGUE={"name":"bundliga","num_of_weeks":34}
     global count
-    global browser
-
+    terminate_driver_process()
+    browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
     try:
         browser.get("https://m.betking.com/")
     except:
@@ -60,7 +60,9 @@ def start_bot():
             browser.get("https://m.betking.com/virtual/league/kings-bundliga")  
         except:
             delete_cache(browser)
+            time.sleep(5)
             browser.quit()
+            terminate_driver_process()
             browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
             browser.get("http://m.betking.com/virtual/league/kings-bundliga")
     
@@ -78,6 +80,7 @@ def start_bot():
     except:
         print("An error occured i skipped check_result(all result)")
         check_result={'outcome':""}
+        
     if count<3:                          #
         check_result['outcome']="4 - 1"               #
 
@@ -107,14 +110,17 @@ def start_bot():
 
         won=False
         if check_result['outcome']=="3 - 2" or check_result['outcome']=="2 - 3":
-            AMOUNT_LIST=(50, 50, 100, 200, 350, 650, 1200, 2150, 3900, 7100, 12950, 23575, 42925)
+            # amount_listX1=[11.3, 11.3, 16.95, 28.25, 45.2, 67.8, 107.35, 169.5, 265.55, 418.1, 649.75, 1033.95, 1638.5]
+            amount_listX6=[68, 68, 102, 170, 272, 407, 645, 1017, 1594, 2509, 3899, 6204, 9831]
+            AMOUNT_LIST=tuple(amount_listX6)
             stake_options_length=9
-            TOTAL_AMOUNT=176000
+            TOTAL_AMOUNT=241074
         else:
-            AMOUNT_LIST=(50, 50, 50, 100, 150, 200, 275, 400, 550, 800, 1150, 1650, 2350, 3375, 4850, 6950, 9900,
-                        14200, 20250, 29000, 41500, 59250, 84750, 121250)
+            # amount_listX1=[10, 10, 10, 20, 30, 40, 55, 80, 110, 160, 230, 330, 470,675] 
+            amount_listX6=[60, 60, 60, 120, 180, 240, 330, 480, 660, 960, 1380, 1980, 2820, 4050]
+            AMOUNT_LIST=tuple(amount_listX6)
             stake_options_length=18
-            TOTAL_AMOUNT=206000
+            TOTAL_AMOUNT=240840
 
         GAME_LEVEL=round((acc_bal-4000)/TOTAL_AMOUNT,2)
         acc_bal=str(acc_bal)
@@ -158,7 +164,9 @@ def start_bot():
                 weeks_left_to_finish_season = LEAGUE["num_of_weeks"] - int(reduced_week_selected.split()[1])
                 sleep_time_before_next_check=(weeks_left_to_finish_season + week_to_save1-1)*3
                 delete_cache(browser)
-                # browser.quit()
+                time.sleep(5)
+                browser.quit()
+                terminate_driver_process()
                 print(f'waiting for {sleep_time_before_next_check*60} secs')
                 time.sleep(sleep_time_before_next_check*60) 
                 break
@@ -172,8 +180,9 @@ def start_bot():
         # Calculate the number of weeks left before week 10 of the next season
         time_to_sleep = (LEAGUE["num_of_weeks"]-games_to_check+(week_to_save1-1))*3
         delete_cache(browser)
-        time.sleep(2)
-        # browser.quit()
+        time.sleep(5)
+        browser.quit()
+        terminate_driver_process()
         print(f'waiting for {time_to_sleep*60} secs')
         time.sleep(time_to_sleep*60)
 
@@ -186,7 +195,6 @@ def get_mem_usage():
 if __name__=='__main__':
 
     count=0               #
-    browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
     print(f"start: {get_mem_usage()}")
     while True:
         # bot=mp.Process(target=start_bot,args=(count,),daemon=True)

@@ -9,7 +9,7 @@ import unittest
 import time
 from selenium import webdriver
 from brain import (PlayGame,CheckPattern,LoginUser)
-from tools import (reduce_week_selected,clear_bet_slip, set_up_driver_instance,delete_cache,
+from tools import (reduce_week_selected,clear_bet_slip, set_up_driver_instance,delete_cache,terminate_driver_process,
                    save_page,send_email,MyCustomThread)
 from selenium.webdriver.common.by import By
 
@@ -96,7 +96,9 @@ class BrainTest(unittest.TestCase):
             print(f"end of thread: {get_mem_usage()}")
             
         delete_cache(self.browser)
-        time.sleep(2)
+        time.sleep(5)
+        self.browser.quit()
+        terminate_driver_process()
 
     # def test_checkout_virtual(self):
     #     for _ in range(3):
