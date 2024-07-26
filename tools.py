@@ -49,7 +49,7 @@ def set_up_driver_instance():
                             'push_messaging': 2, 'ssl_cert_decisions': 2, 'metro_switch_to_desktop': 2, 
                             'protected_media_identifier': 2, 'app_banner': 2, 'site_engagement': 2, 
                             'durable_storage': 2}}
-    # chrome_options.add_experimental_option('prefs', prefs)
+    chrome_options.add_experimental_option('prefs', prefs)
 
     # chrome_options.add_argument("--disable-blink-features")
     # chrome_options.add_argument("--disable-blink-features=AutomationControlled")

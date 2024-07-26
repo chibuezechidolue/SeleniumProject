@@ -13,7 +13,8 @@ from tools import (reduce_week_selected,clear_bet_slip, set_up_driver_instance,d
                    save_page,send_email,MyCustomThread)
 from selenium.webdriver.common.by import By
 
-from main import stake_next_game
+from main import stake_next_game,play_process
+import multiprocessing as mp
 
 import psutil
 def get_mem_usage():
@@ -25,12 +26,12 @@ def get_mem_usage():
 class BrainTest(unittest.TestCase):
 
     def setUp(self):
-        test_market="correct_score"
+        self.test_market="correct_score"
         # test_market="ht/ft"
         # self.browser=webdriver.Chrome()    # driver instance with User Interface (not headless)
         self.browser=set_up_driver_instance() # driver instance without User Interface (--headless)
         self.pattern=CheckPattern(self.browser)
-        self.game_play=PlayGame(self.browser,market=test_market)
+        self.game_play=PlayGame(self.browser,market=self.test_market)
         self.log=LoginUser(self.browser,username=os.environ.get("BETKING_USERNAME"),password=os.environ.get("BETKING_PASSWORD"))
         self.browser.get("https://m.betking.com/virtual/league/kings-bundliga")
         self.pattern_stake_options={"3 - 2":[5], "2 - 3":[21],'4 - 0':[6,22], "0 - 4":[6,22],'4 - 1':[7,23], "1 - 4":[7,23], "4 - 2":[8,24], "2 - 4":[8,24], "2/1":[2,6], "1/2":[2,6]}
@@ -54,11 +55,11 @@ class BrainTest(unittest.TestCase):
     def test_select_stake_options_and_place_the_bet(self):
         check_result={'outcome':'4 - 1'}
         # check_result={'outcome':'2/1'}
-        time.sleep(2)
-        self.game_play.choose_market()
-        time.sleep(2)
-        acc_bal=self.log.login()
-        # acc_bal=2000.2
+        # time.sleep(2)
+        # self.game_play.choose_market()
+        # time.sleep(2)
+        # acc_bal=self.log.login()
+        acc_bal=2000.2
         # acc_bal=str(acc_bal)
         week_to_play = self.browser.find_elements(By.CSS_SELECTOR, '.week')[0].text
         print(week_to_play)
@@ -69,36 +70,65 @@ class BrainTest(unittest.TestCase):
         check_week=f"{week_to_play[:4]} {week_no}"
         print(check_week)
         self.pattern.check_result(length="last result",latest_week=check_week,acc_balance=acc_bal,market=check_result['outcome'])
-        print(f"start: {get_mem_usage()}")
-        for n in range(14):
-            # clear_bet_slip(self.browser)
-            if n==10:
-                os.environ["TEST"]="True"
 
-            # print(f"after thread creation: {get_mem_usage()}")
-            # result=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000",
-            #                                                     pattern_stake=self.pattern_stake_options[check_result['outcome']],stake_amount=self.AMOUNT_LIST[n])
-            
-            # week_selected=result[0]
-            # acc_bal=result[1]
-            # reduced_week_selected=reduce_week_selected(week_selected,by=0,league="bundliga")
-            # output=self.pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal,market=check_result['outcome'])
-            # last_result=output["outcome"]
-
-            # stake_next=threading.Thread(target=stake_next_game,args=(self.game_play,self.pattern_stake_options,check_result,1,self.browser,self.AMOUNT_LIST,self.LEAGUE,n),daemon=True)
-            stake_next=MyCustomThread(target=stake_next_game,args=(self.game_play,self.pattern_stake_options,check_result,1,self.browser,self.AMOUNT_LIST,self.LEAGUE,n),daemon=True)
-            stake_next.start()
-            print(f"after thread creation: {get_mem_usage()}")
-            output=stake_next.join()
-            last_result=output[0]
-            reduced_week_selected=output[1]
-            print(f"last: {last_result,reduced_week_selected}")
-            print(f"end of thread: {get_mem_usage()}")
-            
-        delete_cache(self.browser)
-        time.sleep(5)
         self.browser.quit()
         terminate_driver_process()
+        time.sleep(2)
+        
+        que = mp.Queue()  # to store data and move data between process
+        left=mp.Process(target=play_process,args=(que,self.test_market,check_result,14,10,self.LEAGUE,0),daemon=True)
+        left.start()
+        if check_result['outcome']!='3 - 2' and check_result['outcome']!='2 - 3':
+            right=mp.Process(target=play_process,args=(que,self.test_market,check_result,14,10,self.LEAGUE,1),daemon=True)
+            right.start()
+
+        left.join()
+        try:
+            right.join()
+        except:
+            pass
+                                # OR
+        # with concurrent.futures.ProcessPoolExecutor() as executor:
+        #     won=executor.submit(play_process,SELECTED_MARKET,check_result,MAX_AMOUNT_LENGTH,week_to_save1,LEAGUE,0)
+        #     won1=executor.submit(play_process,SELECTED_MARKET,check_result,MAX_AMOUNT_LENGTH,week_to_save1,LEAGUE,1)
+        # print(won)
+
+        result=que.get()
+        won,sleep_time_before_next_check = result[0],result[1]
+        print(sleep_time_before_next_check*60)
+        print(f"this is thr result: {won}")
+
+
+        # print(f"start: {get_mem_usage()}")
+        # for n in range(14):
+        #     # clear_bet_slip(self.browser)
+        #     if n==10:
+        #         os.environ["TEST"]="True"
+
+        #     # print(f"after thread creation: {get_mem_usage()}")
+        #     # result=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000",
+        #     #                                                     pattern_stake=self.pattern_stake_options[check_result['outcome']],stake_amount=self.AMOUNT_LIST[n])
+            
+        #     # week_selected=result[0]
+        #     # acc_bal=result[1]
+        #     # reduced_week_selected=reduce_week_selected(week_selected,by=0,league="bundliga")
+        #     # output=self.pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal,market=check_result['outcome'])
+        #     # last_result=output["outcome"]
+
+        #     # stake_next=threading.Thread(target=stake_next_game,args=(self.game_play,self.pattern_stake_options,check_result,1,self.browser,self.AMOUNT_LIST,self.LEAGUE,n),daemon=True)
+        #     stake_next=MyCustomThread(target=stake_next_game,args=(self.game_play,self.pattern_stake_options,check_result,1,self.browser,self.AMOUNT_LIST,self.LEAGUE,n),daemon=True)
+        #     stake_next.start()
+        #     print(f"after thread creation: {get_mem_usage()}")
+        #     output=stake_next.join()
+        #     last_result=output[0]
+        #     reduced_week_selected=output[1]
+        #     print(f"last: {last_result,reduced_week_selected}")
+        #     print(f"end of thread: {get_mem_usage()}")
+            
+        # delete_cache(self.browser)
+        # time.sleep(5)
+        # self.browser.quit()
+        # terminate_driver_process()
 
     # def test_checkout_virtual(self):
     #     for _ in range(3):
