@@ -4,12 +4,15 @@ import time
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import StaleElementReferenceException,NoSuchElementException,TimeoutException
+from selenium.common.exceptions import StaleElementReferenceException,NoSuchElementException,TimeoutException,ElementClickInterceptedException
 from selenium import webdriver
 import pygsheets 
 import datetime
 from dotenv import load_dotenv
 import os
+import threading
+import psutil
+
 
 load_dotenv()
 
@@ -17,10 +20,12 @@ load_dotenv()
 
 def set_up_driver_instance():
     """ To create and return a webdriver object with disabled gpu and headless"""
-    # user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36'
-    user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.53 Safari/537.36'
 
-    chrome_options = webdriver.ChromeOptions()
+    user_agent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36'
+    # user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.53 Safari/537.36'
+
+    chrome_options = webdriver.ChromeOptions()  # Google Chrome 
+    # chrome_options = webdriver.EdgeOptions()      # Microsoft Edge 
     chrome_options.add_argument(f'user-agent={user_agent}')
     chrome_options.add_argument('--ignore-certificate-errors')
     chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
@@ -28,15 +33,32 @@ def set_up_driver_instance():
 
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--headless")
+    chrome_options.add_argument('--log-level=3') # to stop printing error messages to the console 
     chrome_options.add_argument("start-maximized") # chrome_options.add_argument('--window-size=1920,1080')
     chrome_options.add_argument("--disable-gpu")
-    # To rotate the user agent in order to avoid detection
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument('--disable-application-cache')
+    chrome_options.add_argument('--disable-extensions')
+    
+    # prefs={'profile.default_content_setting_values': {'images': 2, 'javascript': 2}}
+    # prefs = {"profile.managed_default_content_settings.images": 2, "profile.default_content_setting_values.javascript": 2}
+    prefs = {'profile.default_content_setting_values': {'images': 2, "stylesheet":2,
+                            'plugins': 2, 'popups': 2, 'geolocation': 2, 
+                            'notifications': 2, 'auto_select_certificate': 2, 'fullscreen': 2, 
+                            'mouselock': 2, 'mixed_script': 2, 'media_stream': 2, 
+                            'media_stream_mic': 2, 'media_stream_camera': 2, 'protocol_handlers': 2, 
+                            'ppapi_broker': 2, 'automatic_downloads': 2, 'midi_sysex': 2, 
+                            'push_messaging': 2, 'ssl_cert_decisions': 2, 'metro_switch_to_desktop': 2, 
+                            'protected_media_identifier': 2, 'app_banner': 2, 'site_engagement': 2, 
+                            'durable_storage': 2}}
+    chrome_options.add_experimental_option('prefs', prefs)
 
-    # driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
-    # driver.execute_cdp_cmd('Network.setUserAgentOverride', {"userAgent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.53 Safari/537.36'})
-    # print(driver.execute_script("return navigator.userAgent;"))
-
-    return webdriver.Chrome(options=chrome_options)
+    # chrome_options.add_argument("--disable-blink-features")
+    # chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+    # chrome_options.add_argument('disable-infobars')
+    
+    return webdriver.Chrome(options=chrome_options)   # Google Chrome
+    # return webdriver.Edge(options=chrome_options)       # Microsoft Edge
 
 def check_if_last_result_equal_input(browser:object,game_weeks:list,week_to_check:str,time_delay:float)->list:   #updated game weeks
     """ To check if the current last result is the same with the week_to_check 
@@ -45,21 +67,20 @@ def check_if_last_result_equal_input(browser:object,game_weeks:list,week_to_chec
     if week_to_check=="Week 0":
         return game_weeks
     last_result_week=game_weeks[0].text
+    print(last_result_week,week_to_check)
     while last_result_week!=week_to_check:
-        print(datetime.datetime.now().time())
-
-        print(last_result_week,week_to_check)
+        #print(last_result_week,week_to_check)
         time.sleep(time_delay)
         reload_result_page(browser)
         time.sleep(2)
-
         for _ in range(3):
-            game_weeks=browser.find_elements(By.CSS_SELECTOR,".week-number")
+            game_weeks[:]=browser.find_elements(By.CSS_SELECTOR,".week-number")
             if game_weeks!=[]:
                 break
             reload_result_page(browser)
             time.sleep(2)
         last_result_week=game_weeks[0].text
+    print(last_result_week,week_to_check)
     return game_weeks
 
 def check_if_current_week_equal_input(browser:object,week_to_check:str,time_delay:float)->list:   #updated game weeks
@@ -86,9 +107,9 @@ def check_if_last_stake_has_played(browser:object,week_to_check:str,time_delay:f
     week_to_select = browser.find_elements(By.CSS_SELECTOR, '.week')
     print(week_to_select[0].text,week_to_check)
     while week_to_select[0].text==week_to_check:
-        print(week_to_select[0].text,week_to_check)
         time.sleep(time_delay)
-        week_to_select = browser.find_elements(By.CSS_SELECTOR, '.week')
+        week_to_select[:] = browser.find_elements(By.CSS_SELECTOR, '.week')
+    print(week_to_select[0].text,week_to_check)    
     return True
 
 
@@ -99,24 +120,26 @@ def reload_result_page(browser):
     try:
         betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')
         betslip_button.click()
-        time.sleep(2)
+        time.sleep(0.5)
         close_betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="coupon-close-icon"]')
         close_betslip_button.click()
-        time.sleep(3)
+        time.sleep(0.5)
 
     except:
 
+        # cancel_result_page_button=browser.find_element(By.CSS_SELECTOR,"svg path")
         cancel_result_page_button=browser.find_element(By.CSS_SELECTOR,"svg path")
         cancel_result_page_button.click()
-        time.sleep(2)
+        time.sleep(0.5)
         # standings_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,"span.view-switch-icon")))
         standings_button=browser.find_element(By.CSS_SELECTOR,"span.view-switch-icon")
         standings_button.click()
+        time.sleep(0.5)
+        result_button = browser.find_elements(By.CSS_SELECTOR,'[data-testid="results-page-tab-standings"]')
+        # result_button=browser.find_element(By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals-league-wrapper/mobile-virtuals-soccer/mvs-virtual-league-page/div[2]/mvs-results-page/div[2]/div[2]")
+        result_button[1].click()
         time.sleep(1)
-        # result_button=wait.until(EC.element_to_be_clickable((By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals-league-wrapper/mobile-virtuals-soccer/mvs-virtual-league-page/div[2]/mvs-results-page/div[2]/div[2]")))
-        result_button=browser.find_element(By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals-league-wrapper/mobile-virtuals-soccer/mvs-virtual-league-page/div[2]/mvs-results-page/div[2]/div[2]")
-        result_button.click()
-        time.sleep(3)
+
 
 
 def cancel_popup(browser):
@@ -133,7 +156,7 @@ def save_page(browser,page_name:str):
     with codecs.open(page_name, 'w', "utf−8") as file:
             file.truncate(0)                        # clear the existing content of the file
             page_content=browser.page_source        # get the content of the current page
-            file.write(page_content)                # write the content of the current page to the file 
+            file.write(page_content)                # write the content of the current page to the file  
 
 def tabulate_result(score_dictionary,sheet_name,cell_list):
     """To transfer and tabulate the score_dictory to an online google sheet"""
@@ -247,7 +270,8 @@ def reduce_week_selected(week_selected:str,by:int,league:str)->str:
 def check_if_current_week_islive(browser)->bool:
     """ To check if next week to play has started play"""
     try:
-        live_match=browser.find_element(By.CSS_SELECTOR,'[data-testid="in-play-match-index"]')
+        # live_match=browser.find_element(By.CSS_SELECTOR,'[data-testid="in-play-match"]')
+        live_match=browser.find_element(By.CSS_SELECTOR,'[data-testid="in-play-results"]')
         live_match=True
     except (StaleElementReferenceException, NoSuchElementException):
         live_match=False
@@ -273,22 +297,33 @@ def clear_bet_slip(browser):
     try:
         try:
             clear_all_button= browser.find_element(By.CSS_SELECTOR,'.clear-all')
+            clear_all_button.click()
         except (TimeoutException,NoSuchElementException):
             # betslip_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')))
-            betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')
-            betslip_button.click()
-            time.sleep(3)
+            # betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')
+            # betslip_button.click()
+            # time.sleep(1)
+            pass
         try:
             # clear_all_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'.clear-all')))
             clear_all_button=browser.find_element(By.CSS_SELECTOR,'.clear-all')
             clear_all_button.click()
         except (TimeoutException,NoSuchElementException):
             pass
-        time.sleep(1)
+        except ElementClickInterceptedException:
+            browser.execute_script("window.scrollTo(0, 0);")
+            time.sleep(0.5)
+            clear_all_button=browser.find_element(By.CSS_SELECTOR,'.clear-all')
+            clear_all_button.click()
+        # time.sleep(2)
         # close_betslip_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,'[data-testid="coupon-close-icon"]')))
-        close_betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="coupon-close-icon"]')
-        close_betslip_button.click()
-        time.sleep(2)
+        try:
+            close_betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="coupon-close-icon"]')
+            close_betslip_button.click()
+        except:
+            continue_betting_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="coupon-continue-betting"]')
+            continue_betting_button.click  
+        time.sleep(1)
     except:
         pass
 
@@ -299,3 +334,75 @@ def calc_stake_amount(amount:float,odd:float,base:int=60)->float:
     if possible_stake<50:
         possible_stake=50
     return possible_stake
+
+
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
+def delete_cache(driver):
+    driver.execute_cdp_cmd('Storage.clearDataForOrigin', {
+    "origin": '*',
+    "storageTypes": 'all',
+    })
+    time.sleep(2)
+    driver.delete_all_cookies()
+    time.sleep(2)
+    driver.get('chrome://settings/clearBrowserData')  # Open your chrome settings.
+    time.sleep(2)
+    actions = ActionChains(driver) 
+    actions.send_keys(Keys.TAB * 2 + Keys.DOWN * 4 + Keys.TAB * 7 + Keys.ENTER) # Google Chrome 
+    # actions.send_keys(Keys.TAB * 2 + Keys.DOWN * 4 + Keys.TAB * 9 + Keys.ENTER) # Microsoft Edge  
+    actions.perform()
+
+
+class MyCustomThread(threading.Thread):
+    # def __init__(self, group: None = None, target: Callable[..., object] | None = None, name: str | None = None, args: codecs.Iterable[codecs.Any] = ..., kwargs: threading.Mapping[str, codecs.Any] | None = None, *, daemon: bool | None = None) -> None:
+    #     super().__init__(group, target, name, args, kwargs, daemon=daemon)
+    def __init__(self, group=None, target=None, name=None,
+                 args=(), kwargs={}, Verbose=None,daemon=bool):
+        threading.Thread.__init__(self, group, target, name, args, kwargs,daemon=daemon)
+        self._return = None
+
+    def run(self):
+        self.error = None
+        if self._target is not None:
+            try:
+                self._return = self._target(*self._args, **self._kwargs)
+            except BaseException as e:
+                self.error=e
+
+    # def check_error(self):
+    #     if self.exc:
+    #         raise self.exc
+        
+    def join(self, *args):
+        threading.Thread.join(self, *args)
+        return self._return
+    
+def terminate_driver_process(browser):
+    process_name="chrome.exe"
+    # process_name="msedge.exe"
+    try:
+        # os.system(f"taskkill /f /t /im {process_name}")   # Windows OS: to kill all process with the given process_name 
+
+        # To kill all process with the relating to the giver browser instance
+        chrome_driver_id=browser.service.process.pid
+        child_processes=psutil.Process(browser.service.process.pid).children(recursive=True)
+            # kill all chrome driver child processes
+        for process in child_processes:
+            os.system(f"taskkill /F /PID {process.pid}")        #Window OS
+            # os.system(f"kill {process.pid}")                  #Linux OS
+        os.system(f"taskkill /F /PID {chrome_driver_id}")       #Window OS
+        # os.system(f"taskkill {chrome_driver_id}")             #Linux OS
+
+        # os.system(f"kilall {process_name}")   # Linux OS: to kill all process with the given process_name 
+
+                            # OR
+
+        # All OS: to kill all process with the given process_name
+        # for process in psutil.process_iter():
+        #     if process.name().lower() == process_name.lower():
+        #         print(process.name())
+        #         process.kill()
+
+    except:
+        pass

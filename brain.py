@@ -9,12 +9,12 @@ from selenium.common.exceptions import (ElementClickInterceptedException,
                                         NoSuchElementException)
 from dotenv import load_dotenv
 from tools import (cancel_popup, check_if_current_week_equal_input, check_if_current_week_has_played,
-                   check_if_current_week_islive, check_if_last_result_equal_input,
-                   clear_bet_slip, save_page, confirm_outcome, send_email, set_up_driver_instance,check_if_last_stake_has_played,calc_stake_amount)
+                   check_if_current_week_islive, check_if_last_result_equal_input,MyCustomThread,delete_cache,
+                   terminate_driver_process,clear_bet_slip, save_page, confirm_outcome, send_email, 
+                   set_up_driver_instance,check_if_last_stake_has_played,calc_stake_amount)
 import datetime
 
 load_dotenv()
-
 
 class PlayGame:
     """ To handle the Game Play like: choose_market, select_stake_option,
@@ -29,8 +29,8 @@ class PlayGame:
         """ To select the market which was passed as a variable during initializing """
         self.browser.execute_script(f"window.scrollTo(0, 0);")
         try:
-            if check_if_current_week_islive(self.browser):
-                time.sleep(40)
+            # if check_if_current_week_islive(self.browser):
+            #     time.sleep(40)
             more_markets_button = self.wait.until(
                 EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="market-dropdown-more-markets"]')))
             more_markets_button.click()
@@ -42,7 +42,7 @@ class PlayGame:
                 close_more_markets_button.click()
             except:
                 more_markets_button=self.browser.find_element(By.CSS_SELECTOR,'[data-testid="market-dropdown-more-markets"]')
-                self.browser.execute_script(f"window.scrollTo({more_markets_button.location['x']}, {more_markets_button.location['y']-200});")
+                self.browser.execute_script(f"window.scrollTo(0, {more_markets_button.location['y']-200});")
                 time.sleep(0.5)
                 if check_if_current_week_islive(self.browser):
                     time.sleep(40)
@@ -64,7 +64,7 @@ class PlayGame:
             if check_if_current_week_islive(self.browser):
                 time.sleep(40)
             market_to_select=self.browser.find_element(By.CSS_SELECTOR, market_selector)
-            self.browser.execute_script(f"window.scrollTo({market_to_select.location['x']}, {market_to_select.location['y']-200});")
+            self.browser.execute_script(f"window.scrollTo(0, {market_to_select.location['y']-200});")
             time.sleep(0.5)
             # market_to_select = self.wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, market_selector)))
             market_to_select.click()
@@ -82,6 +82,49 @@ class PlayGame:
                 close_more_markets_button.click()
             except:
                 pass
+
+
+    def stake_games(self,available_games,pattern_stake,stake_amount,n):
+        end=9
+        try:
+            available_games_1=available_games[:end][n]
+            available_games_1.click()
+            # time.sleep(0.5)
+        except (ElementClickInterceptedException, StaleElementReferenceException, TimeoutException):
+            self.browser.execute_script(
+                f"window.scrollTo(0, {available_games_1.location['y']-200});")  # To Scroll to where the element can be clicked()
+
+            time.sleep(0.5)
+            available_games_1=available_games[:end][n]
+            available_games_1.click()
+
+        if n==0:
+            current_open_stake_options=0
+        else:
+            current_open_stake_options=1
+        stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[current_open_stake_options * 28:end * 28]  # Temp
+        
+        option_btn=stake_options[pattern_stake]  
+        try:
+            # option_btn=option_btns[i]
+            option_btn.click()
+            # time.sleep(0.5)
+        except (ElementClickInterceptedException, TimeoutException):
+            self.browser.execute_script(
+                f"window.scrollTo(0, {option_btn.location['y']-200});")  # To Scroll to where the element can be clicked()
+            time.sleep(0.5)
+            option_btn.click()
+            # time.sleep(0.5)
+
+        amount=calc_stake_amount(amount=stake_amount,odd=float(option_btn.text.replace(" ",'')))
+        acc_bal=self.place_the_bet(amount=amount,test=eval(os.environ.get("TEST")))
+                
+        # renew Stale Elements
+        if not check_if_current_week_islive(self.browser):
+            available_games[:] = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-content"]')[:end]
+            
+        return [available_games,acc_bal]
+
 
     def select_stake_options(self, week: str, previous_week_selected: str,pattern_stake:int,stake_amount:float) -> str:
         """ To select the stake option from the selected market, you wish to stake funds on """
@@ -105,90 +148,44 @@ class PlayGame:
         week_to_select = week_to_select[week_to_select_num]
         week_to_select.click()
         week_to_select_text = week_to_select.text
-        const = 0
         try:
             available_games = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-content"]')
             for n in range(start, len(available_games[:end])):
-                window_height = n - start  # The current iteration level minus the starting week to be selected
-                n -= const
 
-                try:
-                    available_games_1=available_games[:end][n]
-                    available_games_1.click()
-                    # time.sleep(0.5)
-                except (ElementClickInterceptedException, StaleElementReferenceException, TimeoutException):
-                    print("exception was thrown at available_games_1")
-                    self.browser.execute_script(
-                        f"window.scrollTo(0, {available_games_1.location['y']-200});")  # To Scroll to where the element can be clicked()
-
-                    time.sleep(0.5)
-                    available_games_1=available_games[:end][n]
-                    available_games_1.click()
-
-                if week == "after_current_week" and const != 9:
-                    n -= 8
-
-                if n==0:
-                    current_open_stake_options=0
-                else:
-                    current_open_stake_options=1
-                stake_options = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-odd-value"]')[current_open_stake_options * 28:end * 28]  # Temp
-                
-                option_btn=stake_options[pattern_stake]  
-                try:
-                    # option_btn=option_btns[i]
-                    option_btn.click()
-                    # time.sleep(0.5)
-                except (ElementClickInterceptedException, TimeoutException):
-                    print("exception was thrown at stake_option_1")
-                    self.browser.execute_script(
-                        f"window.scrollTo(0, {option_btn.location['y']-200});")  # To Scroll to where the element can be clicked()
-                    time.sleep(0.5)
-                    option_btn.click()
-                    # time.sleep(0.5)
-
-                amount=calc_stake_amount(amount=stake_amount,odd=float(option_btn.text.replace(" ",'')))
-                acc_bal=self.place_the_bet(amount=amount,test=eval(os.environ.get("TEST")))
-                
-                # renew Stale Elements
-                
-                available_games = self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="match-content"]')
-                
-                # if i==0 and len(pattern_stake)>1:
-                #     # re-click the current available_games
-                #     available_games_1=available_games[:end][n]
-                #     try:
-                #         self.browser.execute_script(
-                #             f"window.scrollTo(0, {available_games_1.location['y']-200});")  # To Scroll to where the element can be clicked()
-                #         time.sleep(0.5)
-                #         available_games_1.click()
-                #         # time.sleep(0.5)
-                #     except (ElementClickInterceptedException, StaleElementReferenceException, TimeoutException):
-                #         print("exception was thrown at available_games_1")
-                #         self.browser.execute_script(
-                #             f"window.scrollTo(0, {available_games_1.location['y']-150});")  # To Scroll to where the element can be clicked()
-
-                #         time.sleep(0.5)
-                #         available_games_1=available_games[:end][n]
-                #         available_games_1.click()
-
-            print(f"select_stake_option End: {datetime.datetime.now().time()}")
-        
+                stake_game=MyCustomThread(target=self.stake_games,args=(available_games,pattern_stake,stake_amount,n),daemon=True)
+                stake_game.start()
+                output=stake_game.join()
+                if stake_game.error:
+                    raise stake_game.error
+                available_games[:]=output[0]
+                acc_bal=output[1] 
+            # print(f"select_stake_option End: {datetime.datetime.now().time()}")
             return [week_to_select_text,acc_bal]
+        
         except Exception as error:   
             # To clear all stake options selected if an error occurs while selecting stake options
             print(f"An error occured during select_stake_options. This is the error: {error}")
-
             betslip_button=self.browser.find_element(By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')
             betslip_button.click()
             time.sleep(1)
+            refresh_bal_button=self.browser.find_element(By.CSS_SELECTOR, '.user-balance-container .refresh-icon')
+            try:
+                refresh_bal_button.click()
+            except ElementClickInterceptedException:
+                self.browser.execute_script(
+                f"window.scrollTo(0, {refresh_bal_button.location['y']-200});")  # To Scroll to where the element can be clicked()
+                time.sleep(0.5)
+                refresh_bal_button.click()
+            time.sleep(2)
+            acc_bal=self.browser.find_element(By.CSS_SELECTOR, '.user-balance-container .amount').text
             clear_bet_slip(self.browser)
             send_email(Email=os.environ.get("EMAIL_USERNAME"),
                     Password=os.environ.get("EMAIL_PASSWORD"),
-                    Subject="(1st-10th) ERROR during select_stake_options",
+                    Subject="(FullSeason) ERROR during select_stake_options",
                     Message=f"An error occured during select_stake_options. This is the error: {error}"
                     )
-            return [week_to_select_text,]
+            return [week_to_select_text,acc_bal]
+    
     def place_the_bet(self, amount: int, test: bool)->str:
         """ To bet the selected stake options each with the inputed amount"""
         # identify and click the betslip botton
@@ -204,11 +201,9 @@ class PlayGame:
             # singles_button=self.browser.find_element(By.CSS_SELECTOR,'[data-testid="groupings-tab-singles"]')
             # singles_button.click()
             # identify, clear existing amount and input new amount
-            print('stake_input_box')
             # stake_input_box = self.browser.find_element(By.CSS_SELECTOR, '[data-testid="coupon-groupings-group-stake"]')
             stake_input_box = self.browser.find_element(By.CSS_SELECTOR, '[data-testid="coupon-totals-stake-amount-value"]')
             stake_input_box.clear()
-            print("clear stake_input_box")
             # time.sleep(1)
             stake_input_box.send_keys(amount)
             # scroll to the bottom of the page
@@ -251,7 +246,7 @@ class CheckPattern:
     """ To check if the the desired pattern of the desired market has occured. 
     It takes a driver instance as first argument """
 
-    def __init__(self, driver: object, market: str) -> None:
+    def __init__(self, driver: object,) -> None:
         self._VIRTUAL_BUTTON_LINK_TEXT = "VIRTUALS"
         self.browser = driver
         self.wait = WebDriverWait(driver=self.browser, timeout=10)
@@ -301,31 +296,40 @@ class CheckPattern:
 
             if current_game_week<week_to_check-1:
                 time_to_sleep=(week_to_check-1-current_game_week)*3
-                # self.browser.quit()
+                delete_cache(self.browser)
+                time.sleep(5)
+                terminate_driver_process(self.browser)
+                self.browser.quit()
                 print(f"i'm waiting for {(time_to_sleep)*60} secs ")
                 time.sleep((time_to_sleep)*60)
                 # self.browser=webdriver.Chrome()         # driver instance with User Interface (not headless)
-                # self.browser = set_up_driver_instance()   # driver instance without User Interface (--headless)
-                # time.sleep(1)
+                self.browser = set_up_driver_instance()   # driver instance without User Interface (--headless)
+                time.sleep(1)
                 self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
                 time.sleep(3)
 
             elif current_game_week>week_to_check:
-                    time_to_sleep=(34-current_game_week)*3
-                    # self.browser.quit()
-                    print(f"i'm waiting for {((week_to_check-1)*3+time_to_sleep)*60} secs ")
-                    time.sleep(((week_to_check-1)*3+time_to_sleep)*60)
-                    # self.browser=webdriver.Chrome()         # driver instance with User Interface (not headless)
-                    # self.browser = set_up_driver_instance()   # driver instance without User Interface (--headless)
-                    # time.sleep(1)
-                    self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
-                    time.sleep(3)
+                time_to_sleep=(34-current_game_week)*3
+                delete_cache(self.browser)
+                time.sleep(5)
+                terminate_driver_process(self.browser)
+                self.browser.quit()
+                print(f"i'm waiting for {((week_to_check-1)*3+time_to_sleep)*60} secs ")
+                time.sleep(((week_to_check-1)*3+time_to_sleep)*60)
+                # self.browser=webdriver.Chrome()         # driver instance with User Interface (not headless)
+                self.browser = set_up_driver_instance()   # driver instance without User Interface (--headless)
+                time.sleep(1)
+                self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
+                time.sleep(3)
 
             # checking if the last week played is Week 10 before going ahead to save the page
             try:
                 game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")
-                game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks, week_to_check=f"Week {week_to_check}",
-                                                            time_delay=10)
+                last_week_equal_input=MyCustomThread(target=check_if_last_result_equal_input,kwargs={"browser":self.browser,"game_weeks":game_weeks, "week_to_check":f"Week {week_to_check}", "time_delay":30},daemon=True)
+                last_week_equal_input.start()
+                game_weeks[:]=last_week_equal_input.join()
+                if last_week_equal_input.error:
+                    raise last_week_equal_input.error
             except Exception as error:
                 print(f"Error occured using find_elements(By.CSS_SELECTOR, .week-number). This is the Error: {error}")
                 if week_to_check==34:
@@ -338,12 +342,10 @@ class CheckPattern:
             return {"outcome":True,"driver":self.browser}
 
 
-        # check halftime fulltime result
+        # check correct score result
         # 1 - 10 weeks matches
         elif length.lower() == "all result":
-
             week_to_save1=10
-            # week_to_save1=23
             try:
                 try:
                     try:
@@ -362,42 +364,55 @@ class CheckPattern:
                         result_button.click()
                 except:
                     self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
-                time.sleep(7)
+                time.sleep(5)
 
                 game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")
                 current_game_week=int(game_weeks[0].text.split(" ")[-1])  # To get the integer num of weeks
                 # To check if last result is 9th - 10th week or sleep till it is
                 if current_game_week<week_to_save1-1:
                     time_to_sleep=(week_to_save1-1-current_game_week)*3
-                    # self.browser.quit()
+                    delete_cache(self.browser)
+                    time.sleep(5)
+                    terminate_driver_process(self.browser)
+                    self.browser.quit()
                     print(f"i'm waiting for {time_to_sleep*60} secs ")
                     time.sleep(time_to_sleep*60)
                     # self.browser=webdriver.Chrome()        # driver instance with User Interface (not headless)
-                    # self.browser = set_up_driver_instance()  # driver instance without User Interface (--headless)
-                    # time.sleep(1)
+                    self.browser = set_up_driver_instance()  # driver instance without User Interface (--headless)
+                    time.sleep(1)
                     self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
                     time.sleep(2)
                 elif current_game_week>week_to_save1:
                     time_to_sleep=(34-current_game_week)*3
-                    # self.browser.quit()
+                    delete_cache(self.browser)
+                    time.sleep(5)
+                    terminate_driver_process(self.browser)
+                    self.browser.quit()
                     print(f"i'm waiting for {((week_to_save1-1)*3+time_to_sleep)*60} secs ")
                     time.sleep(((week_to_save1-1)*3+time_to_sleep)*60)
                     # self.browser=webdriver.Chrome()         # driver instance with User Interface (not headless)
-                    # self.browser = set_up_driver_instance()   # driver instance without User Interface (--headless)
-                    # time.sleep(1)
+                    self.browser = set_up_driver_instance()   # driver instance without User Interface (--headless)
+                    time.sleep(1)
                     self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
                     time.sleep(2)
 
                 # checking if the last week played is Week 10 before going ahead to save the page
-                game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")
-                game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks, week_to_check=f"Week {week_to_save1}",
-                                                            time_delay=30)
+                game_weeks[:] = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")
+                last_week_equal_input=MyCustomThread(target=check_if_last_result_equal_input,kwargs={"browser":self.browser,"game_weeks":game_weeks, "week_to_check":f"Week {week_to_save1}", "time_delay":10},daemon=True)
+                last_week_equal_input.start()
+                game_weeks[:]=last_week_equal_input.join()
+                if last_week_equal_input.error:
+                    raise last_week_equal_input.error
             
-                game_weeks=game_weeks[:week_to_save1]
+                game_weeks[:]=game_weeks[:week_to_save1]
                 ht_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")[:week_to_save1*9]
                 ft_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ft")[:week_to_save1*9]
 
-                result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,length=length,market=market)
+                outcome_confirmation=MyCustomThread(target=confirm_outcome,kwargs={'ht_scores':ht_scores, 'ft_scores':ft_scores, "game_weeks":game_weeks,"market":market,"length":length},daemon=True)
+                outcome_confirmation.start()
+                result=outcome_confirmation.join()
+                if outcome_confirmation.error:
+                    raise outcome_confirmation.error
             except Exception as error:
                 print(f"an error occured, so i assumed {market} came and skipped this season.This is the error: {error}")
                 result={"outcome":{'4 - 0':0,'4 - 1':0,},"message":f"an error occured, so i assumed {market} came and skipped this season.This is the error: {error}"}
@@ -439,10 +454,13 @@ class CheckPattern:
 
                 game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")
                 # checking if the last week played is latest_week before going ahead to save the page
-                game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks,
-                                                            week_to_check=latest_week,time_delay=10)
-                
-                game_weeks = game_weeks[:1]
+                last_week_equal_input=MyCustomThread(target=check_if_last_result_equal_input,kwargs={"browser":self.browser,
+                "game_weeks":game_weeks, "week_to_check":latest_week, "time_delay":10},daemon=True)
+                last_week_equal_input.start()
+                game_weeks[:]=last_week_equal_input.join()
+                if last_week_equal_input.error:
+                    raise last_week_equal_input.error
+                game_weeks[:] = game_weeks[:1]
 
                 # Re-fill the ht and ft_scores list by the reloaded/current score result of the last week played   
                 ht_scores = self.browser.find_elements(By.CSS_SELECTOR, ".score.ht")
@@ -450,7 +468,11 @@ class CheckPattern:
                 ht_scores = ht_scores[:9]
                 ft_scores = ft_scores[:9]
 
-                result = confirm_outcome(ht_scores=ht_scores, ft_scores=ft_scores, game_weeks=game_weeks,market=market,length=length)
+                outcome_confirmation=MyCustomThread(target=confirm_outcome,kwargs={'ht_scores':ht_scores, 'ft_scores':ft_scores, "game_weeks":game_weeks,"market":market,"length":length},daemon=True)
+                outcome_confirmation.start()
+                result=outcome_confirmation.join()
+                if outcome_confirmation.error:
+                    raise outcome_confirmation.error
             except Exception as error:
                 print(f"an error occured when checking last result i want to use acc balance to check.This is the error: {error}")
                 # if the result page fails, compare balances to tell the outcome
@@ -462,10 +484,10 @@ class CheckPattern:
                     time.sleep(2)
                     acc_balance_2=self.browser.find_element(By.CSS_SELECTOR, '.user-balance-container .amount').text
                     print(f"Old acc bal {acc_balance}, New acc bal {acc_balance_2}")
-                if float(acc_balance_2.replace(",","_"))>float(acc_balance.replace(',','_')):
-                    result={"outcome":True,"message":"I used the acc bal to confirm ticket won"}
-                else:
-                    result={"outcome":False,"message":"I used the acc bal to confirm ticket won"}
+                    if float(acc_balance_2.replace(",","_"))>float(acc_balance.replace(',','_')):
+                        result={"outcome":True,"message":f"I used the acc bal to confirm ticket won. this is the error: {error}"}
+                    else:
+                        result={"outcome":False,"message":f"I used the acc bal to confirm ticket won. this is the error: {error}"}
 
             finally:
                 try:
