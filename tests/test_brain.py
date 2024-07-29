@@ -75,7 +75,7 @@ class BrainTest(unittest.TestCase):
             self.pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal,market=market)
         delete_cache(self.browser)
         time.sleep(5)
-        self.browser.quit()
+        # self.browser.quit()
         terminate_driver_process()
 
     # def test_checkout_virtual(self):

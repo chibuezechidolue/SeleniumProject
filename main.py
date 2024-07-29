@@ -179,7 +179,7 @@ def start_bot():
     delete_cache(browser)
     time.sleep(5)
     terminate_driver_process(browser)
-    browser.quit()
+    # browser.quit()
 
 
     # for testing full application
