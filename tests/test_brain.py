@@ -34,6 +34,7 @@ class BrainTest(unittest.TestCase):
         self.game_play=PlayGame(self.browser,market=self.test_market)
         self.log=LoginUser(self.browser,username=os.environ.get("BETKING_USERNAME"),password=os.environ.get("BETKING_PASSWORD"))
         self.browser.get("https://m.betking.com/virtual/league/kings-bundliga")
+        time.sleep(2)
         self.pattern_stake_options={"3 - 2":[5], "2 - 3":[21],'4 - 0':[6,22], "0 - 4":[6,22],'4 - 1':[7,23], "1 - 4":[7,23], "4 - 2":[8,24], "2 - 4":[8,24], "2/1":[2,6], "1/2":[2,6]}
         self.AMOUNT_LIST=[50, 50, 50, 100, 150, 200, 275, 400, 550, 800, 1150, 1650, 2350, 3375, 4850, 6950, 9900,
                         14200, 20250, 29000, 41500, 59250, 84750, 121250]
@@ -70,10 +71,12 @@ class BrainTest(unittest.TestCase):
         check_week=f"{week_to_play[:4]} {week_no}"
         print(check_week)
         self.pattern.check_result(length="last result",latest_week=check_week,acc_balance=acc_bal,market=check_result['outcome'])
-
-        self.browser.quit()
-        terminate_driver_process()
-        time.sleep(2)
+        
+        terminate_driver_process(self.browser)
+        s=time.perf_counter()
+        # self.browser.quit()
+        e=time.perf_counter()
+        print(f"browser.quit took {e - s}secs")
         
         que = mp.Queue()  # to store data and move data between process
         left=mp.Process(target=play_process,args=(que,self.test_market,check_result,14,10,self.LEAGUE,0),daemon=True)

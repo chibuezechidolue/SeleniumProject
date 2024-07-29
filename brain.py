@@ -311,8 +311,8 @@ class CheckPattern:
                     time_to_sleep=(week_to_save1-1-current_game_week)*3
                     delete_cache(self.browser)
                     time.sleep(5)
-                    self.browser.quit()
-                    terminate_driver_process()
+                    terminate_driver_process(self.browser)
+                    # self.browser.quit()
                     time.sleep(time_to_sleep*60)
                     # self.browser=webdriver.Chrome()        # driver instance with User Interface (not headless)
                     self.browser = set_up_driver_instance()  # driver instance without User Interface (--headless)
@@ -323,8 +323,8 @@ class CheckPattern:
                     time_to_sleep=(34-current_game_week)*3
                     delete_cache(self.browser)
                     time.sleep(5)
-                    self.browser.quit()
-                    terminate_driver_process()
+                    terminate_driver_process(self.browser)
+                    # self.browser.quit()
                     time.sleep(((week_to_save1-1)*3+time_to_sleep)*60)
                     # self.browser=webdriver.Chrome()         # driver instance with User Interface (not headless)
                     self.browser = set_up_driver_instance()   # driver instance without User Interface (--headless)
@@ -336,7 +336,8 @@ class CheckPattern:
                 game_weeks[:] = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")[:week_to_save1]
                 # game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks, week_to_check=f"Week {week_to_save1}",time_delay=30)
                 
-                last_week_equal_input=MyCustomThread(target=check_if_last_result_equal_input,kwargs={"browser":self.browser,"game_weeks":game_weeks, "week_to_check":f"Week {week_to_save1}", "time_delay":30},daemon=True)
+                last_week_equal_input=MyCustomThread(target=check_if_last_result_equal_input,kwargs={"browser":self.browser,
+                "game_weeks":game_weeks, "week_to_check":f"Week {week_to_save1}", "time_delay":30},daemon=True)
                 last_week_equal_input.start()
                 game_weeks[:]=last_week_equal_input.join()
                 if last_week_equal_input.error:
@@ -360,8 +361,8 @@ class CheckPattern:
                     save_page(self.browser, page_name=page_path1)
                 delete_cache(self.browser)
                 time.sleep(5)
-                self.browser.quit()
-                terminate_driver_process()
+                terminate_driver_process(self.browser)
+                # self.browser.quit()
                 weeks_left=week_to_save2-week_to_save1
                 if weeks_left<0:
                     weeks_left=0
@@ -471,29 +472,29 @@ class CheckPattern:
                         result={"outcome":False,"message":f"I used the acc bal to confirm ticket won. this is the error: {error}"}
 
         if result["outcome"] == "" and length.lower() == "all result":
-            # send_email(Email=os.environ.get("EMAIL_USERNAME"),
-            #            Password=os.environ.get("EMAIL_PASSWORD"),
-            #            Subject=f"No PATTERN found yet",
-            #            Message=result["message"],
-            #            File_path=[page_path1, page_path2]
-            #            )
+            send_email(Email=os.environ.get("EMAIL_USERNAME"),
+                       Password=os.environ.get("EMAIL_PASSWORD"),
+                       Subject=f"No PATTERN found yet",
+                       Message=result["message"],
+                       File_path=[page_path1, page_path2]
+                       )
             cancel_result_page_button = self.browser.find_element(By.CSS_SELECTOR, "svg path")
             cancel_result_page_button.click()
             return {"outcome": result["outcome"], "driver": self.browser}
 
         elif result["outcome"] == True and length.lower() == "last result":
-            # try:
-            #     page_path = "saved_pages/one_to_ten_page.html"
-            #     save_page(self.browser, page_name=page_path)
-            # except FileNotFoundError:
-            #     page_path = f"{os.environ.get('PROJECT_PATH')}/saved_pages/one_to_ten_page.html"
-            #     save_page(self.browser, page_name=page_path)  # save the games(1-10) page
-            # send_email(Email=os.environ.get("EMAIL_USERNAME"),
-            #            Password=os.environ.get("EMAIL_PASSWORD"),
-            #            Subject=f"{market} came in the last result" ,
-            #            Message=result["message"],
-            #            File_path=[page_path]
-            #            )
+            try:
+                page_path = "saved_pages/one_to_ten_page.html"
+                save_page(self.browser, page_name=page_path)
+            except FileNotFoundError:
+                page_path = f"{os.environ.get('PROJECT_PATH')}/saved_pages/one_to_ten_page.html"
+                save_page(self.browser, page_name=page_path)  # save the games(1-10) page
+            send_email(Email=os.environ.get("EMAIL_USERNAME"),
+                       Password=os.environ.get("EMAIL_PASSWORD"),
+                       Subject=f"{market} came in the last result" ,
+                       Message=result["message"],
+                       File_path=[page_path]
+                       )
 
             cancel_result_page_button = self.browser.find_element(By.CSS_SELECTOR, "svg path")
             cancel_result_page_button.click()
@@ -502,12 +503,12 @@ class CheckPattern:
         elif result["outcome"] != "" and length.lower() == "all result":
             print(f'PATTERN found: {result["message"]}')
             print('Did not send mail')
-            # send_email(Email=os.environ.get("EMAIL_USERNAME"),
-            #            Password=os.environ.get("EMAIL_PASSWORD"),
-            #            Subject=f"PATTERN found",
-            #            Message=result["message"],
-            #            File_path=[page_path1, page_path2]
-            #            )
+            send_email(Email=os.environ.get("EMAIL_USERNAME"),
+                       Password=os.environ.get("EMAIL_PASSWORD"),
+                       Subject=f"PATTERN found",
+                       Message=result["message"],
+                       File_path=[page_path1, page_path2]
+                       )
             cancel_result_page_button = self.browser.find_element(By.CSS_SELECTOR, "svg path")
             cancel_result_page_button.click()
             return {"outcome": result["outcome"], "driver": self.browser}

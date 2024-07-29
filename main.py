@@ -93,7 +93,8 @@ def play_process(que,SELECTED_MARKET,check_result,MAX_AMOUNT_LENGTH,week_to_save
             sleep_time_before_next_check=(weeks_left_to_finish_season + week_to_save1-1)*3
             delete_cache(browser)
             time.sleep(5)
-            browser.quit()
+            terminate_driver_process(browser)
+            # browser.quit()
             break
     que.put([won,sleep_time_before_next_check])
 
@@ -119,7 +120,6 @@ def start_bot():
     MAX_AMOUNT_LENGTH=14
     LEAGUE={"name":"bundliga","num_of_weeks":34}
     global count
-    terminate_driver_process()
     browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
     try:
         browser.get("https://m.betking.com/")
@@ -138,8 +138,8 @@ def start_bot():
         except:
             delete_cache(browser)
             time.sleep(5)
-            browser.quit()
-            terminate_driver_process()
+            terminate_driver_process(browser)
+            # browser.quit()
             browser=set_up_driver_instance()       # driver instance without User Interface (--headless)
             browser.get("http://m.betking.com/virtual/league/kings-bundliga")
     
@@ -157,7 +157,7 @@ def start_bot():
         check_result={'outcome':""}
         
     if count<3:                          #
-        check_result['outcome']="3 - 2"               #
+        check_result['outcome']="4 - 1"               #
     elif count==3:
         count=0                                 #
     count+=1                                   #
@@ -168,12 +168,10 @@ def start_bot():
             SELECTED_MARKET="ht/ft"
         else:
             SELECTED_MARKET="correct_score"
-        print('i am deleting browser to start multiprocess')
         delete_cache(browser)
         time.sleep(3)
-        browser.quit()
-        terminate_driver_process()
-        time.sleep(2)
+        terminate_driver_process(browser)
+        # browser.quit()
 
         check_result['driver']=None  # remove browser instance so the dictionary can be pickled 
         que = mp.Queue()  # to store data and move data between process
@@ -210,8 +208,8 @@ def start_bot():
         time_to_sleep = (LEAGUE["num_of_weeks"]-games_to_check+(week_to_save1-1))*3
         delete_cache(browser)
         time.sleep(5)
-        browser.quit()
-        terminate_driver_process()
+        terminate_driver_process(browser)
+        # browser.quit()
         print(f'waiting for {time_to_sleep*60} secs')
         time.sleep(time_to_sleep*60)
 
