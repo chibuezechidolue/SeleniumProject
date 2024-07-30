@@ -380,7 +380,7 @@ class CheckPattern:
                 #                                                     week_to_check=f"Week {week_to_save2}", time_delay=5)
                 
                 last_week_equal_input=MyCustomThread(target=check_if_last_result_equal_input,kwargs={"browser":self.browser,
-                "game_weeks":second_game_weeks, "week_to_check":f"Week {week_to_save2}", "time_delay":10},daemon=True)
+                "game_weeks":second_game_weeks, "week_to_check":f"Week {week_to_save2}", "time_delay":5},daemon=True)
                 last_week_equal_input.start()
                 second_game_weeks[:]=last_week_equal_input.join()
                 if last_week_equal_input.error:
@@ -437,7 +437,7 @@ class CheckPattern:
                 #                                             week_to_check=latest_week,time_delay=5)
                 
                 last_week_equal_input=MyCustomThread(target=check_if_last_result_equal_input,kwargs={"browser":self.browser,
-                "game_weeks":game_weeks, "week_to_check":latest_week, "time_delay":10},daemon=True)
+                "game_weeks":game_weeks, "week_to_check":latest_week, "time_delay":5},daemon=True)
                 last_week_equal_input.start()
                 game_weeks[:]=last_week_equal_input.join()
                 if last_week_equal_input.error:

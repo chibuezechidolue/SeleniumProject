@@ -391,7 +391,7 @@ def delete_cache(driver):
     driver.delete_all_cookies()
     # time.sleep(2)
     driver.get('chrome://settings/clearBrowserData')  # Open your chrome settings.
-    time.sleep(1)
+    # time.sleep(1)
     actions = ActionChains(driver) 
     actions.send_keys(Keys.TAB * 2 + Keys.DOWN * 4 + Keys.TAB * 7 + Keys.ENTER) # Google Chrome 
     # actions.send_keys(Keys.TAB * 2 + Keys.DOWN * 4 + Keys.TAB * 9 + Keys.ENTER) # Microsoft Edge  

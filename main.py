@@ -35,14 +35,14 @@ def play_process(que,SELECTED_MARKET,check_result,MAX_AMOUNT_LENGTH,week_to_save
         acc_bal=log.login()
     except NoSuchElementException:
         browser.refresh()
-        time.sleep(3)
+        time.sleep(1)
         try:
             login=browser.find_element(By.CSS_SELECTOR, '.guest-header-content .text')
             acc_bal=log.login()
         except:
             acc_bal=browser.find_element(By.CSS_SELECTOR, '.user-balance-container .amount').text
     acc_bal=float(acc_bal.replace(",","_"))
-    time.sleep(0.5)
+    # time.sleep(0.5)
     
     game_play=PlayGame(browser,market=SELECTED_MARKET)
     game_play.choose_market()
@@ -169,7 +169,7 @@ def start_bot():
         else:
             SELECTED_MARKET="correct_score"
         delete_cache(browser)
-        time.sleep(3)
+        #time.sleep(3)
         terminate_driver_process(browser)
         # browser.quit()
 
