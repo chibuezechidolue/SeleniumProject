@@ -20,7 +20,79 @@ import psutil
 def get_mem_usage():
     return psutil.Process().memory_info().rss // 1024
 
+def play_process(que,SELECTED_MARKET,check_result,MAX_AMOUNT_LENGTH,week_to_save1,LEAGUE,position):
+    browser=set_up_driver_instance()
+    browser.get("https://m.betking.com/virtual/league/kings-bundliga")
+    time.sleep(2)
+    
+    log=LoginUser(browser,username=os.environ.get("BETKING_USERNAME"),password=os.environ.get("BETKING_PASSWORD"))
+    try:
+        login=browser.find_element(By.CSS_SELECTOR, '.guest-header-content .text')
+        acc_bal=log.login()
+    except:
+        browser.refresh()
+        time.sleep(1)
+        try:
+            login=browser.find_element(By.CSS_SELECTOR, '.guest-header-content .text')
+            acc_bal=log.login()
+        except:
+            acc_bal=browser.find_element(By.CSS_SELECTOR, '.user-balance-container .amount').text
+    acc_bal=float(acc_bal.replace(",","_"))
+    # time.sleep(0.5)
+    
+    game_play=PlayGame(browser,market=SELECTED_MARKET)
+    game_play.choose_market()
+    won=False
+    sleep_time_before_next_check=1
+    if check_result['outcome']=="3 - 2" or check_result['outcome']=="2 - 3":
+        # amount_listX1=[11.3, 11.3, 16.95, 28.25, 45.2, 67.8, 107.35, 169.5, 265.55, 418.1, 649.75, 1033.95, 1638.5]
+        amount_listX6=[68, 68, 102, 170, 272, 407, 645, 1017, 1594, 2509, 3899, 6204, 9831]
+        AMOUNT_LIST=tuple(amount_listX6)
+        stake_options_length=9
+        TOTAL_AMOUNT=241074
+    else:
+        # amount_listX1=[10, 10, 10, 20, 30, 40, 55, 80, 110, 160, 230, 330, 470,675] 
+        amount_listX6=[60, 60, 60, 120, 180, 240, 330, 480, 660, 960, 1380, 1980, 2820, 4050]
+        AMOUNT_LIST=tuple(amount_listX6)
+        stake_options_length=18
+        TOTAL_AMOUNT=240840
+    if os.environ.get('TEST'):
+        GAME_LEVEL=1
+    else:
+        GAME_LEVEL=round((acc_bal-4000)/TOTAL_AMOUNT,2)
+    acc_bal=str(acc_bal)
+    pattern_stake_options={"3 - 2":[5], "2 - 3":[21],'4 - 0':[6,22], "0 - 4":[6,22],'4 - 1':[7,23], "1 - 4":[7,23], "2/1":[2,6], "1/2":[2,6]} 
+    last_result=None
+    reduced_week_selected=None
+    print('ready to start staking')
+    for n in range(len(AMOUNT_LIST[:MAX_AMOUNT_LENGTH])):
+        # provision to stake 10 games afterwhich funds are exhausted and place bet begins to skip
+        # if n==10:
+        #     os.environ["TEST"]="True"
+        #     send_email(Email=os.environ.get("EMAIL_USERNAME"),
+        #            Password=os.environ.get("EMAIL_PASSWORD"),
+        #            Subject="YOU'VE LOST IT ALL",
+        #            Message=f"{SELECTED_MARKET} did not come till week {n}. I have changed to TEST MODE"
+        #            )
 
+        stake_the_next_game=MyCustomThread(target=stake_next_game,args=(position,game_play,pattern_stake_options,check_result,GAME_LEVEL,browser,AMOUNT_LIST,LEAGUE,n),daemon=True)
+        stake_the_next_game.start()
+        output=stake_the_next_game.join()
+        last_result=output[0]
+        reduced_week_selected=output[1]
+
+        print(last_result,reduced_week_selected)
+        if last_result['outcome']:
+            # Calculate the number of weeks left before week 10 of the next season
+            won=True
+            weeks_left_to_finish_season = LEAGUE["num_of_weeks"] - int(reduced_week_selected.split()[1])
+            sleep_time_before_next_check=(weeks_left_to_finish_season + week_to_save1-1)*3
+            delete_cache(browser)
+            time.sleep(5)
+            terminate_driver_process(browser)
+            # browser.quit()
+            break
+    que.put([won,sleep_time_before_next_check])
 
 
 class BrainTest(unittest.TestCase):
@@ -102,36 +174,6 @@ class BrainTest(unittest.TestCase):
         print(f"this is thr result: {won}")
 
 
-        # print(f"start: {get_mem_usage()}")
-        # for n in range(14):
-        #     # clear_bet_slip(self.browser)
-        #     if n==10:
-        #         os.environ["TEST"]="True"
-
-        #     # print(f"after thread creation: {get_mem_usage()}")
-        #     # result=self.game_play.select_stake_options(week="current_week",previous_week_selected="Week 1000",
-        #     #                                                     pattern_stake=self.pattern_stake_options[check_result['outcome']],stake_amount=self.AMOUNT_LIST[n])
-            
-        #     # week_selected=result[0]
-        #     # acc_bal=result[1]
-        #     # reduced_week_selected=reduce_week_selected(week_selected,by=0,league="bundliga")
-        #     # output=self.pattern.check_result(length="last result",latest_week=reduced_week_selected,acc_balance=acc_bal,market=check_result['outcome'])
-        #     # last_result=output["outcome"]
-
-        #     # stake_next=threading.Thread(target=stake_next_game,args=(self.game_play,self.pattern_stake_options,check_result,1,self.browser,self.AMOUNT_LIST,self.LEAGUE,n),daemon=True)
-        #     stake_next=MyCustomThread(target=stake_next_game,args=(self.game_play,self.pattern_stake_options,check_result,1,self.browser,self.AMOUNT_LIST,self.LEAGUE,n),daemon=True)
-        #     stake_next.start()
-        #     print(f"after thread creation: {get_mem_usage()}")
-        #     output=stake_next.join()
-        #     last_result=output[0]
-        #     reduced_week_selected=output[1]
-        #     print(f"last: {last_result,reduced_week_selected}")
-        #     print(f"end of thread: {get_mem_usage()}")
-            
-        # delete_cache(self.browser)
-        # time.sleep(5)
-        # self.browser.quit()
-        # terminate_driver_process()
 
     # def test_checkout_virtual(self):
     #     for _ in range(3):

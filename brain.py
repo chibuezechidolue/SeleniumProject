@@ -86,6 +86,7 @@ class PlayGame:
     
     def stake_games(self,position,available_games,pattern_stake,stake_amount,n):
         end=9
+        
         try:
             # available_games_1=available_games[n]
             available_games[n].click()
@@ -158,6 +159,7 @@ class PlayGame:
                 stake_game.start()
                 output=stake_game.join()
                 if stake_game.error:
+                    print('there was a stake error')
                     raise stake_game.error
                 available_games[:]=output[0]
                 acc_bal=output[1] 
