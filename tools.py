@@ -6,6 +6,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import StaleElementReferenceException,NoSuchElementException,TimeoutException,ElementClickInterceptedException
 from selenium import webdriver
+from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.keys import Keys
 import pygsheets 
 import datetime
 from dotenv import load_dotenv
@@ -336,8 +338,7 @@ def calc_stake_amount(amount:float,odd:float,base:int=60)->float:
     return possible_stake
 
 
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.keys import Keys
+
 def delete_cache(driver):
     driver.execute_cdp_cmd('Storage.clearDataForOrigin', {
     "origin": '*',
@@ -379,21 +380,27 @@ class MyCustomThread(threading.Thread):
         return self._return
     
 def terminate_driver_process(browser):
+    """Terminates the dirver instance and child processes associated with the driver instance."""
     process_name="chrome.exe"
     # process_name="msedge.exe"
     try:
-        # os.system(f"taskkill /f /t /im {process_name}")   # Windows OS: to kill all process with the given process_name 
-
         # To kill all process with the relating to the giver browser instance
         chrome_driver_id=browser.service.process.pid
         child_processes=psutil.Process(browser.service.process.pid).children(recursive=True)
             # kill all chrome driver child processes
-        for process in child_processes:
-            os.system(f"taskkill /F /PID {process.pid}")        #Window OS
-            # os.system(f"kill {process.pid}")                  #Linux OS
-        os.system(f"taskkill /F /PID {chrome_driver_id}")       #Window OS
+        browser.quit()
+                        #  OR
+        # os.system(f"taskkill /F /PID {chrome_driver_id}")       #Window OS
         # os.system(f"taskkill {chrome_driver_id}")             #Linux OS
+        for process in child_processes:
+            if process.is_running():
+                os.system(f"taskkill /F /PID {process.pid}")        #Window OS
+                # os.system(f"kill {process.pid}")                  #Linux OS
 
+
+
+        # os.system(f"taskkill /f /t /im {process_name}")   # Windows OS: to kill all process with the given process_name 
+        
         # os.system(f"kilall {process_name}")   # Linux OS: to kill all process with the given process_name 
 
                             # OR
