@@ -290,7 +290,7 @@ class CheckPattern:
                         result_button.click()
                 except:
                     self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
-                time.sleep(7)
+                time.sleep(10)
 
 
                 # To determine the week num to save pages 
@@ -325,7 +325,7 @@ class CheckPattern:
                 for n in range(4):
                     time.sleep(1)
                     self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
-                    time.sleep(5)   
+                    time.sleep(10)   
                     game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")[:week_to_save[n]]
                     game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks, week_to_check=f"Week {week_to_save[n]}",
                                                             time_delay=30)
