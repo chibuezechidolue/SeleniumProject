@@ -222,16 +222,16 @@ def get_mem_usage():
 if __name__=='__main__':
 
     count=0               #
-    print(f"start: {get_mem_usage()}")
+    # print(f"start: {get_mem_usage()}")
     while True:
         # bot=mp.Process(target=start_bot,args=(count,),daemon=True)
         bot=MyCustomThread(target=start_bot,daemon=True)
         bot.start()
-        print(f"after thread creation: {get_mem_usage()}")
+        # print(f"after thread creation: {get_mem_usage()}")
         bot.join()
         # bot.terminate()
         print('bot terminated')
-        print(f"end of thread: {get_mem_usage()}")
+        # print(f"end of thread: {get_mem_usage()}")
 
         # print(threading.active_count())
         # print(f"THREADS: {len(threading.enumerate())}")

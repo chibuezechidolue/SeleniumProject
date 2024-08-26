@@ -428,18 +428,21 @@ def terminate_driver_process(browser):
     process_name="chrome.exe"
     # process_name="msedge.exe"
     try:
-        # os.system(f"taskkill /f /t /im {process_name}")   # Windows OS: to kill all process with the given process_name 
-
         # To kill all process with the relating to the giver browser instance
         chrome_driver_id=browser.service.process.pid
-        child_processes=psutil.Process(browser.service.process.pid).children(recursive=True)
+        child_processes=psutil.Process(chrome_driver_id).children(recursive=True)
             # kill all chrome driver child processes
-        for process in child_processes:
-            os.system(f"taskkill /F /PID {process.pid}")        #Window OS
-            # os.system(f"kill {process.pid}")                  #Linux OS
         os.system(f"taskkill /F /PID {chrome_driver_id}")       #Window OS
-        # os.system(f"taskkill {chrome_driver_id}")             #Linux OS
+        # os.system(f"taskkill {chrome_driver_id}")             #Linux OScls
+        for process in child_processes:
+            if process.is_running():
+                os.system(f"taskkill /F /PID {process.pid}")        #Window OS
+                # os.system(f"kill {process.pid}")                  #Linux OS
 
+
+
+        # os.system(f"taskkill /f /t /im {process_name}")   # Windows OS: to kill all process with the given process_name 
+        
         # os.system(f"kilall {process_name}")   # Linux OS: to kill all process with the given process_name 
 
                             # OR
