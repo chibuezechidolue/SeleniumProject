@@ -125,7 +125,7 @@ for msg in msgs:
                 try:
                     new_content=content.replace(" ","")[17:]
                     exec(new_content)
-                except SyntaxError:
+                except (SyntaxError,NameError):
                     try:
                         new_content=content.replace(" ","")[22:]
                         exec(new_content)

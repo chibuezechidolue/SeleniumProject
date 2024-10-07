@@ -28,7 +28,8 @@ SELECTED_MARKET="ht/ft"
 def start_bot():
     global browser
     LEAGUE={"name":"bundliga","num_of_weeks":34}
-    client = pygsheets.authorize(service_account_file=os.environ.get("GDRIVE_API_CREDENTIALS"))
+    # client = pygsheets.authorize(service_account_file=os.environ.get("GDRIVE_API_CREDENTIALS"))
+    client = None
     try:
         browser.get("https://m.betking.com/")
         print("i have lunched")
