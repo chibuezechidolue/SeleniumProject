@@ -3,7 +3,8 @@ import time
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-from selenium.common.exceptions import StaleElementReferenceException,NoSuchElementException,TimeoutException
+from selenium.common.exceptions import (StaleElementReferenceException,NoSuchElementException,
+                                        TimeoutException,ElementClickInterceptedException)
 from selenium import webdriver
 import pygsheets 
 import datetime
@@ -59,30 +60,35 @@ def check_if_last_stake_has_played(browser:object,week_to_check:str,time_delay:f
 
 def reload_result_page(browser):
     """ To cancel and reload result page inorder to reflect new changes to the result"""
-    wait=WebDriverWait(driver=browser,timeout=10)
+    # wait=WebDriverWait(driver=browser,timeout=10)
 
-    try:
-        betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')
-        betslip_button.click()
-        time.sleep(2)
-        close_betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="coupon-close-icon"]')
-        close_betslip_button.click()
-        time.sleep(3)
+    # try:
+    #     betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="nav-bar-betslip"]')
+    #     betslip_button.click()
+    #     time.sleep(2)
+    #     close_betslip_button=browser.find_element(By.CSS_SELECTOR,'[data-testid="coupon-close-icon"]')
+    #     close_betslip_button.click()
+    #     time.sleep(3)
 
-    except:
+    # except:
 
-        # cancel_result_page_button=browser.find_element(By.CSS_SELECTOR,"svg path")
-        cancel_result_page_button=browser.find_element(By.CSS_SELECTOR,"svg path")
-        cancel_result_page_button.click()
-        time.sleep(2)
-        # standings_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,"span.view-switch-icon")))
-        standings_button=browser.find_element(By.CSS_SELECTOR,"span.view-switch-icon")
-        standings_button.click()
-        time.sleep(1)
-        # result_button=wait.until(EC.element_to_be_clickable((By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals-league-wrapper/mobile-virtuals-soccer/mvs-virtual-league-page/div[2]/mvs-results-page/div[2]/div[2]")))
-        result_button=browser.find_element(By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals-league-wrapper/mobile-virtuals-soccer/mvs-virtual-league-page/div[2]/mvs-results-page/div[2]/div[2]")
-        result_button.click()
-        time.sleep(3)
+    #     # cancel_result_page_button=browser.find_element(By.CSS_SELECTOR,"svg path")
+    #     cancel_result_page_button=browser.find_element(By.CSS_SELECTOR,"svg path")
+    #     cancel_result_page_button.click()
+    #     time.sleep(2)
+    #     # standings_button=wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR,"span.view-switch-icon")))
+    #     standings_button=browser.find_element(By.CSS_SELECTOR,"span.view-switch-icon")
+    #     standings_button.click()
+    #     time.sleep(1)
+    #     try:
+    #         result_button = wait.until(EC.element_to_be_clickable((By.XPATH, "/html/body/app-root/app-wrapper/div/virtuals-league-wrapper/mobile-virtuals-soccer/mvs-virtual-league-page/div/mvs-results-page/div[2]/div[2]")))
+    #         result_button.click()
+    #     except (TimeoutException,ElementClickInterceptedException):
+    #         result_button=browser.find_elements(By.CSS_SELECTOR, '[data-testid="results-page-tab-standings"]')[1]
+    #         result_button.click()
+    #     time.sleep(3)
+
+    go_to_result_page(browser)
 
 
 def cancel_popup(browser):
@@ -336,3 +342,15 @@ def delete_cache(driver):
     actions = ActionChains(driver) 
     actions.send_keys(Keys.TAB * 2 + Keys.DOWN * 4 + Keys.TAB * 7 + Keys.ENTER) # confirm    
     actions.perform()
+
+
+
+def go_to_result_page(browser):
+    wait=WebDriverWait(driver=browser,timeout=10)
+    browser.get("https://m.betking.com/virtual/league/kings-bundliga/standings")
+    try:
+        result_button = wait.until(EC.element_to_be_clickable((By.XPATH, "/html/body/app-root/app-wrapper/div/virtuals-league-wrapper/mobile-virtuals-soccer/mvs-virtual-league-page/div/mvs-results-page/div[2]/div[2]")))
+        result_button.click()
+    except (TimeoutException,ElementClickInterceptedException):
+        result_button=browser.find_elements(By.CSS_SELECTOR, '[data-testid="results-page-tab-standings"]')[1]
+        result_button.click()

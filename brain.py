@@ -10,7 +10,8 @@ from selenium.common.exceptions import (ElementClickInterceptedException,
 from dotenv import load_dotenv
 from tools import (cancel_popup, check_if_current_week_has_played,
                    check_if_current_week_islive, check_if_last_result_equal_input,
-                   clear_bet_slip, delete_cache, save_page, confirm_outcome, send_email, set_up_driver_instance,check_if_last_stake_has_played)
+                   clear_bet_slip, delete_cache, save_page, confirm_outcome, send_email,
+                     set_up_driver_instance,check_if_last_stake_has_played,go_to_result_page)
 import datetime
 
 load_dotenv()
@@ -276,17 +277,10 @@ class CheckPattern:
                         standings_button=self.browser.find_element(By.CSS_SELECTOR, '[data-testid="results-and-standings-button"]')
                         standings_button.click()                
                     try:
-                        result_button = self.wait.until(EC.element_to_be_clickable((By.XPATH,
-                                                                                "/html/body/app-root/app-wrapper/div/virtuals"
-                                                                                "-league-wrapper/mobile-virtuals-soccer/mvs"
-                                                                                "-virtual-league-page/div["
-                                                                                "2]/mvs-results-page/div[2]/div[2]")))
+                        result_button = self.wait.until(EC.element_to_be_clickable((By.XPATH, "/html/body/app-root/app-wrapper/div/virtuals-league-wrapper/mobile-virtuals-soccer/mvs-virtual-league-page/div/mvs-results-page/div[2]/div[2]")))
                         result_button.click()
                     except (TimeoutException,ElementClickInterceptedException):
-                        result_button=self.browser.find_element(By.XPATH,"/html/body/app-root/app-wrapper/div/virtuals"
-                                                                                "-league-wrapper/mobile-virtuals-soccer/mvs"
-                                                                                "-virtual-league-page/div["
-                                                                                "2]/mvs-results-page/div[2]/div[2]")
+                        result_button=self.browser.find_elements(By.CSS_SELECTOR, '[data-testid="results-page-tab-standings"]')[1]
                         result_button.click()
                 except:
                     self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
@@ -324,7 +318,8 @@ class CheckPattern:
                 game_weeks=[]
                 for n in range(4):
                     time.sleep(1)
-                    self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
+                    # self.browser.get("https://m.betking.com/virtual/league/kings-bundliga/results")
+                    go_to_result_page(self.browser)
                     time.sleep(10)   
                     game_weeks = self.browser.find_elements(By.CSS_SELECTOR, ".week-number")[:week_to_save[n]]
                     game_weeks = check_if_last_result_equal_input(self.browser, game_weeks=game_weeks, week_to_check=f"Week {week_to_save[n]}",
